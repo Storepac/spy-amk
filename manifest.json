@@ -1,0 +1,47 @@
+{
+    "manifest_version": 3,
+    "name": "AMK spy",
+    "version": "2.0",
+    "description": "Análise inteligente de produtos Amazon com arquitetura modular",
+    "icons": {
+      "16": "images/icon16.png",
+      "32": "images/icon32.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    },
+    "permissions": [
+      "activeTab",
+      "scripting"
+    ],
+    "host_permissions": ["https://www.amazon.*/*"],
+    "content_scripts": [
+      {
+        "matches": [
+            "https://www.amazon.com/*",
+            "https://www.amazon.com.br/*"
+        ],
+        "js": [
+            "utils/url.js",
+            "utils/clipboard.js",
+            "ui/notifications.js",
+            "ui/table.js",
+            "ui/events.js",
+            "core/extractor.js",
+            "core/analyzer.js",
+            "app.js",
+            "content.js"
+        ],
+        "run_at": "document_idle"
+      }
+    ],
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "16": "images/icon16.png",
+        "32": "images/icon32.png",
+        "48": "images/icon48.png",
+        "128": "images/icon128.png"
+      }
+    }
+}
+  

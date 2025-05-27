@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AMK spy - Análise inteligente de produtos Amazon">
+    <title>AMK spy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        /* Cores principais */
+        --primary-color: #014641;
+        --primary-light: #016661;
+        --background-color: #ffffff;
+        --background-secondary: #f8f9fa;
+        --text-color: #666;
+        
+        /* Tamanhos */
+        --spacing-xs: 4px;
+        --spacing-sm: 8px;
+        --spacing-md: 12px;
+        --spacing-lg: 16px;
+        --spacing-xl: 20px;
+        
+        /* Animações */
+        --transition-speed: 0.3s;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background-color: #1a1a1a;
+          --background-secondary: #2d2d2d;
+          --text-color: #e0e0e0;
+        }
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        width: 280px;
+        height: 200px;
+        background: linear-gradient(135deg, var(--background-color) 0%, var(--background-secondary) 100%);
+        font-family: 'Poppins', sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: var(--spacing-xl);
+        position: relative;
+        overflow: hidden;
+        color: var(--text-color);
+        transition: background-color var(--transition-speed) ease;
+      }
+      
+      body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at top right, rgba(1, 70, 65, 0.03), transparent 70%);
+        pointer-events: none;
+      }
+      
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        animation: fadeIn 0.5s ease-out;
+      }
+      
+      .logo {
+        width: 70px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: var(--spacing-md);
+        position: relative;
+      }
+      
+      .logo::after {
+        content: '';
+        position: absolute;
+        top: -10%;
+        left: -10%;
+        right: -10%;
+        bottom: -10%;
+        background: radial-gradient(circle at center, rgba(1, 70, 65, 0.1), transparent 70%);
+        opacity: 0;
+        transition: opacity var(--transition-speed) ease;
+      }
+      
+      .logo:hover::after {
+        opacity: 1;
+      }
+      
+      .logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: transform var(--transition-speed) ease;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+      }
+      
+      .logo:hover img {
+        transform: scale(1.05) translateY(-2px);
+        animation: pulse 2s infinite;
+      }
+      
+      .title {
+        color: var(--primary-color);
+        font-size: 28px;
+        font-weight: 700;
+        text-align: center;
+        letter-spacing: -0.5px;
+        margin-bottom: var(--spacing-xs);
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+      }
+      
+      .subtitle {
+        color: var(--text-color);
+        font-size: 13px;
+        font-weight: 400;
+        text-align: center;
+        opacity: 0.9;
+        max-width: 200px;
+        line-height: 1.4;
+      }
+      
+      .status {
+        position: absolute;
+        bottom: var(--spacing-lg);
+        left: 0;
+        right: 0;
+        color: var(--text-color);
+        font-size: 12px;
+        text-align: center;
+        min-height: 16px;
+        padding: 0 var(--spacing-sm);
+        transition: all var(--transition-speed) ease;
+      }
+      
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      
+      .container:hover .title {
+        text-shadow: 0 2px 10px rgba(1, 70, 65, 0.1);
+      }
+      
+      .version {
+        position: absolute;
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+        font-size: 10px;
+        color: var(--text-color);
+        opacity: 0.5;
+      }
+
+      /* Tooltip */
+      [data-tooltip] {
+        position: relative;
+        cursor: help;
+      }
+
+      [data-tooltip]:before {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 4px 8px;
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        font-size: 12px;
+        border-radius: 4px;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transition: all var(--transition-speed) ease;
+      }
+
+      [data-tooltip]:hover:before {
+        opacity: 1;
+        visibility: visible;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="version" data-tooltip="Versão atual do AMK spy">v1.0</div>
+    <div class="container" role="main">
+      <div class="logo" role="img" aria-label="Logo AMK spy">
+        <img src="images/logo.png" alt="AMK spy Logo" loading="lazy">
+      </div>
+      <h1 class="title">AMK spy</h1>
+      <div class="subtitle" aria-label="Descrição do aplicativo">Análise inteligente de produtos Amazon</div>
+    </div>
+    
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+  </body>
+</html>
