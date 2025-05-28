@@ -182,12 +182,13 @@ class TableManager {
                                     top: 0;
                                     z-index: 10;
                                 ">
-                                    <tr>
+                                    <tr>                                        
                                         <th style="padding: 12px 8px; text-align: left; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">IMG</th>
                                         <th style="padding: 12px 8px; text-align: left; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">PRODUTO</th>
                                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">MARCA</th>
-                                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">POS</th>
+                                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">CATEGORIA</th>
                                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">ASIN</th>
+                                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">POS</th>
                                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">PREÇO</th>
                                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">VENDAS</th>
                                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">RECEITA</th>
@@ -204,8 +205,27 @@ class TableManager {
                                             data-vendas="${produto.vendidos}"
                                             data-posicao="${produto.posicaoGlobal}"
                                             data-receita="${produto.precoNumerico * produto.vendidos}"
+                                            data-ranking='${JSON.stringify({
+                                                ranking: produto.ranking || '',
+                                                categoria: produto.categoria || '',
+                                                rankingSecundario: produto.rankingSecundario || '',
+                                                categoriaSecundaria: produto.categoriaSecundaria || ''
+                                            })}'
                                             style="border-bottom: 1px solid #f1f5f9;">
-                                            <td style="padding: 8px 16px;">
+                                            <td style="padding: 8px 16px; display: flex; align-items: center; gap: 8px;">
+                                                <button class="btn-expandir-ranking" style="
+                                                    background: #6ac768;
+                                                    color: white;
+                                                    border: none;
+                                                    border-radius: 4px;
+                                                    padding: 4px 8px;
+                                                    font-size: 11px;
+                                                    font-weight: 500;
+                                                    cursor: pointer;
+                                                    transition: all 0.2s;
+                                                    font-family: 'Poppins', sans-serif;
+                                                    
+                                                ">mais</button>
                                                 ${produto.imagem ? `<img src="${produto.imagem}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px;">` : ''}
                                             </td>
                                             <td style="padding: 8px 16px; max-width: 300px;">
@@ -223,12 +243,15 @@ class TableManager {
                                             <td style="padding: 8px 16px; text-align: center; font-size: 13px; color: #014641;">
                                                 <span>${produto.carregandoDetalhes ? '<span style="color: #6ac768;">⏳ Carregando...</span>' : (produto.marca || '-')}</span>
                                             </td>
-                                            <td style="padding: 8px 16px; text-align: center; font-weight: 500; font-size: 14px;">
-                                                <span style="color: #014641;">${produto.posicaoGlobal}</span>
-                                                ${produto.paginaOrigem > 1 ? `<span style="color: #6ac768; font-size: 11px; margin-left: 4px;">(Pág. ${produto.paginaOrigem})</span>` : ''}
+                                            <td style="padding: 8px 16px; text-align: center; font-size: 13px; color: #014641;">
+                                                <span>${produto.carregandoDetalhes ? '<span style="color: #6ac768;">⏳ Carregando...</span>' : (produto.categoria || '-')}</span>
                                             </td>
                                             <td style="padding: 8px 16px; text-align: center; font-family: monospace; font-size: 12px; color: #014641;">
                                                 <span>${produto.asin}</span>
+                                            </td>
+                                            <td style="padding: 8px 16px; text-align: center; font-weight: 500; font-size: 14px;">
+                                                <span style="color: #014641;">${produto.posicaoGlobal}</span>
+                                                ${produto.paginaOrigem > 1 ? `<span style="color: #6ac768; font-size: 11px; margin-left: 4px;">(Pág. ${produto.paginaOrigem})</span>` : ''}
                                             </td>
                                             <td style="padding: 8px 16px; text-align: center; font-weight: 600; color: #6ac768; font-size: 15px;">
                                                 ${produto.preco}
@@ -270,7 +293,34 @@ class TableManager {
             }
         }
         
+        const colunaCategoria = linha.querySelector('td:nth-child(4) span');
+        if (colunaCategoria) {
+            if (produto.carregandoDetalhes) {
+                colunaCategoria.innerHTML = '<span style="color: #6ac768;">⏳ Carregando...</span>';
+            } else {
+                const categoria = produto.categoria || produto.categoriaSecundaria || '-';
+                colunaCategoria.textContent = categoria;
+                colunaCategoria.style.color = categoria !== '-' ? '#014641' : '#94a3b8';
+            }
+        }
+        
         if (!produto.carregandoDetalhes) {
+            // Atualizar dados de ranking
+            if (produto.ranking || produto.rankingSecundario) {
+                linha.setAttribute('data-ranking', JSON.stringify({
+                    ranking: produto.ranking || '',
+                    categoria: produto.categoria || '',
+                    rankingSecundario: produto.rankingSecundario || '',
+                    categoriaSecundaria: produto.categoriaSecundaria || ''
+                }));
+                
+                // Mostrar botão "mais"
+                const botao = linha.querySelector('.btn-expandir-ranking');
+                if (botao) {
+                    botao.style.display = 'inline-block';
+                }
+            }
+            
             const loadingIndicator = linha.querySelector('.loading-indicator');
             if (loadingIndicator) {
                 loadingIndicator.remove();
@@ -331,6 +381,87 @@ class TableManager {
         }
         
         linhas.forEach(linha => tbody.appendChild(linha));
+    }
+
+    static toggleRankingInfo(elemento) {
+        const linhaDetalhes = elemento.nextElementSibling;
+        const botao = elemento.querySelector('.btn-expandir-ranking');
+        
+        if (linhaDetalhes && linhaDetalhes.classList.contains('linha-detalhes-ranking')) {
+            linhaDetalhes.remove();
+            elemento.style.background = '';
+            if (botao) botao.textContent = 'mais';
+            return;
+        }
+        
+        document.querySelectorAll('.linha-detalhes-ranking').forEach(linha => linha.remove());
+        document.querySelectorAll('.linha-produto').forEach(linha => {
+            linha.style.background = '';
+            const btn = linha.querySelector('.btn-expandir-ranking');
+            if (btn) btn.textContent = 'mais';
+        });
+        
+        const dados = JSON.parse(elemento.getAttribute('data-ranking'));
+        if (!dados.ranking && !dados.rankingSecundario) {
+            return;
+        }
+        
+        let conteudo = '';
+        if (dados.ranking && dados.categoria) {
+            conteudo += `<div style="margin-bottom: 8px;">
+                <span style="color: #6ac768; font-weight: 600; font-size: 16px;">#${dados.ranking}</span> 
+                <span style="color: #014641; margin-left: 8px;">em ${dados.categoria}</span>
+            </div>`;
+        }
+        
+        if (dados.rankingSecundario && dados.categoriaSecundaria) {
+            conteudo += `<div>
+                <span style="color: #6ac768; font-weight: 600; font-size: 16px;">#${dados.rankingSecundario}</span> 
+                <span style="color: #014641; margin-left: 8px;">em ${dados.categoriaSecundaria}</span>
+            </div>`;
+        }
+        
+        const novaLinha = document.createElement('tr');
+        novaLinha.className = 'linha-detalhes-ranking';
+        novaLinha.innerHTML = `
+            <td colspan="11" style="
+                padding: 16px 24px;
+                background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+                border-left: 4px solid #6ac768;
+                font-family: 'Poppins', sans-serif;
+            ">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 20px;">📊</span>
+                    <div>
+                        <div style="font-weight: 600; color: #014641; margin-bottom: 8px; font-size: 14px;">Rankings do Produto</div>
+                        ${conteudo}
+                    </div>
+                </div>
+            </td>
+        `;
+        
+        elemento.insertAdjacentElement('afterend', novaLinha);
+        elemento.style.background = '#f0fdf4';
+        if (botao) botao.textContent = 'menos';
+    }
+
+    static mostrarTooltipRanking(elemento, dados) {
+        // Função removida - usando expansão de linha
+    }
+
+    static ocultarTooltipRanking() {
+        // Função removida - usando expansão de linha
+    }
+
+    static inicializarEventos() {
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-expandir-ranking')) {
+                const linha = e.target.closest('.linha-produto');
+                if (linha) {
+                    TableManager.toggleRankingInfo(linha);
+                }
+            }
+        });
     }
 }
 

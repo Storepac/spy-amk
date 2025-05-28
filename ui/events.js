@@ -50,6 +50,8 @@ class EventManager {
                 modal.style.display = 'none';
             }
         });
+        
+        TableManager.inicializarEventos();
     }
 
     static adicionarBotaoAmkSpy() {

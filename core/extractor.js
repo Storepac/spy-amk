@@ -46,6 +46,48 @@ class ProductExtractor {
                 }
             }
 
+            // Buscar Ranking dos mais vendidos
+            let ranking = '';
+            let categoria = '';
+            let rankingSecundario = '';
+            let categoriaSecundaria = '';
+            
+            const rankingTable = doc.querySelector('#productDetails_detailBullets_sections1');
+            if (rankingTable) {
+                const rows = rankingTable.querySelectorAll('tr');
+                for (const row of rows) {
+                    const labelCell = row.querySelector('th');
+                    if (labelCell && labelCell.textContent.trim() === 'Ranking dos mais vendidos') {
+                        const valueCell = row.querySelector('td');
+                        if (valueCell) {
+                            const rankingText = valueCell.textContent.trim();
+                            const rankings = rankingText.split(/\n|\r\n/).filter(line => line.trim());
+                            
+                            for (let i = 0; i < rankings.length; i++) {
+                                const rankingMatch = rankings[i].match(/Nº\s*([\d.,]+)\s*em\s*([^(]+)/);
+                                if (rankingMatch) {
+                                    const pos = rankingMatch[1].replace(/\./g, '');
+                                    const cat = rankingMatch[2].trim();
+                                    
+                                    if (i === 0) {
+                                        ranking = pos;
+                                        categoria = cat;
+                                    } else if (i === 1) {
+                                        rankingSecundario = pos;
+                                        categoriaSecundaria = cat;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            console.info("Ranking dos mais vendidos:", ranking);
+            console.info("Categoria:", categoria);
+            console.info("Ranking secundário:", rankingSecundario);
+            console.info("Categoria secundária:", categoriaSecundaria);
+
             const precoElement = doc.querySelector('.a-price .a-offscreen');
             const preco = precoElement ? precoElement.textContent.trim() : '';
             const precoNumerico = parseFloat(preco.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
@@ -63,7 +105,11 @@ class ProductExtractor {
                 preco,
                 precoNumerico,
                 vendas,
-                receitaMes: precoNumerico * vendas
+                receitaMes: precoNumerico * vendas,
+                ranking,
+                categoria,
+                rankingSecundario,
+                categoriaSecundaria
             };
         } catch (error) {
             console.error('Erro ao buscar detalhes do produto:', error);
@@ -94,7 +140,11 @@ class ProductExtractor {
             patrocinado: elemento.querySelector('.puis-sponsored-label-text') !== null,
             posicaoMatch: elemento.getAttribute('data-cel-widget')?.match(/search_result_(\d+)/),
             posicao: '',
-            marca: ''
+            marca: '',
+            categoria: '',
+            categoriaSecundaria: '',
+            ranking: '',
+            rankingSecundario: ''
         };
         
         const bylineInfo = elemento.querySelector('.a-size-base.a-color-secondary');

@@ -62,6 +62,22 @@ class ProductAnalyzer {
                     if (detalhes && detalhes.marca) {
                         produto.marca = detalhes.marca;
                     }
+
+                    if (detalhes && detalhes.categoria) {
+                        produto.categoria = detalhes.categoria;
+                    }
+
+                    if (detalhes && detalhes.categoriaSecundaria) {
+                        produto.categoriaSecundaria = detalhes.categoriaSecundaria;
+                    }
+
+                    if (detalhes && detalhes.ranking) {
+                        produto.ranking = detalhes.ranking;
+                    }
+
+                    if (detalhes && detalhes.rankingSecundario) {
+                        produto.rankingSecundario = detalhes.rankingSecundario;
+                    }
                     
                     produto.carregandoDetalhes = false;
                     atualizarCallback(produto, indexGlobal);
@@ -118,6 +134,10 @@ class ProductAnalyzer {
                             const produtoCompleto = {
                                 ...dadosBasicos,
                                 marca: detalhes.marca || dadosBasicos.marca,
+                                categoria: detalhes.categoria || dadosBasicos.categoria,
+                                categoriaSecundaria: detalhes.categoriaSecundaria || dadosBasicos.categoriaSecundaria,
+                                ranking: detalhes.ranking || dadosBasicos.ranking,
+                                rankingSecundario: detalhes.rankingSecundario || dadosBasicos.rankingSecundario,
                                 posicaoGlobal,
                                 paginaOrigem: pagina
                             };
