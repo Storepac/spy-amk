@@ -224,7 +224,7 @@ class TableManager {
                         </div>
                         <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative;">
                             <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                PRODUTOS TOP 10.000
+                                PRODUTOS RANK > 1000
                                 <button class="btn-expandir-top10000" style="
                                     background: none;
                                     border: none;
@@ -264,13 +264,13 @@ class TableManager {
                                 z-index: 100;
                                 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                             ">
-                                <div style="margin-bottom: 8px;">Produtos com performance regular e oportunidades de nicho.</div>
-                                <div style="margin-bottom: 8px;">✓ Menor concorrência</div>
-                                <div style="margin-bottom: 8px;">✓ Bom para nichos específicos</div>
-                                <div>✓ Potencial para crescimento</div>
+                                <div style="margin-bottom: 8px;">Produtos com ranking acima de 1000.</div>
+                                <div style="margin-bottom: 8px;">✓ Oportunidades inexploradas</div>
+                                <div style="margin-bottom: 8px;">✓ Menor competição</div>
+                                <div>✓ Potencial para otimização</div>
                             </div>
-                            <div data-metrica="top10000" style="font-size: 18px; font-weight: 700; color: #6ac768;">${metricas.produtosTop10000}</div>
-                            <div data-metrica="top10000-pct" style="font-size: 11px; color: #64748b;">${((metricas.produtosTop10000/metricas.produtosComRanking)*100).toFixed(1)}% do total</div>
+                            <div data-metrica="top10000" style="font-size: 18px; font-weight: 700; color: #6ac768;">${metricas.produtosAcima1000}</div>
+                            <div data-metrica="top10000-pct" style="font-size: 11px; color: #64748b;">${((metricas.produtosAcima1000/metricas.produtosComRanking)*100).toFixed(1)}% do total</div>
                             <div class="top10000-lista" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; margin-top: 8px; padding: 12px; text-align: left; max-height: 300px; overflow-y: auto;"></div>
                         </div>
                         <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
@@ -575,10 +575,10 @@ class TableManager {
         // Atualizar Top 10.000
         const top10000Element = document.querySelector('[data-metrica="top10000"]');
         if (top10000Element) {
-            top10000Element.textContent = metricas.produtosTop10000;
+            top10000Element.textContent = metricas.produtosAcima1000;
             const top10000PctElement = document.querySelector('[data-metrica="top10000-pct"]');
             if (top10000PctElement) {
-                top10000PctElement.textContent = `${((metricas.produtosTop10000/metricas.produtosComRanking)*100).toFixed(1)}% do total`;
+                top10000PctElement.textContent = `${((metricas.produtosAcima1000/metricas.produtosComRanking)*100).toFixed(1)}% do total`;
             }
         }
         
@@ -626,14 +626,15 @@ class TableManager {
         const produtosFiltrados = produtos
             .filter(p => {
                 const ranking = parseInt(p.ranking);
+                if (!ranking) return false; // Ignora produtos sem ranking
+                
                 if (limite === 100) {
                     return ranking > 0 && ranking <= 100;
                 } else if (limite === 1000) {
                     return ranking > 100 && ranking <= 1000;
-                } else if (limite === 10000) {
-                    return ranking > 1000 && ranking <= 10000;
+                } else {
+                    return ranking > 1000; // Mostra todos acima de 1000
                 }
-                return false;
             })
             .sort((a, b) => parseInt(a.ranking) - parseInt(b.ranking));
 
@@ -649,6 +650,18 @@ class TableManager {
                 </div>
             `;
             return;
+        }
+
+        // Atualiza o contador no card correspondente
+        if (limite === 100) {
+            const counterElement = document.querySelector('[data-metrica="top100"]');
+            if (counterElement) counterElement.textContent = produtosFiltrados.length;
+        } else if (limite === 1000) {
+            const counterElement = document.querySelector('[data-metrica="top1000"]');
+            if (counterElement) counterElement.textContent = produtosFiltrados.length;
+        } else {
+            const counterElement = document.querySelector('[data-metrica="top10000"]');
+            if (counterElement) counterElement.textContent = produtosFiltrados.length;
         }
 
         container.innerHTML = produtosFiltrados.map(p => `
