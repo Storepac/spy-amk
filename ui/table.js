@@ -222,6 +222,57 @@ class TableManager {
                             <div data-metrica="top1000-pct" style="font-size: 11px; color: #64748b;">${((metricas.produtosTop1000/metricas.produtosComRanking)*100).toFixed(1)}% do total</div>
                             <div class="top1000-lista" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; margin-top: 8px; padding: 12px; text-align: left; max-height: 300px; overflow-y: auto;"></div>
                         </div>
+                        <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative;">
+                            <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                PRODUTOS TOP 10.000
+                                <button class="btn-expandir-top10000" style="
+                                    background: none;
+                                    border: none;
+                                    padding: 0;
+                                    width: 20px;
+                                    height: 20px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 14px;
+                                    color: #6ac768;
+                                    cursor: pointer;
+                                ">↓</button>
+                                <button class="btn-info-top10000" style="
+                                    background: #014641;
+                                    border: none;
+                                    width: 16px;
+                                    height: 16px;
+                                    border-radius: 50%;
+                                    color: white;
+                                    font-size: 11px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    cursor: pointer;
+                                ">i</button>
+                            </div>
+                            <div class="info-top10000-tooltip" style="
+                                display: none;
+                                position: absolute;
+                                background: #014641;
+                                color: white;
+                                padding: 12px;
+                                border-radius: 8px;
+                                font-size: 12px;
+                                max-width: 250px;
+                                z-index: 100;
+                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                            ">
+                                <div style="margin-bottom: 8px;">Produtos com performance regular e oportunidades de nicho.</div>
+                                <div style="margin-bottom: 8px;">✓ Menor concorrência</div>
+                                <div style="margin-bottom: 8px;">✓ Bom para nichos específicos</div>
+                                <div>✓ Potencial para crescimento</div>
+                            </div>
+                            <div data-metrica="top10000" style="font-size: 18px; font-weight: 700; color: #6ac768;">${metricas.produtosTop10000}</div>
+                            <div data-metrica="top10000-pct" style="font-size: 11px; color: #64748b;">${((metricas.produtosTop10000/metricas.produtosComRanking)*100).toFixed(1)}% do total</div>
+                            <div class="top10000-lista" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; margin-top: 8px; padding: 12px; text-align: left; max-height: 300px; overflow-y: auto;"></div>
+                        </div>
                         <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                             <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
                                 DISTRIBUIÇÃO BSR
@@ -521,6 +572,16 @@ class TableManager {
             }
         }
         
+        // Atualizar Top 10.000
+        const top10000Element = document.querySelector('[data-metrica="top10000"]');
+        if (top10000Element) {
+            top10000Element.textContent = metricas.produtosTop10000;
+            const top10000PctElement = document.querySelector('[data-metrica="top10000-pct"]');
+            if (top10000PctElement) {
+                top10000PctElement.textContent = `${((metricas.produtosTop10000/metricas.produtosComRanking)*100).toFixed(1)}% do total`;
+            }
+        }
+        
         // Atualizar distribuição BSR
         const distribuicaoElements = {
             elite: document.querySelector('[data-metrica="bsr-elite"]'),
@@ -545,9 +606,10 @@ class TableManager {
             `).join('');
         }
 
-        // Atualizar listas de Top 100 e Top 1000
+        // Atualizar listas de Top 100, Top 1000 e Top 10.000
         this.atualizarListaProdutos(produtos, 100, '.top100-lista');
         this.atualizarListaProdutos(produtos, 1000, '.top1000-lista');
+        this.atualizarListaProdutos(produtos, 10000, '.top10000-lista');
 
         // Reaplica o filtro atual
         const filtroBSR = document.getElementById('filtro-bsr');
@@ -560,122 +622,142 @@ class TableManager {
         const container = document.querySelector(seletor);
         if (!container) return;
 
-        // Filtra produtos que têm ranking válido e ordena pelo ranking
+        // Filtra e ordena produtos por ranking
         const produtosFiltrados = produtos
-            .filter(p => p.ranking && !isNaN(parseInt(p.ranking)))
-            .sort((a, b) => parseInt(a.ranking) - parseInt(b.ranking))
-            .filter((p, index) => index < limite); // Pega apenas os primeiros N produtos após ordenação
+            .filter(p => {
+                const ranking = parseInt(p.ranking);
+                if (limite === 100) {
+                    return ranking > 0 && ranking <= 100;
+                } else if (limite === 1000) {
+                    return ranking > 100 && ranking <= 1000;
+                } else if (limite === 10000) {
+                    return ranking > 1000 && ranking <= 10000;
+                }
+                return false;
+            })
+            .sort((a, b) => parseInt(a.ranking) - parseInt(b.ranking));
+
+        // Ajusta a largura do dropdown para ser fixa
+        container.style.width = '320px';
+        container.style.left = '50%';
+        container.style.transform = 'translateX(-50%)';
+
+        if (produtosFiltrados.length === 0) {
+            container.innerHTML = `
+                <div style="padding: 16px; text-align: center; color: #64748b; font-size: 12px;">
+                    Nenhum produto encontrado nesta faixa de ranking.
+                </div>
+            `;
+            return;
+        }
 
         container.innerHTML = produtosFiltrados.map(p => `
             <div style="
-                margin-bottom: 12px;
                 padding: 12px;
                 border-bottom: 1px solid #f1f5f9;
                 display: grid;
-                grid-template-columns: 40px 1fr;
+                grid-template-columns: 50px 1fr;
                 gap: 12px;
-                min-height: 80px;
+                align-items: start;
             ">
                 <div style="grid-row: span 2;">
                     ${p.imagem ? `
                         <img src="${p.imagem}" style="
-                            width: 40px;
-                            height: 40px;
+                            width: 50px;
+                            height: 50px;
                             object-fit: cover;
                             border-radius: 4px;
                             border: 1px solid #f1f5f9;
-                        ">
-                    ` : '<div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 4px;"></div>'}
+                        " onerror="this.style.display='none'">
+                    ` : ''}
+                    <div style="
+                        width: 50px;
+                        height: 50px;
+                        background: #f1f5f9;
+                        border-radius: 4px;
+                        display: ${p.imagem ? 'none' : 'block'};
+                    "></div>
                 </div>
-                <div style="
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: flex-start;
-                    min-height: 24px;
-                    margin-bottom: 8px;
-                ">
+                <div style="min-width: 0;">
                     <div style="
                         display: flex;
                         align-items: center;
                         gap: 8px;
-                        flex: 1;
+                        margin-bottom: 6px;
                     ">
                         <span style="
                             color: #6ac768;
                             font-weight: 600;
-                            font-size: 11px;
-                            min-width: 40px;
+                            font-size: 12px;
                             flex-shrink: 0;
+                            min-width: 45px;
                         ">#${p.ranking}</span>
                         <span style="
                             color: #64748b;
-                            font-size: 10px;
-                            line-height: 1.3;
-                            display: -webkit-box;
-                            -webkit-line-clamp: 2;
-                            -webkit-box-orient: vertical;
+                            font-size: 11px;
                             overflow: hidden;
-                            word-break: break-word;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
                         ">${p.categoria || ''}</span>
                     </div>
-                    <span style="
-                        color: #64748b;
-                        font-size: 10px;
-                        font-family: monospace;
-                        background: #f8fafc;
-                        padding: 2px 4px;
-                        border-radius: 3px;
-                        margin-left: 8px;
-                        flex-shrink: 0;
-                    ">${p.asin}</span>
-                </div>
-                <div style="
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: flex-start;
-                    gap: 8px;
-                ">
-                    <a href="${p.link}" target="_blank" style="
-                        color: #014641;
-                        text-decoration: none;
-                        font-size: 11px;
+                    <div style="
+                        font-size: 12px;
                         line-height: 1.4;
-                        flex: 1;
+                        color: #014641;
+                        margin-bottom: 6px;
                         display: -webkit-box;
                         -webkit-line-clamp: 2;
                         -webkit-box-orient: vertical;
                         overflow: hidden;
                         word-break: break-word;
-                        margin-top: 2px;
-                    " title="${p.titulo}">
+                        min-height: 34px;
+                    ">
                         ${p.titulo}
-                    </a>
-                    <button onclick="window.open('${p.link}', '_blank')" style="
-                        background: #6ac768;
-                        border: none;
-                        padding: 3px 8px;
-                        border-radius: 4px;
-                        color: white;
-                        font-size: 10px;
-                        cursor: pointer;
-                        white-space: nowrap;
-                        min-width: 40px;
-                        height: 20px;
+                    </div>
+                    <div style="
                         display: flex;
+                        justify-content: space-between;
                         align-items: center;
-                        justify-content: center;
-                        transition: all 0.2s;
-                        flex-shrink: 0;
-                        margin-top: 2px;
-                    ">Ver →</button>
+                        gap: 8px;
+                    ">
+                        <code style="
+                            color: #64748b;
+                            font-size: 11px;
+                            font-family: monospace;
+                            background: #f8fafc;
+                            padding: 3px 6px;
+                            border-radius: 3px;
+                            flex-shrink: 0;
+                        ">${p.asin}</code>
+                        <a href="${p.link}" 
+                           target="_blank"
+                           style="
+                            background: #6ac768;
+                            color: white;
+                            text-decoration: none;
+                            font-size: 11px;
+                            padding: 3px 8px;
+                            border-radius: 4px;
+                            flex-shrink: 0;
+                            transition: all 0.2s;
+                            display: flex;
+                            align-items: center;
+                            gap: 4px;
+                        ">
+                            Ver na Amazon
+                            <span style="font-size: 14px;">→</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         `).join('');
 
-        // Ajustar altura máxima do container baseado no número de itens
-        const numItems = produtosFiltrados.length;
-        const maxHeight = Math.min(numItems * 104, 400); // 104px por item (80px + margens), máximo de 400px
-        container.style.maxHeight = `${maxHeight}px`;
+        // Ajusta altura máxima e adiciona scroll personalizado
+        container.style.maxHeight = '400px';
+        container.style.overflowY = 'auto';
+        container.style.overflowX = 'hidden';
+        container.style.scrollbarWidth = 'thin';
+        container.style.scrollbarColor = '#6ac768 #f1f5f9';
     }
 
     static atualizarLinhaProduto(produto, index) {
@@ -928,42 +1010,42 @@ class TableManager {
             });
         }
 
-        // Eventos para expandir Top 100 e Top 1000
+        // Eventos para expandir Top 100, Top 1000 e Top 10.000
         document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('btn-expandir-top100')) {
-                const lista = document.querySelector('.top100-lista');
-                const todosDropdowns = document.querySelectorAll('.top100-lista, .top1000-lista');
+            if (e.target.classList.contains('btn-expandir-top100') ||
+                e.target.classList.contains('btn-expandir-top1000') ||
+                e.target.classList.contains('btn-expandir-top10000')) {
+                
+                const tipo = e.target.classList.contains('btn-expandir-top100') ? 'top100' :
+                           e.target.classList.contains('btn-expandir-top1000') ? 'top1000' : 'top10000';
+                
+                const lista = document.querySelector(`.${tipo}-lista`);
+                const todosDropdowns = document.querySelectorAll('.top100-lista, .top1000-lista, .top10000-lista');
+                
                 todosDropdowns.forEach(d => {
                     if (d !== lista) d.style.display = 'none';
                 });
-                lista.style.display = lista.style.display === 'none' ? 'block' : 'none';
-                e.target.textContent = lista.style.display === 'none' ? '↓' : '↑';
-            }
-            
-            if (e.target.classList.contains('btn-expandir-top1000')) {
-                const lista = document.querySelector('.top1000-lista');
-                const todosDropdowns = document.querySelectorAll('.top100-lista, .top1000-lista');
-                todosDropdowns.forEach(d => {
-                    if (d !== lista) d.style.display = 'none';
-                });
+                
                 lista.style.display = lista.style.display === 'none' ? 'block' : 'none';
                 e.target.textContent = lista.style.display === 'none' ? '↓' : '↑';
             }
 
             // Fechar dropdowns ao clicar fora
             if (!e.target.classList.contains('btn-expandir-top100') && 
-                !e.target.classList.contains('btn-expandir-top1000')) {
-                const dropdowns = document.querySelectorAll('.top100-lista, .top1000-lista');
+                !e.target.classList.contains('btn-expandir-top1000') &&
+                !e.target.classList.contains('btn-expandir-top10000')) {
+                const dropdowns = document.querySelectorAll('.top100-lista, .top1000-lista, .top10000-lista');
                 dropdowns.forEach(d => d.style.display = 'none');
-                document.querySelectorAll('.btn-expandir-top100, .btn-expandir-top1000')
+                document.querySelectorAll('.btn-expandir-top100, .btn-expandir-top1000, .btn-expandir-top10000')
                     .forEach(btn => btn.textContent = '↓');
             }
         });
 
-        // Tooltips para Top 100 e Top 1000
+        // Tooltips
         const tooltips = [
             { btn: '.btn-info-top100', tooltip: '.info-top100-tooltip' },
             { btn: '.btn-info-top1000', tooltip: '.info-top1000-tooltip' },
+            { btn: '.btn-info-top10000', tooltip: '.info-top10000-tooltip' },
             { btn: '.btn-info-bsr', tooltip: '.info-bsr-tooltip' }
         ];
 
