@@ -652,16 +652,31 @@ class TableManager {
             return;
         }
 
-        // Atualiza o contador no card correspondente
+        // Atualiza o contador e a porcentagem no card correspondente
         if (limite === 100) {
             const counterElement = document.querySelector('[data-metrica="top100"]');
+            const pctElement = document.querySelector('[data-metrica="top100-pct"]');
             if (counterElement) counterElement.textContent = produtosFiltrados.length;
+            if (pctElement) {
+                const totalComRanking = produtos.filter(p => parseInt(p.ranking) > 0).length;
+                pctElement.textContent = `${((produtosFiltrados.length/totalComRanking)*100).toFixed(1)}% do total`;
+            }
         } else if (limite === 1000) {
             const counterElement = document.querySelector('[data-metrica="top1000"]');
+            const pctElement = document.querySelector('[data-metrica="top1000-pct"]');
             if (counterElement) counterElement.textContent = produtosFiltrados.length;
+            if (pctElement) {
+                const totalComRanking = produtos.filter(p => parseInt(p.ranking) > 0).length;
+                pctElement.textContent = `${((produtosFiltrados.length/totalComRanking)*100).toFixed(1)}% do total`;
+            }
         } else {
             const counterElement = document.querySelector('[data-metrica="top10000"]');
+            const pctElement = document.querySelector('[data-metrica="top10000-pct"]');
             if (counterElement) counterElement.textContent = produtosFiltrados.length;
+            if (pctElement) {
+                const totalComRanking = produtos.filter(p => parseInt(p.ranking) > 0).length;
+                pctElement.textContent = `${((produtosFiltrados.length/totalComRanking)*100).toFixed(1)}% do total`;
+            }
         }
 
         container.innerHTML = produtosFiltrados.map(p => `
