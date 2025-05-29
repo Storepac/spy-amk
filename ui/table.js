@@ -560,18 +560,21 @@ class TableManager {
         const container = document.querySelector(seletor);
         if (!container) return;
 
+        // Filtra produtos que têm ranking válido e ordena pelo ranking
         const produtosFiltrados = produtos
-            .filter(p => p.ranking && parseInt(p.ranking) <= limite)
-            .sort((a, b) => parseInt(a.ranking) - parseInt(b.ranking));
+            .filter(p => p.ranking && !isNaN(parseInt(p.ranking)))
+            .sort((a, b) => parseInt(a.ranking) - parseInt(b.ranking))
+            .filter((p, index) => index < limite); // Pega apenas os primeiros N produtos após ordenação
 
         container.innerHTML = produtosFiltrados.map(p => `
             <div style="
-                margin-bottom: 8px;
-                padding: 8px;
+                margin-bottom: 12px;
+                padding: 12px;
                 border-bottom: 1px solid #f1f5f9;
                 display: grid;
                 grid-template-columns: 40px 1fr;
-                gap: 8px;
+                gap: 12px;
+                min-height: 80px;
             ">
                 <div style="grid-row: span 2;">
                     ${p.imagem ? `
@@ -580,44 +583,99 @@ class TableManager {
                             height: 40px;
                             object-fit: cover;
                             border-radius: 4px;
+                            border: 1px solid #f1f5f9;
                         ">
                     ` : '<div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 4px;"></div>'}
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="color: #6ac768; font-weight: 600; font-size: 11px;">#${p.ranking}</span>
-                        <span style="color: #64748b; font-size: 10px;">${p.categoria || ''}</span>
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    min-height: 24px;
+                    margin-bottom: 8px;
+                ">
+                    <div style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        flex: 1;
+                    ">
+                        <span style="
+                            color: #6ac768;
+                            font-weight: 600;
+                            font-size: 11px;
+                            min-width: 40px;
+                            flex-shrink: 0;
+                        ">#${p.ranking}</span>
+                        <span style="
+                            color: #64748b;
+                            font-size: 10px;
+                            line-height: 1.3;
+                            display: -webkit-box;
+                            -webkit-line-clamp: 2;
+                            -webkit-box-orient: vertical;
+                            overflow: hidden;
+                            word-break: break-word;
+                        ">${p.categoria || ''}</span>
                     </div>
-                    <span style="color: #64748b; font-size: 10px; font-family: monospace;">${p.asin}</span>
+                    <span style="
+                        color: #64748b;
+                        font-size: 10px;
+                        font-family: monospace;
+                        background: #f8fafc;
+                        padding: 2px 4px;
+                        border-radius: 3px;
+                        margin-left: 8px;
+                        flex-shrink: 0;
+                    ">${p.asin}</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    gap: 8px;
+                ">
                     <a href="${p.link}" target="_blank" style="
                         color: #014641;
                         text-decoration: none;
                         font-size: 11px;
-                        line-height: 1.2;
-                        display: block;
+                        line-height: 1.4;
                         flex: 1;
-                        white-space: nowrap;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
                         overflow: hidden;
-                        text-overflow: ellipsis;
+                        word-break: break-word;
+                        margin-top: 2px;
                     " title="${p.titulo}">
                         ${p.titulo}
                     </a>
                     <button onclick="window.open('${p.link}', '_blank')" style="
                         background: #6ac768;
                         border: none;
-                        padding: 2px 6px;
+                        padding: 3px 8px;
                         border-radius: 4px;
                         color: white;
                         font-size: 10px;
                         cursor: pointer;
-                        margin-left: 8px;
                         white-space: nowrap;
+                        min-width: 40px;
+                        height: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: all 0.2s;
+                        flex-shrink: 0;
+                        margin-top: 2px;
                     ">Ver →</button>
                 </div>
             </div>
         `).join('');
+
+        // Ajustar altura máxima do container baseado no número de itens
+        const numItems = produtosFiltrados.length;
+        const maxHeight = Math.min(numItems * 104, 400); // 104px por item (80px + margens), máximo de 400px
+        container.style.maxHeight = `${maxHeight}px`;
     }
 
     static atualizarLinhaProduto(produto, index) {
