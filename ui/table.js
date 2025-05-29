@@ -452,7 +452,43 @@ class TableManager {
                                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">MARCA</th>
                                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">CATEGORIA</th>
                                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">ASIN</th>
-                                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">POS</th>
+                                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0; position: relative;">
+                                            POS
+                                            <div class="info-pos-tooltip" style="
+                                                display: none;
+                                                position: absolute;
+                                                background: #014641;
+                                                color: white;
+                                                padding: 12px;
+                                                border-radius: 8px;
+                                                font-size: 12px;
+                                                max-width: 250px;
+                                                z-index: 100;
+                                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                                top: 100%;
+                                                left: 50%;
+                                                transform: translateX(-50%);
+                                                margin-top: 8px;
+                                            ">
+                                                <div style="margin-bottom: 8px;">Posição do produto nos resultados</div>
+                                                <div style="margin-bottom: 8px;">AD: Produto patrocinado/anúncio</div>
+                                            </div>
+                                            <button class="btn-info-pos" style="
+                                                background: #014641;
+                                                border: none;
+                                                width: 16px;
+                                                height: 16px;
+                                                border-radius: 50%;
+                                                color: white;
+                                                font-size: 11px;
+                                                display: inline-flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                cursor: pointer;
+                                                margin-left: 4px;
+                                                vertical-align: middle;
+                                            ">i</button>
+                                        </th>
                                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">PREÇO</th>
                                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">VENDAS</th>
                                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; font-size: 13px; color: #014641; border-bottom: 2px solid #e2e8f0;">RECEITA</th>
@@ -514,8 +550,20 @@ class TableManager {
                                                 <span>${produto.asin}</span>
                                             </td>
                                             <td style="padding: 8px 16px; text-align: center; font-weight: 500; font-size: 14px;">
-                                                <span style="color: #014641;">${produto.posicaoGlobal}</span>
-                                                ${produto.paginaOrigem > 1 ? `<span style="color: #6ac768; font-size: 11px; margin-left: 4px;">(Pág. ${produto.paginaOrigem})</span>` : ''}
+                                                <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                                    <span style="color: #014641;">${produto.posicaoGlobal}</span>
+                                                    ${produto.paginaOrigem > 1 ? `<span style="color: #6ac768; font-size: 11px;">(Pág. ${produto.paginaOrigem})</span>` : ''}
+                                                    ${produto.patrocinado ? `
+                                                        <span title="Produto Patrocinado" style="
+                                                            background: #ff9800;
+                                                            color: white;
+                                                            padding: 2px 4px;
+                                                            border-radius: 4px;
+                                                            font-size: 10px;
+                                                            font-weight: 600;
+                                                        ">AD</span>
+                                                    ` : ''}
+                                                </div>
                                             </td>
                                             <td style="padding: 8px 16px; text-align: center; font-weight: 600; color: #6ac768; font-size: 15px;">
                                                 ${produto.preco}
@@ -1074,7 +1122,8 @@ class TableManager {
             { btn: '.btn-info-top100', tooltip: '.info-top100-tooltip' },
             { btn: '.btn-info-top1000', tooltip: '.info-top1000-tooltip' },
             { btn: '.btn-info-top10000', tooltip: '.info-top10000-tooltip' },
-            { btn: '.btn-info-bsr', tooltip: '.info-bsr-tooltip' }
+            { btn: '.btn-info-bsr', tooltip: '.info-bsr-tooltip' },
+            { btn: '.btn-info-pos', tooltip: '.info-pos-tooltip' }
         ];
 
         tooltips.forEach(({ btn, tooltip }) => {
