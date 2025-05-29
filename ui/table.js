@@ -112,6 +112,52 @@ class TableManager {
                             <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px;">AVALIAÇÃO MÉDIA</div>
                             <div style="font-size: 18px; font-weight: 700; color: #6ac768;">⭐ ${metricas.mediaAvaliacao.toFixed(1)}</div>
                         </div>
+                        <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px;">BSR MÉDIO</div>
+                            <div data-metrica="bsr-medio" style="font-size: 18px; font-weight: 700; color: #6ac768;">#${Math.round(metricas.mediaBSR).toLocaleString()}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Novas Métricas de BSR -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding: 0 20px 20px 20px; background: #f8fafc;">
+                        <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px;">PRODUTOS TOP 100</div>
+                            <div data-metrica="top100" style="font-size: 18px; font-weight: 700; color: #6ac768;">${metricas.produtosTop100}</div>
+                            <div data-metrica="top100-pct" style="font-size: 11px; color: #64748b;">${((metricas.produtosTop100/metricas.produtosComRanking)*100).toFixed(1)}% do total</div>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px;">PRODUTOS TOP 1000</div>
+                            <div data-metrica="top1000" style="font-size: 18px; font-weight: 700; color: #6ac768;">${metricas.produtosTop1000}</div>
+                            <div data-metrica="top1000-pct" style="font-size: 11px; color: #64748b;">${((metricas.produtosTop1000/metricas.produtosComRanking)*100).toFixed(1)}% do total</div>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px;">DISTRIBUIÇÃO BSR</div>
+                            <div style="display: flex; justify-content: center; gap: 12px; margin-top: 8px;">
+                                <div title="Elite (1-100)">
+                                    <div style="font-size: 11px; color: #64748b;">Elite</div>
+                                    <div data-metrica="bsr-elite" style="font-size: 14px; font-weight: 600; color: #6ac768;">${metricas.faixasBSR.elite}</div>
+                                </div>
+                                <div title="Ótimo (101-1000)">
+                                    <div style="font-size: 11px; color: #64748b;">Ótimo</div>
+                                    <div data-metrica="bsr-otimo" style="font-size: 14px; font-weight: 600; color: #6ac768;">${metricas.faixasBSR.otimo}</div>
+                                </div>
+                                <div title="Bom (1001-5000)">
+                                    <div style="font-size: 11px; color: #64748b;">Bom</div>
+                                    <div data-metrica="bsr-bom" style="font-size: 14px; font-weight: 600; color: #6ac768;">${metricas.faixasBSR.bom}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px;">CATEGORIAS MAIS COMPETITIVAS</div>
+                            <div data-metrica="categorias-competitivas" style="font-size: 11px; text-align: left; margin-top: 8px;">
+                                ${metricas.categoriasCompetitivas.map(cat => `
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                        <span style="color: #64748b;">${cat.categoria.substring(0, 20)}${cat.categoria.length > 20 ? '...' : ''}</span>
+                                        <span style="color: #6ac768; font-weight: 600;">#${Math.round(cat.mediaBSR).toLocaleString()}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
                     </div>
                     
                     <div style="padding: 20px 24px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
@@ -151,8 +197,52 @@ class TableManager {
                                     <option value="receita-asc">Menor Receita ↑</option>
                                     <option value="preco-desc">Maior Preço ↓</option>
                                     <option value="preco-asc">Menor Preço ↑</option>
+                                    <option value="bsr-asc">Melhor BSR ↑</option>
+                                    <option value="bsr-desc">Pior BSR ↓</option>
                                 </select>
                             </div>
+
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span style="font-size: 13px; color: #014641;">Filtrar BSR:</span>
+                                <select id="filtro-bsr" style="
+                                    padding: 6px 12px;
+                                    height: 32px;
+                                    border: 2px solid #e2e8f0;
+                                    border-radius: 6px;
+                                    font-size: 13px;
+                                    outline: none;
+                                    background: white;
+                                    cursor: pointer;
+                                    font-family: 'Poppins', sans-serif;
+                                    min-width: 150px;
+                                ">
+                                    <option value="todos">Todos os Rankings</option>
+                                    <option value="top100">Top 100</option>
+                                    <option value="top1000">Top 1.000</option>
+                                    <option value="top5000">Top 5.000</option>
+                                    <option value="top10000">Top 10.000</option>
+                                </select>
+                            </div>
+
+                            <button id="reload-rankings" style="
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                padding: 0 16px;
+                                height: 32px;
+                                background: #6ac768;
+                                color: white;
+                                border: none;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                font-size: 13px;
+                                font-weight: 500;
+                                transition: all 0.2s;
+                                gap: 6px;
+                            " title="Recarregar Rankings">
+                                <span style="font-size: 14px;">↻</span>
+                                Atualizar Rankings
+                            </button>
 
                             <button id="reload-produtos" style="
                                 display: flex;
@@ -279,6 +369,60 @@ class TableManager {
         `;
     }
 
+    static atualizarMetricas(produtos) {
+        const metricas = ProductAnalyzer.calcularMetricas(produtos);
+        
+        // Atualizar BSR Médio
+        const bsrMedioElement = document.querySelector('[data-metrica="bsr-medio"]');
+        if (bsrMedioElement) {
+            bsrMedioElement.textContent = `#${Math.round(metricas.mediaBSR).toLocaleString()}`;
+        }
+        
+        // Atualizar Top 100
+        const top100Element = document.querySelector('[data-metrica="top100"]');
+        if (top100Element) {
+            top100Element.textContent = metricas.produtosTop100;
+            const top100PctElement = document.querySelector('[data-metrica="top100-pct"]');
+            if (top100PctElement) {
+                top100PctElement.textContent = `${((metricas.produtosTop100/metricas.produtosComRanking)*100).toFixed(1)}% do total`;
+            }
+        }
+        
+        // Atualizar Top 1000
+        const top1000Element = document.querySelector('[data-metrica="top1000"]');
+        if (top1000Element) {
+            top1000Element.textContent = metricas.produtosTop1000;
+            const top1000PctElement = document.querySelector('[data-metrica="top1000-pct"]');
+            if (top1000PctElement) {
+                top1000PctElement.textContent = `${((metricas.produtosTop1000/metricas.produtosComRanking)*100).toFixed(1)}% do total`;
+            }
+        }
+        
+        // Atualizar distribuição BSR
+        const distribuicaoElements = {
+            elite: document.querySelector('[data-metrica="bsr-elite"]'),
+            otimo: document.querySelector('[data-metrica="bsr-otimo"]'),
+            bom: document.querySelector('[data-metrica="bsr-bom"]')
+        };
+        
+        Object.entries(distribuicaoElements).forEach(([faixa, element]) => {
+            if (element && metricas.faixasBSR[faixa] !== undefined) {
+                element.textContent = metricas.faixasBSR[faixa];
+            }
+        });
+        
+        // Atualizar categorias competitivas
+        const categoriasContainer = document.querySelector('[data-metrica="categorias-competitivas"]');
+        if (categoriasContainer && metricas.categoriasCompetitivas) {
+            categoriasContainer.innerHTML = metricas.categoriasCompetitivas.map(cat => `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="color: #64748b;">${cat.categoria.substring(0, 20)}${cat.categoria.length > 20 ? '...' : ''}</span>
+                    <span style="color: #6ac768; font-weight: 600;">#${Math.round(cat.mediaBSR).toLocaleString()}</span>
+                </div>
+            `).join('');
+        }
+    }
+
     static atualizarLinhaProduto(produto, index) {
         const linha = document.querySelector(`#corpo-tabela tr:nth-child(${index + 1})`);
         if (!linha) return;
@@ -341,6 +485,14 @@ class TableManager {
         
         linhas.sort((a, b) => {
             switch(tipo) {
+                case 'bsr-asc':
+                    const rankingA = JSON.parse(a.getAttribute('data-ranking')).ranking;
+                    const rankingB = JSON.parse(b.getAttribute('data-ranking')).ranking;
+                    return (parseInt(rankingA) || Infinity) - (parseInt(rankingB) || Infinity);
+                case 'bsr-desc':
+                    const rankingA2 = JSON.parse(a.getAttribute('data-ranking')).ranking;
+                    const rankingB2 = JSON.parse(b.getAttribute('data-ranking')).ranking;
+                    return (parseInt(rankingB2) || 0) - (parseInt(rankingA2) || 0);
                 case 'marca':
                     const marcaA = a.querySelector('td:nth-child(3)').textContent.trim().toLowerCase();
                     const marcaB = b.querySelector('td:nth-child(3)').textContent.trim().toLowerCase();
@@ -453,6 +605,29 @@ class TableManager {
         // Função removida - usando expansão de linha
     }
 
+    static filtrarPorBSR(filtro) {
+        const linhas = document.querySelectorAll('.linha-produto');
+        linhas.forEach(linha => {
+            const ranking = parseInt(JSON.parse(linha.getAttribute('data-ranking')).ranking) || Infinity;
+            switch(filtro) {
+                case 'top100':
+                    linha.style.display = ranking <= 100 ? '' : 'none';
+                    break;
+                case 'top1000':
+                    linha.style.display = ranking <= 1000 ? '' : 'none';
+                    break;
+                case 'top5000':
+                    linha.style.display = ranking <= 5000 ? '' : 'none';
+                    break;
+                case 'top10000':
+                    linha.style.display = ranking <= 10000 ? '' : 'none';
+                    break;
+                default:
+                    linha.style.display = '';
+            }
+        });
+    }
+
     static inicializarEventos() {
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('btn-expandir-ranking')) {
@@ -462,6 +637,41 @@ class TableManager {
                 }
             }
         });
+
+        const reloadRankings = document.getElementById('reload-rankings');
+        if (reloadRankings) {
+            reloadRankings.addEventListener('click', async function() {
+                const produtos = Array.from(document.querySelectorAll('.linha-produto')).map(linha => {
+                    const ranking = JSON.parse(linha.getAttribute('data-ranking') || '{}');
+                    return {
+                        link: linha.querySelector('a').href,
+                        titulo: linha.querySelector('a').textContent,
+                        asin: linha.querySelector('td:nth-child(5) span').textContent,
+                        carregandoDetalhes: true,
+                        ranking: ranking.ranking,
+                        categoria: ranking.categoria,
+                        rankingSecundario: ranking.rankingSecundario,
+                        categoriaSecundaria: ranking.categoriaSecundaria
+                    };
+                });
+                
+                await ProductAnalyzer.recarregarDetalhes(produtos, TableManager.atualizarLinhaProduto);
+            });
+        }
+
+        const filtroBSR = document.getElementById('filtro-bsr');
+        if (filtroBSR) {
+            filtroBSR.addEventListener('change', function() {
+                TableManager.filtrarPorBSR(this.value);
+            });
+        }
+
+        const ordenacao = document.getElementById('ordenacao');
+        if (ordenacao) {
+            ordenacao.addEventListener('change', function() {
+                TableManager.ordenarTabela(this.value);
+            });
+        }
     }
 }
 

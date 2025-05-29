@@ -3,6 +3,7 @@ class ProductAnalyzer {
         const produtosComPreco = produtos.filter(p => p.precoNumerico > 0);
         const produtosComAvaliacao = produtos.filter(p => p.avaliacaoNumerica > 0);
         const produtosComVendas = produtos.filter(p => p.vendidos > 0);
+        const produtosComRanking = produtos.filter(p => p.ranking);
         
         const precoMedio = produtosComPreco.length > 0 ? 
             produtosComPreco.reduce((sum, p) => sum + p.precoNumerico, 0) / produtosComPreco.length : 0;
@@ -15,14 +16,56 @@ class ProductAnalyzer {
         
         const mediaAvaliacao = produtosComAvaliacao.length > 0 ? 
             produtosComAvaliacao.reduce((sum, p) => sum + p.avaliacaoNumerica, 0) / produtosComAvaliacao.length : 0;
+
+        // Métricas de BSR
+        const mediaBSR = produtosComRanking.length > 0 ?
+            produtosComRanking.reduce((sum, p) => sum + parseInt(p.ranking), 0) / produtosComRanking.length : 0;
+
+        const produtosTop100 = produtosComRanking.filter(p => parseInt(p.ranking) <= 100).length;
+        const produtosTop1000 = produtosComRanking.filter(p => parseInt(p.ranking) <= 1000).length;
         
+        // Estatísticas de BSR por faixas
+        const faixasBSR = {
+            elite: produtosComRanking.filter(p => parseInt(p.ranking) <= 100).length,
+            otimo: produtosComRanking.filter(p => parseInt(p.ranking) > 100 && parseInt(p.ranking) <= 1000).length,
+            bom: produtosComRanking.filter(p => parseInt(p.ranking) > 1000 && parseInt(p.ranking) <= 5000).length,
+            regular: produtosComRanking.filter(p => parseInt(p.ranking) > 5000 && parseInt(p.ranking) <= 10000).length,
+            baixo: produtosComRanking.filter(p => parseInt(p.ranking) > 10000).length
+        };
+
+        // Análise de categorias mais competitivas (com melhores rankings)
+        const categoriaRankings = {};
+        produtosComRanking.forEach(p => {
+            if (p.categoria) {
+                if (!categoriaRankings[p.categoria]) {
+                    categoriaRankings[p.categoria] = [];
+                }
+                categoriaRankings[p.categoria].push(parseInt(p.ranking));
+            }
+        });
+
+        const categoriasCompetitivas = Object.entries(categoriaRankings)
+            .map(([categoria, rankings]) => ({
+                categoria,
+                mediaBSR: rankings.reduce((a, b) => a + b, 0) / rankings.length,
+                quantidade: rankings.length
+            }))
+            .sort((a, b) => a.mediaBSR - b.mediaBSR)
+            .slice(0, 5);
+
         return {
             precoMedio,
             receitaTotal,
             receitaMedia,
             mediaVendasMes,
             mediaAvaliacao,
-            totalProdutos: produtos.length
+            mediaBSR,
+            produtosTop100,
+            produtosTop1000,
+            faixasBSR,
+            categoriasCompetitivas,
+            totalProdutos: produtos.length,
+            produtosComRanking: produtosComRanking.length
         };
     }
 
@@ -47,6 +90,7 @@ class ProductAnalyzer {
 
     static async buscarDetalhesEmParalelo(produtos, atualizarCallback) {
         const BATCH_SIZE = 5;
+        let produtosAtualizados = 0;
         
         for (let i = 0; i < produtos.length; i += BATCH_SIZE) {
             const batch = produtos.slice(i, i + BATCH_SIZE);
@@ -82,18 +126,49 @@ class ProductAnalyzer {
                     produto.carregandoDetalhes = false;
                     atualizarCallback(produto, indexGlobal);
                     
+                    produtosAtualizados++;
+                    if (produtosAtualizados === produtos.length) {
+                        // Todos os produtos foram atualizados
+                        TableManager.atualizarMetricas(produtos);
+                        NotificationManager.mostrar('Análise completa! Rankings atualizados.');
+                    }
+                    
                 } catch (error) {
                     console.error(`Erro ao buscar detalhes do produto ${indexGlobal}:`, error);
                     produto.carregandoDetalhes = false;
                     atualizarCallback(produto, indexGlobal);
+                    
+                    produtosAtualizados++;
+                    if (produtosAtualizados === produtos.length) {
+                        TableManager.atualizarMetricas(produtos);
+                    }
                 }
             });
             
             await Promise.all(promessas);
             await new Promise(resolve => setTimeout(resolve, 300));
         }
+    }
+
+    static async recarregarDetalhes(produtos, atualizarCallback) {
+        NotificationManager.mostrar('Recarregando detalhes dos produtos...');
         
-        NotificationManager.mostrar('Análise completa!');
+        // Resetar status de carregamento
+        produtos.forEach(produto => {
+            produto.carregandoDetalhes = true;
+            produto.ranking = null;
+            produto.categoria = null;
+            produto.rankingSecundario = null;
+            produto.categoriaSecundaria = null;
+        });
+        
+        // Atualizar UI para mostrar loading
+        produtos.forEach((produto, index) => {
+            atualizarCallback(produto, index);
+        });
+        
+        // Buscar detalhes novamente
+        await this.buscarDetalhesEmParalelo(produtos, atualizarCallback);
     }
 
     static async coletarProdutosTodasPaginas() {
