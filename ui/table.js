@@ -136,25 +136,40 @@ class TableManager {
                                     color: #6ac768;
                                     cursor: pointer;
                                 ">↓</button>
+                                <button class="btn-info-top100" style="
+                                    background: #014641;
+                                    border: none;
+                                    width: 16px;
+                                    height: 16px;
+                                    border-radius: 50%;
+                                    color: white;
+                                    font-size: 11px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    cursor: pointer;
+                                ">i</button>
+                            </div>
+                            <div class="info-top100-tooltip" style="
+                                display: none;
+                                position: absolute;
+                                background: #014641;
+                                color: white;
+                                padding: 12px;
+                                border-radius: 8px;
+                                font-size: 12px;
+                                max-width: 250px;
+                                z-index: 100;
+                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                            ">
+                                <div style="margin-bottom: 8px;">Produtos com altíssima competitividade e excelente volume de vendas.</div>
+                                <div style="margin-bottom: 8px;">✓ Maior visibilidade na Amazon</div>
+                                <div style="margin-bottom: 8px;">✓ Geralmente líderes de mercado</div>
+                                <div>✓ Alta concorrência e investimento necessário</div>
                             </div>
                             <div data-metrica="top100" style="font-size: 18px; font-weight: 700; color: #6ac768;">${metricas.produtosTop100}</div>
                             <div data-metrica="top100-pct" style="font-size: 11px; color: #64748b;">${((metricas.produtosTop100/metricas.produtosComRanking)*100).toFixed(1)}% do total</div>
-                            <div class="top100-lista" style="
-                                display: none;
-                                position: absolute;
-                                top: 100%;
-                                left: 0;
-                                right: 0;
-                                background: white;
-                                border-radius: 8px;
-                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                                z-index: 100;
-                                margin-top: 8px;
-                                padding: 12px;
-                                text-align: left;
-                                max-height: 300px;
-                                overflow-y: auto;
-                            "></div>
+                            <div class="top100-lista" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; margin-top: 8px; padding: 12px; text-align: left; max-height: 300px; overflow-y: auto;"></div>
                         </div>
                         <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative;">
                             <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
@@ -172,25 +187,40 @@ class TableManager {
                                     color: #6ac768;
                                     cursor: pointer;
                                 ">↓</button>
+                                <button class="btn-info-top1000" style="
+                                    background: #014641;
+                                    border: none;
+                                    width: 16px;
+                                    height: 16px;
+                                    border-radius: 50%;
+                                    color: white;
+                                    font-size: 11px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    cursor: pointer;
+                                ">i</button>
+                            </div>
+                            <div class="info-top1000-tooltip" style="
+                                display: none;
+                                position: absolute;
+                                background: #014641;
+                                color: white;
+                                padding: 12px;
+                                border-radius: 8px;
+                                font-size: 12px;
+                                max-width: 250px;
+                                z-index: 100;
+                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                            ">
+                                <div style="margin-bottom: 8px;">Produtos com boa performance e oportunidade de crescimento.</div>
+                                <div style="margin-bottom: 8px;">✓ Menor concorrência que Top 100</div>
+                                <div style="margin-bottom: 8px;">✓ Bom potencial de vendas</div>
+                                <div>✓ Melhor relação custo-benefício</div>
                             </div>
                             <div data-metrica="top1000" style="font-size: 18px; font-weight: 700; color: #6ac768;">${metricas.produtosTop1000}</div>
                             <div data-metrica="top1000-pct" style="font-size: 11px; color: #64748b;">${((metricas.produtosTop1000/metricas.produtosComRanking)*100).toFixed(1)}% do total</div>
-                            <div class="top1000-lista" style="
-                                display: none;
-                                position: absolute;
-                                top: 100%;
-                                left: 0;
-                                right: 0;
-                                background: white;
-                                border-radius: 8px;
-                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-                                z-index: 100;
-                                margin-top: 8px;
-                                padding: 12px;
-                                text-align: left;
-                                max-height: 300px;
-                                overflow-y: auto;
-                            "></div>
+                            <div class="top1000-lista" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100; margin-top: 8px; padding: 12px; text-align: left; max-height: 300px; overflow-y: auto;"></div>
                         </div>
                         <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                             <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
@@ -827,17 +857,25 @@ class TableManager {
             }
         });
 
-        // Tooltip de informação BSR
-        const btnInfoBSR = document.querySelector('.btn-info-bsr');
-        const tooltipBSR = document.querySelector('.info-bsr-tooltip');
-        if (btnInfoBSR && tooltipBSR) {
-            btnInfoBSR.addEventListener('mouseenter', () => {
-                tooltipBSR.style.display = 'block';
-            });
-            btnInfoBSR.addEventListener('mouseleave', () => {
-                tooltipBSR.style.display = 'none';
-            });
-        }
+        // Tooltips para Top 100 e Top 1000
+        const tooltips = [
+            { btn: '.btn-info-top100', tooltip: '.info-top100-tooltip' },
+            { btn: '.btn-info-top1000', tooltip: '.info-top1000-tooltip' },
+            { btn: '.btn-info-bsr', tooltip: '.info-bsr-tooltip' }
+        ];
+
+        tooltips.forEach(({ btn, tooltip }) => {
+            const btnElement = document.querySelector(btn);
+            const tooltipElement = document.querySelector(tooltip);
+            if (btnElement && tooltipElement) {
+                btnElement.addEventListener('mouseenter', () => {
+                    tooltipElement.style.display = 'block';
+                });
+                btnElement.addEventListener('mouseleave', () => {
+                    tooltipElement.style.display = 'none';
+                });
+            }
+        });
     }
 }
 
