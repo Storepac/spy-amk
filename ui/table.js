@@ -565,12 +565,57 @@ class TableManager {
             .sort((a, b) => parseInt(a.ranking) - parseInt(b.ranking));
 
         container.innerHTML = produtosFiltrados.map(p => `
-            <div style="margin-bottom: 8px; padding: 8px; border-bottom: 1px solid #f1f5f9;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="color: #6ac768; font-weight: 600;">#${p.ranking}</span>
-                    <span style="color: #64748b; font-size: 11px;">${p.categoria || ''}</span>
+            <div style="
+                margin-bottom: 8px;
+                padding: 8px;
+                border-bottom: 1px solid #f1f5f9;
+                display: grid;
+                grid-template-columns: 40px 1fr;
+                gap: 8px;
+            ">
+                <div style="grid-row: span 2;">
+                    ${p.imagem ? `
+                        <img src="${p.imagem}" style="
+                            width: 40px;
+                            height: 40px;
+                            object-fit: cover;
+                            border-radius: 4px;
+                        ">
+                    ` : '<div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 4px;"></div>'}
                 </div>
-                <div style="font-size: 12px; color: #014641;">${p.titulo.substring(0, 50)}${p.titulo.length > 50 ? '...' : ''}</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: #6ac768; font-weight: 600; font-size: 11px;">#${p.ranking}</span>
+                        <span style="color: #64748b; font-size: 10px;">${p.categoria || ''}</span>
+                    </div>
+                    <span style="color: #64748b; font-size: 10px; font-family: monospace;">${p.asin}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <a href="${p.link}" target="_blank" style="
+                        color: #014641;
+                        text-decoration: none;
+                        font-size: 11px;
+                        line-height: 1.2;
+                        display: block;
+                        flex: 1;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    " title="${p.titulo}">
+                        ${p.titulo}
+                    </a>
+                    <button onclick="window.open('${p.link}', '_blank')" style="
+                        background: #6ac768;
+                        border: none;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                        color: white;
+                        font-size: 10px;
+                        cursor: pointer;
+                        margin-left: 8px;
+                        white-space: nowrap;
+                    ">Ver →</button>
+                </div>
             </div>
         `).join('');
     }
