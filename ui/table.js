@@ -120,18 +120,111 @@ class TableManager {
                     
                     <!-- Novas Métricas de BSR -->
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding: 0 20px 20px 20px; background: #f8fafc;">
-                        <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                            <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px;">PRODUTOS TOP 100</div>
+                        <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative;">
+                            <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                PRODUTOS TOP 100
+                                <button class="btn-expandir-top100" style="
+                                    background: none;
+                                    border: none;
+                                    padding: 0;
+                                    width: 20px;
+                                    height: 20px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 14px;
+                                    color: #6ac768;
+                                    cursor: pointer;
+                                ">↓</button>
+                            </div>
                             <div data-metrica="top100" style="font-size: 18px; font-weight: 700; color: #6ac768;">${metricas.produtosTop100}</div>
                             <div data-metrica="top100-pct" style="font-size: 11px; color: #64748b;">${((metricas.produtosTop100/metricas.produtosComRanking)*100).toFixed(1)}% do total</div>
+                            <div class="top100-lista" style="
+                                display: none;
+                                position: absolute;
+                                top: 100%;
+                                left: 0;
+                                right: 0;
+                                background: white;
+                                border-radius: 8px;
+                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                z-index: 100;
+                                margin-top: 8px;
+                                padding: 12px;
+                                text-align: left;
+                                max-height: 300px;
+                                overflow-y: auto;
+                            "></div>
                         </div>
-                        <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                            <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px;">PRODUTOS TOP 1000</div>
+                        <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative;">
+                            <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                PRODUTOS TOP 1000
+                                <button class="btn-expandir-top1000" style="
+                                    background: none;
+                                    border: none;
+                                    padding: 0;
+                                    width: 20px;
+                                    height: 20px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 14px;
+                                    color: #6ac768;
+                                    cursor: pointer;
+                                ">↓</button>
+                            </div>
                             <div data-metrica="top1000" style="font-size: 18px; font-weight: 700; color: #6ac768;">${metricas.produtosTop1000}</div>
                             <div data-metrica="top1000-pct" style="font-size: 11px; color: #64748b;">${((metricas.produtosTop1000/metricas.produtosComRanking)*100).toFixed(1)}% do total</div>
+                            <div class="top1000-lista" style="
+                                display: none;
+                                position: absolute;
+                                top: 100%;
+                                left: 0;
+                                right: 0;
+                                background: white;
+                                border-radius: 8px;
+                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                                z-index: 100;
+                                margin-top: 8px;
+                                padding: 12px;
+                                text-align: left;
+                                max-height: 300px;
+                                overflow-y: auto;
+                            "></div>
                         </div>
                         <div style="background: white; padding: 16px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                            <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px;">DISTRIBUIÇÃO BSR</div>
+                            <div style="font-size: 12px; color: #014641; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                DISTRIBUIÇÃO BSR
+                                <button class="btn-info-bsr" style="
+                                    background: #014641;
+                                    border: none;
+                                    width: 16px;
+                                    height: 16px;
+                                    border-radius: 50%;
+                                    color: white;
+                                    font-size: 11px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    cursor: pointer;
+                                ">i</button>
+                            </div>
+                            <div class="info-bsr-tooltip" style="
+                                display: none;
+                                position: absolute;
+                                background: #014641;
+                                color: white;
+                                padding: 12px;
+                                border-radius: 8px;
+                                font-size: 12px;
+                                max-width: 250px;
+                                z-index: 100;
+                                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                            ">
+                                <div style="margin-bottom: 8px;"><strong>Elite (1-100):</strong> Produtos com excelente performance, geralmente líderes de categoria</div>
+                                <div style="margin-bottom: 8px;"><strong>Ótimo (101-1000):</strong> Produtos muito bem posicionados com bom volume de vendas</div>
+                                <div><strong>Bom (1001-5000):</strong> Produtos com performance regular e potencial de crescimento</div>
+                            </div>
                             <div style="display: flex; justify-content: center; gap: 12px; margin-top: 8px;">
                                 <div title="Elite (1-100)">
                                     <div style="font-size: 11px; color: #64748b;">Elite</div>
@@ -421,6 +514,35 @@ class TableManager {
                 </div>
             `).join('');
         }
+
+        // Atualizar listas de Top 100 e Top 1000
+        this.atualizarListaProdutos(produtos, 100, '.top100-lista');
+        this.atualizarListaProdutos(produtos, 1000, '.top1000-lista');
+
+        // Reaplica o filtro atual
+        const filtroBSR = document.getElementById('filtro-bsr');
+        if (filtroBSR) {
+            this.filtrarPorBSR(filtroBSR.value);
+        }
+    }
+
+    static atualizarListaProdutos(produtos, limite, seletor) {
+        const container = document.querySelector(seletor);
+        if (!container) return;
+
+        const produtosFiltrados = produtos
+            .filter(p => p.ranking && parseInt(p.ranking) <= limite)
+            .sort((a, b) => parseInt(a.ranking) - parseInt(b.ranking));
+
+        container.innerHTML = produtosFiltrados.map(p => `
+            <div style="margin-bottom: 8px; padding: 8px; border-bottom: 1px solid #f1f5f9;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                    <span style="color: #6ac768; font-weight: 600;">#${p.ranking}</span>
+                    <span style="color: #64748b; font-size: 11px;">${p.categoria || ''}</span>
+                </div>
+                <div style="font-size: 12px; color: #014641;">${p.titulo.substring(0, 50)}${p.titulo.length > 50 ? '...' : ''}</div>
+            </div>
+        `).join('');
     }
 
     static atualizarLinhaProduto(produto, index) {
@@ -670,6 +792,50 @@ class TableManager {
         if (ordenacao) {
             ordenacao.addEventListener('change', function() {
                 TableManager.ordenarTabela(this.value);
+            });
+        }
+
+        // Eventos para expandir Top 100 e Top 1000
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-expandir-top100')) {
+                const lista = document.querySelector('.top100-lista');
+                const todosDropdowns = document.querySelectorAll('.top100-lista, .top1000-lista');
+                todosDropdowns.forEach(d => {
+                    if (d !== lista) d.style.display = 'none';
+                });
+                lista.style.display = lista.style.display === 'none' ? 'block' : 'none';
+                e.target.textContent = lista.style.display === 'none' ? '↓' : '↑';
+            }
+            
+            if (e.target.classList.contains('btn-expandir-top1000')) {
+                const lista = document.querySelector('.top1000-lista');
+                const todosDropdowns = document.querySelectorAll('.top100-lista, .top1000-lista');
+                todosDropdowns.forEach(d => {
+                    if (d !== lista) d.style.display = 'none';
+                });
+                lista.style.display = lista.style.display === 'none' ? 'block' : 'none';
+                e.target.textContent = lista.style.display === 'none' ? '↓' : '↑';
+            }
+
+            // Fechar dropdowns ao clicar fora
+            if (!e.target.classList.contains('btn-expandir-top100') && 
+                !e.target.classList.contains('btn-expandir-top1000')) {
+                const dropdowns = document.querySelectorAll('.top100-lista, .top1000-lista');
+                dropdowns.forEach(d => d.style.display = 'none');
+                document.querySelectorAll('.btn-expandir-top100, .btn-expandir-top1000')
+                    .forEach(btn => btn.textContent = '↓');
+            }
+        });
+
+        // Tooltip de informação BSR
+        const btnInfoBSR = document.querySelector('.btn-info-bsr');
+        const tooltipBSR = document.querySelector('.info-bsr-tooltip');
+        if (btnInfoBSR && tooltipBSR) {
+            btnInfoBSR.addEventListener('mouseenter', () => {
+                tooltipBSR.style.display = 'block';
+            });
+            btnInfoBSR.addEventListener('mouseleave', () => {
+                tooltipBSR.style.display = 'none';
             });
         }
     }
