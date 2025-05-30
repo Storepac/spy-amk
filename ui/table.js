@@ -508,8 +508,10 @@ class TableManager {
                                             data-ranking='${JSON.stringify({
                                                 ranking: produto.ranking || '',
                                                 categoria: produto.categoria || '',
+                                                categoriaLink: produto.categoriaLink || '',
                                                 rankingSecundario: produto.rankingSecundario || '',
-                                                categoriaSecundaria: produto.categoriaSecundaria || ''
+                                                categoriaSecundaria: produto.categoriaSecundaria || '',
+                                                categoriaSecundariaLink: produto.categoriaSecundariaLink || ''
                                             })}'
                                             style="border-bottom: 1px solid #f1f5f9;">
                                             <td style="padding: 8px 16px; display: flex; align-items: center; gap: 8px;">
@@ -867,8 +869,10 @@ class TableManager {
                 linha.setAttribute('data-ranking', JSON.stringify({
                     ranking: produto.ranking || '',
                     categoria: produto.categoria || '',
+                    categoriaLink: produto.categoriaLink || '',
                     rankingSecundario: produto.rankingSecundario || '',
-                    categoriaSecundaria: produto.categoriaSecundaria || ''
+                    categoriaSecundaria: produto.categoriaSecundaria || '',
+                    categoriaSecundariaLink: produto.categoriaSecundariaLink || ''
                 }));
                 
                 // Mostrar botão "mais"
@@ -972,18 +976,74 @@ class TableManager {
         }
         
         let conteudo = '';
+        
+        // Ranking Principal
         if (dados.ranking && dados.categoria) {
-            conteudo += `<div style="margin-bottom: 8px;">
-                <span style="color: #6ac768; font-weight: 600; font-size: 16px;">#${dados.ranking}</span> 
-                <span style="color: #014641; margin-left: 8px;">em ${dados.categoria}</span>
-            </div>`;
+            conteudo += `
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    margin-bottom: ${dados.rankingSecundario ? '16px' : '0'}
+                ">
+                    <div style="
+                        background: #f0fdf4;
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        font-size: 11px;
+                        color: #014641;
+                        font-weight: 500;
+                    ">Principal</div>
+                    <div>
+                        <span style="color: #6ac768; font-weight: 600; font-size: 16px;">#${dados.ranking}</span> 
+                        <span style="color: #014641; margin-left: 8px;">em ${dados.categoria}</span>
+                        ${dados.categoriaLink ? `
+                            <a href="${dados.categoriaLink}" 
+                               target="_blank" 
+                               style="
+                                display: inline-block;
+                                margin-left: 8px;
+                                color: #6ac768;
+                                font-size: 12px;
+                                text-decoration: none;
+                            ">Ver Top 100 →</a>
+                        ` : ''}
+                    </div>
+                </div>`;
         }
         
+        // Ranking Secundário
         if (dados.rankingSecundario && dados.categoriaSecundaria) {
-            conteudo += `<div>
-                <span style="color: #6ac768; font-weight: 600; font-size: 16px;">#${dados.rankingSecundario}</span> 
-                <span style="color: #014641; margin-left: 8px;">em ${dados.categoriaSecundaria}</span>
-            </div>`;
+            conteudo += `
+                <div style="
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                ">
+                    <div style="
+                        background: #f0f9ff;
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        font-size: 11px;
+                        color: #0369a1;
+                        font-weight: 500;
+                    ">Secundário</div>
+                    <div>
+                        <span style="color: #0ea5e9; font-weight: 600; font-size: 16px;">#${dados.rankingSecundario}</span> 
+                        <span style="color: #014641; margin-left: 8px;">em ${dados.categoriaSecundaria}</span>
+                        ${dados.categoriaSecundariaLink ? `
+                            <a href="${dados.categoriaSecundariaLink}" 
+                               target="_blank" 
+                               style="
+                                display: inline-block;
+                                margin-left: 8px;
+                                color: #0ea5e9;
+                                font-size: 12px;
+                                text-decoration: none;
+                            ">Ver Top 100 →</a>
+                        ` : ''}
+                    </div>
+                </div>`;
         }
         
         const novaLinha = document.createElement('tr');
@@ -991,16 +1051,15 @@ class TableManager {
         novaLinha.innerHTML = `
             <td colspan="11" style="
                 padding: 16px 24px;
-                background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+                background: white;
                 border-left: 4px solid #6ac768;
                 font-family: 'Poppins', sans-serif;
             ">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 20px;">📊</span>
-                    <div>
-                        <div style="font-weight: 600; color: #014641; margin-bottom: 8px; font-size: 14px;">Rankings do Produto</div>
-                        ${conteudo}
+                <div style="display: flex; flex-direction: column;">
+                    <div style="font-weight: 600; color: #014641; margin-bottom: 12px; font-size: 14px;">
+                        Rankings do Produto
                     </div>
+                    ${conteudo}
                 </div>
             </td>
         `;
@@ -1063,8 +1122,10 @@ class TableManager {
                         carregandoDetalhes: true,
                         ranking: ranking.ranking,
                         categoria: ranking.categoria,
-                        rankingSecundario: ranking.rankingSecundario,
-                        categoriaSecundaria: ranking.categoriaSecundaria
+                        categoriaLink: ranking.categoriaLink || '',
+                        rankingSecundario: ranking.rankingSecundario || '',
+                        categoriaSecundaria: ranking.categoriaSecundaria || '',
+                        categoriaSecundariaLink: ranking.categoriaSecundariaLink || ''
                     };
                 });
                 
