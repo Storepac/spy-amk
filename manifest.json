@@ -26,6 +26,7 @@
             "ui/notifications.js",
             "ui/table.js",
             "ui/events.js",
+            "ui/product_page.js",
             "core/extractor.js",
             "core/analyzer.js",
             "app.js",

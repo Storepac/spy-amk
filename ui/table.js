@@ -553,7 +553,7 @@ class TableManager {
                                             </td>
                                             <td style="padding: 8px 16px; text-align: center; font-weight: 500; font-size: 14px;">
                                                 <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                                    <span style="color: #014641;">${produto.posicaoGlobal}</span>
+                                                <span style="color: #014641;">${produto.posicaoGlobal}</span>
                                                     ${produto.paginaOrigem > 1 ? `<span style="color: #6ac768; font-size: 11px;">(Pág. ${produto.paginaOrigem})</span>` : ''}
                                                     ${produto.patrocinado ? `
                                                         <span title="Produto Patrocinado" style="
@@ -971,9 +971,7 @@ class TableManager {
         });
         
         const dados = JSON.parse(elemento.getAttribute('data-ranking'));
-        if (!dados.ranking && !dados.rankingSecundario) {
-            return;
-        }
+        console.log('Dados do ranking ao expandir:', dados);
         
         let conteudo = '';
         
@@ -995,8 +993,8 @@ class TableManager {
                         font-weight: 500;
                     ">Principal</div>
                     <div>
-                        <span style="color: #6ac768; font-weight: 600; font-size: 16px;">#${dados.ranking}</span> 
-                        <span style="color: #014641; margin-left: 8px;">em ${dados.categoria}</span>
+                <span style="color: #6ac768; font-weight: 600; font-size: 16px;">#${dados.ranking}</span> 
+                <span style="color: #014641; margin-left: 8px;">em ${dados.categoria}</span>
                         ${dados.categoriaLink ? `
                             <a href="${dados.categoriaLink}" 
                                target="_blank" 
@@ -1009,7 +1007,7 @@ class TableManager {
                             ">Ver Top 100 →</a>
                         ` : ''}
                     </div>
-                </div>`;
+            </div>`;
         }
         
         // Ranking Secundário
@@ -1030,7 +1028,7 @@ class TableManager {
                     ">Secundário</div>
                     <div>
                         <span style="color: #0ea5e9; font-weight: 600; font-size: 16px;">#${dados.rankingSecundario}</span> 
-                        <span style="color: #014641; margin-left: 8px;">em ${dados.categoriaSecundaria}</span>
+                <span style="color: #014641; margin-left: 8px;">em ${dados.categoriaSecundaria}</span>
                         ${dados.categoriaSecundariaLink ? `
                             <a href="${dados.categoriaSecundariaLink}" 
                                target="_blank" 
@@ -1043,7 +1041,7 @@ class TableManager {
                             ">Ver Top 100 →</a>
                         ` : ''}
                     </div>
-                </div>`;
+            </div>`;
         }
         
         const novaLinha = document.createElement('tr');
@@ -1059,7 +1057,7 @@ class TableManager {
                     <div style="font-weight: 600; color: #014641; margin-bottom: 12px; font-size: 14px;">
                         Rankings do Produto
                     </div>
-                    ${conteudo}
+                        ${conteudo}
                 </div>
             </td>
         `;
@@ -1199,6 +1197,85 @@ class TableManager {
                 });
             }
         });
+    }
+
+    static extrairRankings(elemento) {
+        if (!elemento) return null;
+
+        let rankings = {
+            ranking: '',
+            categoria: ''
+        };
+
+        // Pega todos os spans dentro do td > span
+        const spans = elemento.querySelectorAll('span');
+        console.log('Spans encontrados:', spans.length);
+
+        // Procura pelo primeiro span que contém "Nº"
+        for (let span of spans) {
+            const texto = span.textContent.trim();
+            console.log('Texto do span:', texto);
+
+            if (texto.includes('Nº')) {
+                const numeroMatch = texto.match(/Nº\s+(\d+)/);
+                if (numeroMatch) {
+                    rankings.ranking = numeroMatch[1];
+                    // Pega tudo que vem depois de "em"
+                    const categoriaMatch = texto.match(/em\s+(.+)$/);
+                    if (categoriaMatch) {
+                        rankings.categoria = categoriaMatch[1].trim();
+                    }
+                    break; // Para na primeira ocorrência
+                }
+            }
+        }
+
+        console.log('Rankings extraídos:', rankings);
+        return rankings;
+    }
+
+    static async recarregarDetalhes(produtos, callbackAtualizacao) {
+        for (let i = 0; i < produtos.length; i++) {
+            const produto = produtos[i];
+            
+            try {
+                const response = await fetch(produto.link);
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Extrai a marca
+                const marca = doc.querySelector('#bylineInfo');
+                if (marca) {
+                    produto.marca = marca.textContent.trim().replace('Marca: ', '');
+                }
+                
+                // Extrai os rankings
+                let rankingElement = doc.querySelector('td > span');
+                if (rankingElement) {
+                    console.log('HTML do elemento de ranking encontrado:', rankingElement.outerHTML);
+                    const rankings = this.extrairRankings(rankingElement);
+                    if (rankings) {
+                        produto.ranking = rankings.ranking;
+                        produto.categoria = rankings.categoria;
+                        console.log('Rankings atribuídos ao produto:', {
+                            ranking: produto.ranking,
+                            categoria: produto.categoria
+                        });
+                    }
+                } else {
+                    console.log('Elemento de ranking não encontrado');
+                }
+                
+                produto.carregandoDetalhes = false;
+                callbackAtualizacao(produto, i);
+                
+            } catch (error) {
+                console.error('Erro ao carregar detalhes:', error);
+                produto.carregandoDetalhes = false;
+                callbackAtualizacao(produto, i);
+            }
+        }
     }
 }
 
