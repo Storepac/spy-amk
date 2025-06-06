@@ -74,12 +74,12 @@ class ProductPageManager {
                     display: flex;
                     align-items: center;
                     gap: 8px;
-            ">
-                <div style="
-                    color: white;
-                    font-size: 16px;
-                    font-weight: bold;
-                ">AMK SKY</div>
+                ">
+                    <div style="
+                        color: white;
+                        font-size: 16px;
+                        font-weight: bold;
+                    ">AMK SKY</div>
                 </div>
                 <button id="amk-spy-close" style="
                     background: none;
@@ -128,9 +128,9 @@ class ProductPageManager {
                         ">9.03</button>
                     </div>
 
-                        <div style="
-                            display: flex;
-                            gap: 16px;
+                    <div style="
+                        display: flex;
+                        gap: 16px;
                         margin-bottom: 16px;
                     ">
                         <img id="produto-imagem" style="
@@ -142,7 +142,7 @@ class ProductPageManager {
                             border: 1px solid #e7e7e7;
                         ">
                         <div style="flex: 1;">
-                        <div style="
+                            <div style="
                                 display: grid;
                                 grid-template-columns: auto 1fr;
                                 gap: 8px 12px;
@@ -416,52 +416,6 @@ class ProductPageManager {
                     </div>
                 </div>
             </div>
-
-            <div id="nota-listing-modal" style="
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.5);
-                justify-content: center;
-                align-items: center;
-                z-index: 10000;
-            ">
-                <div style="
-                    background: white;
-                    padding: 24px;
-                    border-radius: 8px;
-                    width: 90%;
-                    max-width: 400px;
-                    position: relative;
-                ">
-                    <button id="fechar-modal" style="
-                        position: absolute;
-                        top: 12px;
-                        right: 12px;
-                        background: none;
-                        border: none;
-                        font-size: 18px;
-                        cursor: pointer;
-                        padding: 4px;
-                    ">✕</button>
-                    <h3 style="margin: 0 0 16px 0;">Detalhes do Listing</h3>
-                    <div style="margin-bottom: 16px;">
-                        <div style="font-weight: bold; margin-bottom: 8px;">Nota: 9.03</div>
-                        <div style="color: #565959; font-size: 13px;">
-                            Esta nota é calculada com base em diversos fatores incluindo:
-                            <ul style="margin: 8px 0; padding-left: 20px;">
-                                <li>Qualidade das imagens</li>
-                                <li>Descrição do produto</li>
-                                <li>Palavras-chave</li>
-                                <li>Preço competitivo</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
         `;
 
         // Controla o estado do painel
@@ -607,30 +561,9 @@ class ProductPageManager {
             });
         }
 
-        // Eventos do modal da nota do listing
+        // Efeito hover no botão da nota
         const notaListingBtn = document.getElementById('nota-listing-btn');
-        const notaListingModal = document.getElementById('nota-listing-modal');
-        const fecharModalBtn = document.getElementById('fechar-modal');
-
-        if (notaListingBtn && notaListingModal && fecharModalBtn) {
-            notaListingBtn.addEventListener('click', () => {
-                notaListingModal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            });
-
-            fecharModalBtn.addEventListener('click', () => {
-                notaListingModal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-            });
-
-            notaListingModal.addEventListener('click', (e) => {
-                if (e.target === notaListingModal) {
-                    notaListingModal.style.display = 'none';
-                    document.body.style.overflow = 'auto';
-                }
-            });
-
-            // Mantendo os efeitos hover existentes
+        if (notaListingBtn) {
             notaListingBtn.addEventListener('mouseenter', () => {
                 notaListingBtn.style.backgroundColor = '#007733';
             });
@@ -822,7 +755,7 @@ class ProductPageManager {
                 }
             }
 
-        const produto = {
+            const produto = {
                 titulo: document.getElementById('productTitle')?.textContent.trim(),
                 asin,
                 ean,
@@ -832,7 +765,7 @@ class ProductPageManager {
             };
 
             console.log('Dados capturados:', produto);
-        this.atualizarDadosProduto(produto);
+            this.atualizarDadosProduto(produto);
         } catch (error) {
             console.error('Erro ao carregar dados do produto:', error);
         }
