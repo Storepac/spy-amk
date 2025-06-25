@@ -81,8 +81,8 @@ class AppController {
         // Configurar produtos no FilterManager
         TableManager.filterManager.setProdutos(produtos);
         
-        // Inicializar eventos da tabela
-        TableManager.inicializarEventos();
+        // Inicializar eventos da tabela com limpeza forçada
+        TableManager.inicializarEventos(true);
         
         // Configurar eventos do modal
         this.configurarEventosModal();
@@ -132,6 +132,17 @@ class AppController {
                 console.log('🎨 Alternando tema...');
                 // Por enquanto, apenas um log - podemos implementar o tema depois
                 NotificationManager.informacao('Funcionalidade de tema será implementada em breve!');
+            });
+        }
+        
+        // Botão teste eventos
+        const btnTesteEventos = document.getElementById('btn-teste-eventos');
+        console.log('Botão teste eventos encontrado:', !!btnTesteEventos);
+        if (btnTesteEventos) {
+            btnTesteEventos.addEventListener('click', () => {
+                console.log('🔧 Forçando reconfiguração dos eventos...');
+                TableManager.forcarReconfiguracaoEventos();
+                NotificationManager.sucesso('Eventos reconfigurados! Tente copiar ASIN ou clicar em BSR agora.');
             });
         }
         
@@ -192,8 +203,8 @@ class AppController {
             // Configurar produtos no FilterManager
             TableManager.filterManager.setProdutos(produtos);
             
-            // Inicializar eventos da tabela
-            TableManager.inicializarEventos();
+            // Inicializar eventos da tabela com limpeza forçada
+            TableManager.inicializarEventos(true);
             
             // Ocultar loading inicial
             this.ocultarLoadingInicial();

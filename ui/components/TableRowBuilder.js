@@ -14,7 +14,7 @@ class TableRowBuilder {
                 transition: all 0.2s;
                 font-family: 'Poppins', sans-serif;
             " data-asin="${produto.asin}" data-index="${index}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-secondary)'">
-                ${this.criarCelulaPosicao(index)}
+                ${this.criarCelulaPosicao(produto, index)}
                 ${this.criarCelulaImagem(produto)}
                 ${this.criarCelulaTitulo(produto)}
                 ${this.criarCelulaASIN(produto, asinDuplicado)}
@@ -32,18 +32,47 @@ class TableRowBuilder {
         `;
     }
 
-    static criarCelulaPosicao(index) {
+    static criarCelulaPosicao(produto, index) {
+        // Usar posição real da pesquisa se disponível
+        const posicaoReal = produto.posicaoGlobal || produto.posicao || (index + 1);
+        const paginaOrigem = produto.paginaOrigem || 1;
+        const posicaoNaPagina = produto.posicaoNaPagina || (index + 1);
+        
+        // Determinar cor baseada na posição
+        let corFundo = 'linear-gradient(135deg, #014641, #013935)';
+        let corTexto = 'white';
+        let icone = '📊';
+        
+        if (posicaoReal <= 10) {
+            corFundo = 'linear-gradient(135deg, #fbbf24, #f59e0b)';
+            icone = '🥇';
+        } else if (posicaoReal <= 50) {
+            corFundo = 'linear-gradient(135deg, #6b7280, #4b5563)';
+            icone = '🥈';
+        } else if (posicaoReal <= 100) {
+            corFundo = 'linear-gradient(135deg, #cd7f32, #b8860b)';
+            icone = '🥉';
+        }
+        
+        // Se tem informação de página, mostrar mais detalhes
+        const temInfoPagina = produto.paginaOrigem && produto.posicaoNaPagina;
+        
         return `
             <td style="
                 padding: 8px;
                 text-align: center;
                 font-size: 12px;
                 font-weight: 600;
-                color: var(--text-primary);
+                color: ${corTexto};
                 border-right: 1px solid var(--border-light);
-                background: linear-gradient(135deg, #014641, #013935);
-                color: white;
-            ">${index + 1}</td>
+                background: ${corFundo};
+                position: relative;
+            " title="${temInfoPagina ? `Página ${paginaOrigem}, posição ${posicaoNaPagina} na página` : 'Posição na pesquisa'}">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 1px;">
+                    <div style="font-size: 11px; font-weight: 700;">${icone} ${posicaoReal}</div>
+                    ${temInfoPagina ? `<div style="font-size: 9px; opacity: 0.8;">P${paginaOrigem}:${posicaoNaPagina}</div>` : ''}
+                </div>
+            </td>
         `;
     }
 
@@ -108,7 +137,7 @@ class TableRowBuilder {
                 font-weight: 600;
                 font-family: 'Courier New', monospace;
             ">
-                <button onclick="TableManager.copiarASIN('${asin}')" style="
+                <button class="btn-copiar-asin" data-asin="${asin}" style="
                     ${estiloDuplicado}
                     background: var(--bg-secondary);
                     border: 1px solid var(--border-light);
@@ -240,7 +269,7 @@ class TableRowBuilder {
         }
         
         return `
-            <td style="
+            <td class="celula-bsr" style="
                 padding: 8px;
                 text-align: center;
                 border-right: 1px solid var(--border-light);
@@ -248,7 +277,7 @@ class TableRowBuilder {
                 font-weight: 600;
                 color: ${corBSR};
                 cursor: pointer;
-            " onclick="TableManager.toggleRankingInfo(this)" title="Clique para ver detalhes do ranking">
+            " title="Clique para ver detalhes do ranking">
                 ${ranking}
             </td>
         `;

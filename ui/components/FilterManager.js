@@ -12,7 +12,8 @@ class FilterManager {
             bsrFaixa: '',
             bsrMin: '',
             bsrMax: '',
-            tipo: ''
+            tipo: '',
+            posicao: ''
         };
         this.produtos = [];
         this.marcasUnicas = [];
@@ -71,7 +72,8 @@ class FilterManager {
             bsrFaixa: document.getElementById('filtro-bsr-faixa')?.value || '',
             bsrMin: document.getElementById('filtro-bsr-min')?.value || '',
             bsrMax: document.getElementById('filtro-bsr-max')?.value || '',
-            tipo: document.getElementById('filtro-tipo')?.value || ''
+            tipo: document.getElementById('filtro-tipo')?.value || '',
+            posicao: document.getElementById('filtro-posicao')?.value || ''
         };
     }
 
@@ -112,6 +114,11 @@ class FilterManager {
 
         // Filtro por tipo
         if (this.filtros.tipo && !this.verificarFiltroTipo(produto)) {
+            return false;
+        }
+
+        // Filtro por posição na pesquisa
+        if (this.filtros.posicao && !this.verificarFiltroPosicao(produto)) {
             return false;
         }
 
@@ -176,6 +183,17 @@ class FilterManager {
         return true;
     }
 
+    verificarFiltroPosicao(produto) {
+        const posicao = produto.posicaoGlobal || produto.posicao || 0;
+        
+        if (this.filtros.posicao === '500+') {
+            return posicao >= 500;
+        }
+        
+        const [min, max] = this.filtros.posicao.split('-').map(p => p === '+' ? Infinity : parseInt(p));
+        return posicao >= min && posicao <= max;
+    }
+
     aplicarOrdenacao(produtos) {
         if (this.filtros.vendas === 'mais-vendidos') {
             return produtos.sort((a, b) => (b.vendidos || 0) - (a.vendidos || 0));
@@ -192,7 +210,7 @@ class FilterManager {
         // Limpar campos
         const campos = [
             'busca-nome', 'filtro-preco', 'filtro-avaliacao', 'filtro-marca',
-            'filtro-vendas', 'filtro-bsr-faixa', 'filtro-bsr-min', 'filtro-bsr-max', 'filtro-tipo'
+            'filtro-vendas', 'filtro-bsr-faixa', 'filtro-bsr-min', 'filtro-bsr-max', 'filtro-tipo', 'filtro-posicao'
         ];
         
         campos.forEach(id => {
@@ -215,7 +233,7 @@ class FilterManager {
         // Resetar filtros
         this.filtros = {
             nome: '', preco: '', avaliacao: '', marca: '', vendas: '',
-            bsrFaixa: '', bsrMin: '', bsrMax: '', tipo: ''
+            bsrFaixa: '', bsrMin: '', bsrMax: '', tipo: '', posicao: ''
         };
 
         // Atualizar tabela com todos os produtos
@@ -255,7 +273,7 @@ class FilterManager {
         // Eventos para aplicar filtros automaticamente
         const camposFiltro = [
             'busca-nome', 'filtro-preco', 'filtro-avaliacao', 'filtro-marca',
-            'filtro-vendas', 'filtro-bsr-faixa', 'filtro-bsr-min', 'filtro-bsr-max', 'filtro-tipo'
+            'filtro-vendas', 'filtro-bsr-faixa', 'filtro-bsr-min', 'filtro-bsr-max', 'filtro-tipo', 'filtro-posicao'
         ];
 
         camposFiltro.forEach(id => {
@@ -459,6 +477,35 @@ class FilterManager {
                             <option value="">🎯 Todos os tipos</option>
                             <option value="patrocinado">💰 Patrocinados</option>
                             <option value="organico">🎯 Orgânicos</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro de posição na pesquisa -->
+                    <div>
+                        <label style="
+                            display: block;
+                            margin-bottom: 5px;
+                            font-size: 12px;
+                            color: var(--text-secondary);
+                            font-weight: 500;
+                        ">🏆 Posição na pesquisa</label>
+                        <select id="filtro-posicao" style="
+                            width: 100%;
+                            padding: 8px 12px;
+                            border: 1px solid var(--border-light);
+                            border-radius: 6px;
+                            font-size: 12px;
+                            background: var(--bg-primary);
+                            color: var(--text-primary);
+                        ">
+                            <option value="">🏆 Todas as posições</option>
+                            <option value="1-10">🥇 Top 10</option>
+                            <option value="1-50">🥈 Top 50</option>
+                            <option value="1-100">🥉 Top 100</option>
+                            <option value="11-50">📊 11-50</option>
+                            <option value="51-100">📈 51-100</option>
+                            <option value="101-500">📉 101-500</option>
+                            <option value="500+">🔻 500+</option>
                         </select>
                     </div>
                 </div>

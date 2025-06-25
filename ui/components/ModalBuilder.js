@@ -539,6 +539,18 @@ class ModalBuilder {
                         </div>
                         
                         <div style="display: flex; gap: 10px;">
+                            <button id="btn-teste-eventos" style="
+                                background: #3b82f6;
+                                border: none;
+                                border-radius: 8px;
+                                padding: 8px 12px;
+                                cursor: pointer;
+                                color: white;
+                                font-size: 12px;
+                                transition: all 0.2s;
+                            " title="Forçar reconfiguração dos eventos">
+                                🔧 Teste Eventos
+                            </button>
                             <button id="btn-tema" style="
                                 background: var(--bg-secondary);
                                 border: 1px solid var(--border-light);

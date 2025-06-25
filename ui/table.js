@@ -12,64 +12,64 @@ class TableManager {
         
         return `
             <!-- Contador e Filtros -->
-            <div style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
                 margin-bottom: 20px;
-                flex-wrap: wrap;
+                        flex-wrap: wrap;
                 gap: 15px;
             ">
                 <div style="
                     background: var(--bg-secondary);
                     padding: 10px 15px;
-                    border-radius: 8px;
+                                    border-radius: 8px;
                     border: 1px solid var(--border-light);
                 ">
                     <span class="contador-produtos" style="
                         color: var(--text-primary);
                         font-weight: 600;
-                        font-size: 14px;
+                                    font-size: 14px;
                         opacity: 0.9;
                     ">${produtos.length} produtos</span>
-                </div>
+                            </div>
                 
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                     <button id="btn-limpar-filtros" style="
                         background: var(--bg-secondary);
                         border: 1px solid var(--border-light);
-                        border-radius: 6px;
-                        padding: 6px 12px;
-                        cursor: pointer;
+                                border-radius: 6px;
+                                padding: 6px 12px;
+                                    cursor: pointer;
                         color: var(--text-primary);
                         font-size: 12px;
-                        transition: all 0.2s;
+                                transition: all 0.2s;
                     " title="Limpar filtros">
                         🗑️ Limpar
                     </button>
                     <button id="btn-exportar-dados" style="
                         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                        border: none;
-                        border-radius: 6px;
-                        padding: 6px 12px;
-                        cursor: pointer;
-                        color: white;
+                                border: none;
+                                border-radius: 6px;
+                                    padding: 6px 12px;
+                                    cursor: pointer;
+                                color: white;
                         font-size: 12px;
                         font-weight: 600;
-                        transition: all 0.2s;
+                                transition: all 0.2s;
                     " title="Exportar dados">
                         📊 Exportar
-                    </button>
-                </div>
-            </div>
-
+                            </button>
+                        </div>
+                    </div>
+                    
             <!-- Filtros -->
             ${FilterManager.criarFiltros()}
 
             <!-- Tabela -->
             <table id="tabela-produtos" style="
-                width: 100%;
-                border-collapse: collapse;
+                            width: 100%;
+                            border-collapse: collapse;
                 font-size: 12px;
                 background: var(--bg-secondary);
                 border-radius: 10px;
@@ -78,7 +78,7 @@ class TableManager {
             ">
                 <thead>
                     <tr style="
-                        background: var(--bg-primary);
+                            background: var(--bg-primary);
                         border-bottom: 2px solid var(--border-light);
                     ">
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">#</th>
@@ -94,21 +94,37 @@ class TableManager {
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">BSR</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Categoria</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Tipo</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);">Página</th>
-                    </tr>
-                </thead>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Posição na pesquisa da Amazon">🏆 Posição</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Página</th>
+                                    </tr>
+                                </thead>
                 <tbody>
                     ${produtos.map((produto, index) => TableRowBuilder.criarLinhaProduto(produto, index)).join('')}
-                </tbody>
-            </table>
+                            </tbody>
+                        </table>
         `;
     }
 
-    static inicializarEventos() {
-        console.log('🔧 Inicializando eventos da tabela...');
+    static inicializarEventos(forcarLimpeza = false) {
+        console.log('🔧 Inicializando eventos da tabela...', forcarLimpeza ? '(com limpeza forçada)' : '');
+        
+        // Se forçar limpeza, limpar filtros primeiro
+        if (forcarLimpeza && this.filterManager) {
+            console.log('🧹 Forçando limpeza de filtros...');
+            this.filterManager.limparFiltros();
+        }
         
         // Aguardar um pouco para garantir que o DOM foi renderizado
         setTimeout(() => {
+            // Configurar eventos de cópia de ASIN PRIMEIRO
+            this.configurarEventosCopiarASIN();
+            
+            // Configurar eventos de BSR
+            this.configurarEventosBSR();
+            
+            // Configurar eventos dos botões da tabela
+            this.configurarEventosBotoes();
+            
             // Configurar eventos do FilterManager
             if (this.filterManager) {
                 this.filterManager.configurarEventos();
@@ -119,16 +135,8 @@ class TableManager {
                 this.eventManager.inicializar();
             }
             
-            // Configurar eventos dos botões da tabela
-            this.configurarEventosBotoes();
-            
-            // Configurar eventos de cópia de ASIN
-            this.configurarEventosCopiarASIN();
-            
-            // Configurar eventos de BSR
-            this.configurarEventosBSR();
-            
-        }, 100);
+            console.log('✅ Todos os eventos da tabela foram inicializados');
+        }, 200); // Aumentado para 200ms para garantir que o DOM está pronto
     }
 
     static configurarEventosBotoes() {
@@ -154,7 +162,7 @@ class TableManager {
                 this.exportarDados();
             });
             console.log('✅ Evento configurado para botão exportar dados');
-        } else {
+            } else {
             console.warn('⚠️ Botão exportar dados não encontrado');
         }
     }
@@ -162,56 +170,88 @@ class TableManager {
     static configurarEventosCopiarASIN() {
         console.log('🔧 Configurando eventos de cópia de ASIN...');
         
-        // Encontrar todos os botões de ASIN
-        const botoesASIN = document.querySelectorAll('button[onclick*="copiarASIN"]');
-        console.log('📋 Encontrados', botoesASIN.length, 'botões de ASIN');
-        
-        botoesASIN.forEach((botao, index) => {
-            // Remover onclick inline
-            botao.removeAttribute('onclick');
+        const configurarEventos = () => {
+            // Encontrar todos os botões de ASIN pela nova classe
+            const botoesASIN = document.querySelectorAll('.btn-copiar-asin');
+            console.log('📋 Encontrados', botoesASIN.length, 'botões de ASIN');
             
-            // Adicionar evento via JavaScript
-            botao.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Extrair ASIN do texto do botão (removendo ícone de duplicado se houver)
-                const asin = botao.textContent.replace('⚠️ ', '').trim();
-                console.log(`📋 Clicou no botão ${index + 1}, ASIN: ${asin}`);
-                
-                if (asin && asin !== 'N/A') {
-                    this.copiarASIN(asin);
-                } else {
-                    NotificationManager.erro('ASIN inválido para copiar.');
+            if (botoesASIN.length === 0) {
+                console.warn('⚠️ Nenhum botão ASIN encontrado, tentando novamente em 100ms...');
+                setTimeout(configurarEventos, 100);
+                return;
+            }
+            
+            botoesASIN.forEach((botao, index) => {
+                // Remover eventos existentes para evitar duplicação
+                if (botao.asinClickHandler) {
+                    botao.removeEventListener('click', botao.asinClickHandler);
                 }
+                
+                // Criar novo handler
+                botao.asinClickHandler = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Extrair ASIN do atributo data-asin
+                    const asin = botao.getAttribute('data-asin');
+                    console.log(`📋 Clicou no botão ${index + 1}, ASIN: ${asin}`);
+                    
+                    if (asin && asin !== 'N/A') {
+                        this.copiarASIN(asin);
+                    } else {
+                        NotificationManager.erro('ASIN inválido para copiar.');
+                    }
+                };
+                
+                // Adicionar evento via JavaScript
+                botao.addEventListener('click', botao.asinClickHandler);
+                
+                console.log(`✅ Evento configurado para botão ASIN ${index + 1}`);
             });
-            
-            console.log(`✅ Evento configurado para botão ASIN ${index + 1}`);
-        });
+        };
+        
+        // Iniciar configuração com delay inicial
+        setTimeout(configurarEventos, 100);
     }
 
     static configurarEventosBSR() {
         console.log('🔧 Configurando eventos de BSR...');
         
-        // Encontrar todas as células de BSR
-        const celulasBSR = document.querySelectorAll('td[onclick*="toggleRankingInfo"]');
-        console.log('📊 Encontradas', celulasBSR.length, 'células de BSR');
-        
-        celulasBSR.forEach((celula, index) => {
-            // Remover onclick inline
-            celula.removeAttribute('onclick');
+        const configurarEventos = () => {
+            // Encontrar todas as células de BSR pela nova classe
+            const celulasBSR = document.querySelectorAll('.celula-bsr');
+            console.log('📊 Encontradas', celulasBSR.length, 'células de BSR');
             
-            // Adicionar evento via JavaScript
-            celula.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
+            if (celulasBSR.length === 0) {
+                console.warn('⚠️ Nenhuma célula BSR encontrada, tentando novamente em 100ms...');
+                setTimeout(configurarEventos, 100);
+                return;
+            }
+            
+            celulasBSR.forEach((celula, index) => {
+                // Remover eventos existentes para evitar duplicação
+                if (celula.bsrClickHandler) {
+                    celula.removeEventListener('click', celula.bsrClickHandler);
+                }
                 
-                console.log(`📊 Clicou na célula BSR ${index + 1}`);
-                this.toggleRankingInfo(celula);
+                // Criar novo handler
+                celula.bsrClickHandler = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log(`📊 Clicou na célula BSR ${index + 1}`);
+                    this.toggleRankingInfo(celula);
+                };
+                
+                // Adicionar evento via JavaScript
+                celula.addEventListener('click', celula.bsrClickHandler);
+                
+                console.log(`✅ Evento configurado para célula BSR ${index + 1}`);
             });
-            
-            console.log(`✅ Evento configurado para célula BSR ${index + 1}`);
-        });
+        };
+        
+        // Iniciar configuração com delay inicial
+        setTimeout(configurarEventos, 100);
     }
 
     static limparFiltros() {
@@ -225,7 +265,7 @@ class TableManager {
                 console.error('❌ FilterManager não disponível ou método limparFiltros não encontrado');
                 NotificationManager.erro('Erro ao limpar filtros.');
             }
-        } catch (error) {
+                } catch (error) {
             console.error('❌ Erro ao limpar filtros:', error);
             NotificationManager.erro('Erro ao limpar filtros.');
         }
@@ -248,6 +288,28 @@ class TableManager {
         }
     }
 
+    static forcarReconfiguracaoEventos() {
+        console.log('🔄 Forçando reconfiguração completa dos eventos...');
+        
+        // Limpar filtros primeiro
+        if (this.filterManager) {
+            this.filterManager.limparFiltros();
+        }
+        
+        // Aguardar um pouco e reconfigurar todos os eventos
+        setTimeout(() => {
+            this.configurarEventosCopiarASIN();
+            this.configurarEventosBSR();
+            this.configurarEventosBotoes();
+            
+            if (this.filterManager) {
+                this.filterManager.configurarEventos();
+            }
+            
+            console.log('✅ Reconfiguração forçada concluída');
+        }, 300);
+    }
+
     static atualizarTabelaComFiltros(produtosFiltrados) {
         const tbody = document.querySelector('#tabela-produtos tbody');
         if (!tbody) return;
@@ -260,9 +322,13 @@ class TableManager {
             TableRowBuilder.criarLinhaProduto(produto, index)
         ).join('');
         
-        // Reconfigurar eventos
-        this.configurarEventosCopiarASIN();
-        this.configurarEventosBSR();
+        // Aguardar um pouco para garantir que o DOM foi atualizado
+        setTimeout(() => {
+            // Reconfigurar eventos
+            this.configurarEventosCopiarASIN();
+            this.configurarEventosBSR();
+            console.log('✅ Eventos reconfigurados após atualização da tabela');
+        }, 150);
     }
 
     static atualizarLinhaProduto(produto, index) {
@@ -343,7 +409,7 @@ class TableManager {
             if (sucesso) {
                 console.log('✅ ASIN copiado com sucesso via fallback');
                 mostrarFeedback(true);
-            } else {
+                    } else {
                 console.log('❌ Fallback falhou, tentando legacy...');
                 this.copiarASINLegacy(asin, mostrarFeedback);
             }

@@ -27,13 +27,14 @@ class ExportManager {
             'BSR',
             'Categoria',
             'Tipo',
+            'Página',
             'Link',
             'URL da Imagem'
         ];
 
         // Dados dos produtos atualizados
         const csvData = this.produtos.map(produto => [
-            produto.posicao || '',
+            produto.posicaoGlobal || produto.posicao || '',
             `"${(produto.titulo || '').replace(/"/g, '""')}"`,
             produto.asin || '',
             produto.marca || '',
@@ -45,6 +46,7 @@ class ExportManager {
             produto.ranking || '',
             produto.categoria || '',
             produto.patrocinado ? 'Patrocinado' : 'Orgânico',
+            produto.paginaOrigem || '',
             produto.link || '',
             produto.imagem || ''
         ]);
@@ -126,6 +128,7 @@ class ExportManager {
                             <th>BSR</th>
                             <th>Categoria</th>
                             <th>Tipo</th>
+                            <th>Página</th>
                             <th>Link</th>
                             <th>URL da Imagem</th>
                         </tr>
@@ -133,7 +136,7 @@ class ExportManager {
                     <tbody>
                         ${this.produtos.map(produto => `
                             <tr class="${produto.patrocinado ? 'patrocinado' : 'organico'}">
-                                <td class="number">${produto.posicao || ''}</td>
+                                <td class="number">${produto.posicaoGlobal || produto.posicao || ''}</td>
                                 <td>${produto.titulo || ''}</td>
                                 <td class="center" style="font-family: monospace;">${produto.asin || ''}</td>
                                 <td>${produto.marca || ''}</td>
@@ -145,6 +148,7 @@ class ExportManager {
                                 <td class="number">${produto.ranking || ''}</td>
                                 <td>${produto.categoria || ''}</td>
                                 <td class="center">${produto.patrocinado ? 'Patrocinado' : 'Orgânico'}</td>
+                                <td class="number">${produto.paginaOrigem || ''}</td>
                                 <td><a href="${produto.link || ''}">${produto.link || ''}</a></td>
                                 <td><a href="${produto.imagem || ''}">${produto.imagem || ''}</a></td>
                             </tr>
@@ -200,7 +204,8 @@ class ExportManager {
                 categoria: linha.querySelector('td:nth-child(12)')?.textContent?.trim() || '',
                 patrocinado: linha.querySelector('td:nth-child(13) span')?.textContent?.includes('Patrocinado') || false,
                 link: linha.querySelector('td:nth-child(3) a')?.href || '',
-                imagem: linha.querySelector('td:nth-child(2) img')?.src || ''
+                imagem: linha.querySelector('td:nth-child(2) img')?.src || '',
+                paginaOrigem: linha.querySelector('td:nth-child(10)')?.textContent?.trim() || ''
             };
 
             // Calcular receita mensal
