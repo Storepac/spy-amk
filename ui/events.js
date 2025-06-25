@@ -1,4 +1,4 @@
-class EventManager {
+class EventManagerLegacy {
     static configurarEventosModal(modal) {
         // Botão fechar análise
         const btnFechar = document.getElementById("fechar-analise");
@@ -143,4 +143,4 @@ class EventManager {
     }
 }
 
-window.EventManager = EventManager; 
+window.EventManagerLegacy = EventManagerLegacy; 

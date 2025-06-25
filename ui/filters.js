@@ -1,4 +1,4 @@
-class FilterManager {
+class FilterManagerLegacy {
     constructor() {
         this.filters = {
             preco: '',
@@ -204,7 +204,6 @@ class FilterManager {
             vendas: ''
         };
         this.produtosFiltrados = [...this.produtosOriginais];
-        return this.produtosFiltrados;
     }
 
     getProdutosFiltrados() {
@@ -212,43 +211,31 @@ class FilterManager {
     }
 
     getMarcasUnicas() {
-        return [...new Set(this.produtosOriginais.filter(p => p.marca).map(p => p.marca))].sort();
+        const marcas = new Set();
+        this.produtosOriginais.forEach(produto => {
+            if (produto.marca && produto.marca !== 'N/A') {
+                marcas.add(produto.marca);
+            }
+        });
+        return Array.from(marcas).sort();
     }
 
     atualizarMarcas() {
-        console.log('🔄 Atualizando lista de marcas...');
-        const marcasUnicas = this.getMarcasUnicas();
-        console.log('📊 Marcas encontradas:', marcasUnicas);
-        
-        // Atualizar o select de marcas se existir
         const selectMarca = document.getElementById('filtro-marca');
-        if (selectMarca) {
-            // Salvar seleção atual
-            const selecaoAtual = selectMarca.value;
-            
-            // Limpar opções existentes (exceto a primeira)
-            while (selectMarca.children.length > 1) {
-                selectMarca.removeChild(selectMarca.lastChild);
-            }
-            
-            // Adicionar novas opções
-            marcasUnicas.forEach(marca => {
-                const option = document.createElement('option');
-                option.value = marca;
-                option.textContent = marca;
-                selectMarca.appendChild(option);
-            });
-            
-            // Restaurar seleção se ainda existir
-            if (selecaoAtual && marcasUnicas.includes(selecaoAtual)) {
-                selectMarca.value = selecaoAtual;
-            }
-            
-            console.log('✅ Select de marcas atualizado');
-        }
+        if (!selectMarca) return;
+
+        const marcasUnicas = this.getMarcasUnicas();
         
-        return marcasUnicas;
+        // Manter a opção padrão
+        selectMarca.innerHTML = '<option value="">🏷️ Todas as marcas</option>';
+        
+        marcasUnicas.forEach(marca => {
+            const option = document.createElement('option');
+            option.value = marca;
+            option.textContent = marca;
+            selectMarca.appendChild(option);
+        });
     }
 }
 
-window.FilterManager = FilterManager; 
+window.FilterManagerLegacy = FilterManagerLegacy; 

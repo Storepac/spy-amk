@@ -1,51 +1,10 @@
 class AppController {
     static async exibirAnalise() {
-        // Verificar se já existe um modal ativo
-        if (document.getElementById("amazon-analyzer-modal")) {
-            console.log('⚠️ Modal já existe, não iniciando nova análise');
-            return;
-        }
-        
-        await this.iniciarAnalise('automatico');
-    }
-
-    static async iniciarAnalise(tipo) {
-        // Verificar se já existe um modal ativo
-        if (document.getElementById("amazon-analyzer-modal")) {
-            console.log('⚠️ Modal já existe, não iniciando nova análise');
-            return;
-        }
-        
-        // Verificar se já existe um loading ativo
-        if (document.getElementById('loading-inicial')) {
-            console.log('⚠️ Loading já ativo, não iniciando nova análise');
-            return;
-        }
-        
-        // Verificar se todos os componentes necessários estão carregados
-        const componentesNecessarios = ['TableManager', 'ProductAnalyzer', 'NotificationManager'];
-        const componentesFaltando = componentesNecessarios.filter(comp => typeof window[comp] === 'undefined');
-        
-        if (componentesFaltando.length > 0) {
-            console.error('❌ Componentes não carregados:', componentesFaltando);
-            if (typeof NotificationManager !== 'undefined') {
-                NotificationManager.erro(`Erro: Componentes não carregados (${componentesFaltando.join(', ')}). Recarregue a página.`);
-            } else {
-                alert(`Erro: Componentes não carregados (${componentesFaltando.join(', ')}). Recarregue a página.`);
-            }
-            return;
-        }
-        
-        // Inicializar ThemeManager se ainda não foi inicializado
-        if (!window.themeManager) {
-            window.themeManager = new ThemeManager();
-        }
-        
-        // Mostrar loading inicial
-        this.mostrarLoadingInicial();
-        
         try {
-            NotificationManager.informacao('Coletando produtos básicos...');
+            // Mostrar loading inicial
+            this.mostrarLoadingInicial();
+            
+            // Coletar produtos
             const produtos = await ProductAnalyzer.analisarProdutosPesquisaRapido();
             
             if (produtos.length === 0) {
@@ -64,7 +23,53 @@ class AppController {
             TableManager.inicializarEventos();
             
             // Configurar eventos do modal
-            EventManager.configurarEventosModal(modal);
+            EventManagerLegacy.configurarEventosModal(modal);
+            
+            // Ocultar loading inicial
+            this.ocultarLoadingInicial();
+            
+            // Iniciar busca automática imediatamente
+            this.iniciarBuscaAutomatica(produtos);
+            
+        } catch (error) {
+            console.error('Erro na análise:', error);
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.erro('Erro ao analisar produtos.');
+            }
+            this.ocultarLoadingInicial();
+        }
+    }
+
+    static async iniciarAnalise(tipo) {
+        try {
+            // Mostrar loading inicial
+            this.mostrarLoadingInicial();
+            
+            let produtos = [];
+            
+            if (tipo === 'todas') {
+                produtos = await ProductAnalyzer.coletarProdutosTodasPaginas();
+            } else {
+                produtos = await ProductAnalyzer.analisarProdutosPesquisaRapido();
+            }
+            
+            if (produtos.length === 0) {
+                NotificationManager.erro('Nenhum produto encontrado.');
+                this.ocultarLoadingInicial();
+                return;
+            }
+            
+            // Criar modal e tabela
+            const modal = document.createElement("div");
+            modal.id = "amazon-analyzer-modal";
+            modal.innerHTML = TableManager.criarTabelaProdutos(produtos);
+            document.body.appendChild(modal);
+            
+            // Inicializar eventos da tabela
+            TableManager.inicializarEventos();
+            
+            // Configurar eventos do modal
+            EventManagerLegacy.configurarEventosModal(modal);
             
             // Ocultar loading inicial
             this.ocultarLoadingInicial();
@@ -236,7 +241,7 @@ class AppController {
         }
         
         if (window.location.href.includes('/s?') || window.location.href.includes('/s/')) {
-            EventManager.adicionarBotaoAmkSpy();
+            EventManagerLegacy.adicionarBotaoAmkSpy();
             // Iniciar análise automática imediatamente
             setTimeout(() => {
                 console.log('🚀 Iniciando análise automática...');

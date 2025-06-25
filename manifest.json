@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
     "name": "AMK Spy - Amazon Product Analyzer",
-    "version": "2.0.0",
-    "description": "Analisador avançado de produtos da Amazon com filtros, exportação e métricas detalhadas",
+    "version": "2.1.0",
+    "description": "Analisador avançado de produtos da Amazon com filtros, exportação e métricas detalhadas - Versão Refatorada",
     "icons": {
       "16": "images/icon16.png",
       "32": "images/icon32.png",
@@ -26,17 +26,23 @@
           "https://www.amazon.com/*"
         ],
         "js": [
+          "config/constants.js",
+          "utils/helpers.js",
           "utils/clipboard.js",
-            "utils/url.js",
-            "ui/notifications.js",
+          "utils/url.js",
+          "ui/notifications.js",
           "ui/theme.js",
-          "ui/filters.js",
           "ui/export.js",
-            "ui/table.js",
-            "ui/events.js",
-            "core/extractor.js",
-            "core/analyzer.js",
-            "app.js",
+          "ui/components/ModalBuilder.js",
+          "ui/components/TableRowBuilder.js",
+          "ui/components/FilterManager.js",
+          "ui/components/EventManager.js",
+          "ui/table.js",
+          "ui/events.js",
+          "core/extractor.js",
+          "core/analyzer.js",
+          "app.js",
+          "diagnostico_refatoracao.js",
           "content.js"
         ],
         "run_at": "document_end"
@@ -46,7 +52,9 @@
       {
         "resources": [
           "images/*",
+          "config/*",
           "ui/*",
+          "ui/components/*",
           "core/*",
           "utils/*",
           "*.js"
@@ -59,7 +67,7 @@
     ],
     "action": {
       "default_popup": "popup.html",
-      "default_title": "AMK Spy - Analisador de Produtos Amazon"
+      "default_title": "AMK Spy - Analisador de Produtos Amazon (v2.1.0)"
     },
     "background": {
       "service_worker": "app.js"
