@@ -49,6 +49,11 @@ class FilterManager {
         });
     }
 
+    atualizarMarcas() {
+        this.marcasUnicas = this.getMarcasUnicas();
+        this.popularFiltroMarcas();
+    }
+
     aplicarFiltros() {
         this.atualizarFiltros();
         const produtosFiltrados = this.filtrarProdutos();
@@ -167,6 +172,7 @@ class FilterManager {
             return organico;
         }
         
+        // Se não há filtro de tipo, mostrar todos
         return true;
     }
 
@@ -181,6 +187,8 @@ class FilterManager {
     }
 
     limparFiltros() {
+        console.log('🧹 Limpando filtros...');
+        
         // Limpar campos
         const campos = [
             'busca-nome', 'filtro-preco', 'filtro-avaliacao', 'filtro-marca',
@@ -210,15 +218,25 @@ class FilterManager {
             bsrFaixa: '', bsrMin: '', bsrMax: '', tipo: ''
         };
 
-        // Atualizar tabela
-        TableManager.atualizarTabelaComFiltros(this.produtos);
-        this.atualizarContador(this.produtos.length);
+        // Atualizar tabela com todos os produtos
+        if (this.produtos && this.produtos.length > 0) {
+            TableManager.atualizarTabelaComFiltros(this.produtos);
+            this.atualizarContador(this.produtos.length);
+            NotificationManager.sucesso('Filtros limpos!');
+        } else {
+            console.warn('⚠️ Nenhum produto disponível para limpar filtros');
+        }
     }
 
     atualizarContador(quantidade) {
-        const contador = document.querySelector('#amazon-analyzer-modal span[style*="opacity: 0.9"]');
+        // Usar o seletor correto para o contador
+        const contador = document.querySelector('.contador-produtos');
+        
         if (contador) {
             contador.textContent = `${quantidade} produtos`;
+            console.log('✅ Contador atualizado:', quantidade);
+        } else {
+            console.warn('⚠️ Contador não encontrado');
         }
     }
 
@@ -249,6 +267,256 @@ class FilterManager {
                 }
             }
         });
+    }
+
+    static criarFiltros() {
+        return `
+            <div style="
+                background: var(--bg-secondary);
+                border-radius: 10px;
+                padding: 20px;
+                margin-bottom: 20px;
+                border: 1px solid var(--border-light);
+            ">
+                <h3 style="
+                    margin: 0 0 15px 0;
+                    font-size: 16px;
+                    color: var(--text-primary);
+                    font-weight: 600;
+                ">🔍 Filtros Avançados</h3>
+                
+                <div style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 15px;
+                ">
+                    <!-- Busca por nome -->
+                    <div>
+                        <label style="
+                            display: block;
+                            margin-bottom: 5px;
+                            font-size: 12px;
+                            color: var(--text-secondary);
+                            font-weight: 500;
+                        ">🔍 Buscar por nome</label>
+                        <input type="text" id="busca-nome" placeholder="Digite o nome do produto..." style="
+                            width: 100%;
+                            padding: 8px 12px;
+                            border: 1px solid var(--border-light);
+                            border-radius: 6px;
+                            font-size: 12px;
+                            background: var(--bg-primary);
+                            color: var(--text-primary);
+                        ">
+                    </div>
+
+                    <!-- Filtro de preço -->
+                    <div>
+                        <label style="
+                            display: block;
+                            margin-bottom: 5px;
+                            font-size: 12px;
+                            color: var(--text-secondary);
+                            font-weight: 500;
+                        ">💰 Faixa de preço</label>
+                        <select id="filtro-preco" style="
+                            width: 100%;
+                            padding: 8px 12px;
+                            border: 1px solid var(--border-light);
+                            border-radius: 6px;
+                            font-size: 12px;
+                            background: var(--bg-primary);
+                            color: var(--text-primary);
+                        ">
+                            <option value="">💵 Todos os preços</option>
+                            <option value="0-50">R$ 0 - R$ 50</option>
+                            <option value="50-100">R$ 50 - R$ 100</option>
+                            <option value="100-200">R$ 100 - R$ 200</option>
+                            <option value="200-500">R$ 200 - R$ 500</option>
+                            <option value="500-1000">R$ 500 - R$ 1000</option>
+                            <option value="1000+">R$ 1000+</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro de avaliação -->
+                    <div>
+                        <label style="
+                            display: block;
+                            margin-bottom: 5px;
+                            font-size: 12px;
+                            color: var(--text-secondary);
+                            font-weight: 500;
+                        ">⭐ Avaliação mínima</label>
+                        <select id="filtro-avaliacao" style="
+                            width: 100%;
+                            padding: 8px 12px;
+                            border: 1px solid var(--border-light);
+                            border-radius: 6px;
+                            font-size: 12px;
+                            background: var(--bg-primary);
+                            color: var(--text-primary);
+                        ">
+                            <option value="">⭐ Todas as avaliações</option>
+                            <option value="4">4+ estrelas</option>
+                            <option value="4.5">4.5+ estrelas</option>
+                            <option value="5">5 estrelas</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro de marca -->
+                    <div>
+                        <label style="
+                            display: block;
+                            margin-bottom: 5px;
+                            font-size: 12px;
+                            color: var(--text-secondary);
+                            font-weight: 500;
+                        ">🏷️ Marca</label>
+                        <select id="filtro-marca" style="
+                            width: 100%;
+                            padding: 8px 12px;
+                            border: 1px solid var(--border-light);
+                            border-radius: 6px;
+                            font-size: 12px;
+                            background: var(--bg-primary);
+                            color: var(--text-primary);
+                        ">
+                            <option value="">🏷️ Todas as marcas</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro de vendas -->
+                    <div>
+                        <label style="
+                            display: block;
+                            margin-bottom: 5px;
+                            font-size: 12px;
+                            color: var(--text-secondary);
+                            font-weight: 500;
+                        ">📈 Ordenar por vendas</label>
+                        <select id="filtro-vendas" style="
+                            width: 100%;
+                            padding: 8px 12px;
+                            border: 1px solid var(--border-light);
+                            border-radius: 6px;
+                            font-size: 12px;
+                            background: var(--bg-primary);
+                            color: var(--text-primary);
+                        ">
+                            <option value="">📊 Ordem padrão</option>
+                            <option value="mais-vendidos">🔥 Mais vendidos</option>
+                            <option value="menos-vendidos">❄️ Menos vendidos</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro de BSR -->
+                    <div>
+                        <label style="
+                            display: block;
+                            margin-bottom: 5px;
+                            font-size: 12px;
+                            color: var(--text-secondary);
+                            font-weight: 500;
+                        ">🏆 Ranking BSR</label>
+                        <select id="filtro-bsr-faixa" style="
+                            width: 100%;
+                            padding: 8px 12px;
+                            border: 1px solid var(--border-light);
+                            border-radius: 6px;
+                            font-size: 12px;
+                            background: var(--bg-primary);
+                            color: var(--text-primary);
+                        ">
+                            <option value="">🏆 Todos os rankings</option>
+                            <option value="1-100">🥇 Top 100</option>
+                            <option value="1-1000">🥈 Top 1000</option>
+                            <option value="1-5000">🥉 Top 5000</option>
+                            <option value="101-1000">📊 101-1000</option>
+                            <option value="1001-10000">📈 1001-10000</option>
+                            <option value="10000+">📉 10000+</option>
+                            <option value="custom">⚙️ Personalizado</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro de tipo -->
+                    <div>
+                        <label style="
+                            display: block;
+                            margin-bottom: 5px;
+                            font-size: 12px;
+                            color: var(--text-secondary);
+                            font-weight: 500;
+                        ">🎯 Tipo de produto</label>
+                        <select id="filtro-tipo" style="
+                            width: 100%;
+                            padding: 8px 12px;
+                            border: 1px solid var(--border-light);
+                            border-radius: 6px;
+                            font-size: 12px;
+                            background: var(--bg-primary);
+                            color: var(--text-primary);
+                        ">
+                            <option value="">🎯 Todos os tipos</option>
+                            <option value="patrocinado">💰 Patrocinados</option>
+                            <option value="organico">🎯 Orgânicos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Campo customizado BSR -->
+                <div id="filtro-bsr-custom" style="
+                    display: none;
+                    margin-top: 15px;
+                    padding: 15px;
+                    background: var(--bg-primary);
+                    border-radius: 8px;
+                    border: 1px solid var(--border-light);
+                ">
+                    <h4 style="
+                        margin: 0 0 10px 0;
+                        font-size: 14px;
+                        color: var(--text-primary);
+                        font-weight: 600;
+                    ">⚙️ Ranking personalizado</h4>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div style="flex: 1;">
+                            <label style="
+                                display: block;
+                                margin-bottom: 5px;
+                                font-size: 11px;
+                                color: var(--text-secondary);
+                            ">Mínimo</label>
+                            <input type="number" id="filtro-bsr-min" placeholder="1" style="
+                                width: 100%;
+                                padding: 6px 10px;
+                                border: 1px solid var(--border-light);
+                                border-radius: 4px;
+                                font-size: 11px;
+                                background: var(--bg-primary);
+                                color: var(--text-primary);
+                            ">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="
+                                display: block;
+                                margin-bottom: 5px;
+                                font-size: 11px;
+                                color: var(--text-secondary);
+                            ">Máximo</label>
+                            <input type="number" id="filtro-bsr-max" placeholder="1000" style="
+                                width: 100%;
+                                padding: 6px 10px;
+                                border: 1px solid var(--border-light);
+                                border-radius: 4px;
+                                font-size: 11px;
+                                background: var(--bg-primary);
+                                color: var(--text-primary);
+                            ">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 }
 

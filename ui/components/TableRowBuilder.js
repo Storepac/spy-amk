@@ -13,7 +13,7 @@ class TableRowBuilder {
                 border-bottom: ${bordaDuplicado};
                 transition: all 0.2s;
                 font-family: 'Poppins', sans-serif;
-            " data-asin="${produto.asin}" data-index="${index}">
+            " data-asin="${produto.asin}" data-index="${index}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-secondary)'">
                 ${this.criarCelulaPosicao(index)}
                 ${this.criarCelulaImagem(produto)}
                 ${this.criarCelulaTitulo(produto)}
@@ -27,6 +27,7 @@ class TableRowBuilder {
                 ${this.criarCelulaBSR(produto)}
                 ${this.criarCelulaCategoria(produto)}
                 ${this.criarCelulaTipo(produto)}
+                ${this.criarCelulaPagina(produto)}
             </tr>
         `;
     }
@@ -298,6 +299,21 @@ class TableRowBuilder {
                 font-weight: 500;
                 color: ${cor};
             " title="${tipo}">${icone} ${tipo}</td>
+        `;
+    }
+
+    static criarCelulaPagina(produto) {
+        const pagina = produto.paginaOrigem || produto.pagina || '1';
+        const corPagina = pagina === '1' ? 'var(--text-primary)' : '#3b82f6';
+        
+        return `
+            <td style="
+                padding: 8px;
+                text-align: center;
+                font-size: 12px;
+                font-weight: 600;
+                color: ${corPagina};
+            " title="Página de origem">${pagina}</td>
         `;
     }
 }

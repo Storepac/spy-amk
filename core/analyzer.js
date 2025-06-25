@@ -120,7 +120,7 @@ class ProductAnalyzer {
     }
 
     static async buscarDetalhesEmParalelo(produtos, atualizarCallback) {
-        const BATCH_SIZE = 5;
+        const BATCH_SIZE = 20;
         let produtosAtualizados = 0;
         
         for (let i = 0; i < produtos.length; i += BATCH_SIZE) {
@@ -176,7 +176,7 @@ class ProductAnalyzer {
             });
             
             await Promise.all(promessas);
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(resolve, 200));
         }
     }
 
@@ -206,70 +206,160 @@ class ProductAnalyzer {
         let pagina = 1;
         let temMaisPaginas = true;
         let posicaoGlobal = 1;
+        const MAX_PAGINAS = 5; // Reduzido para 5 páginas para ser mais rápido
         
-        while (temMaisPaginas && pagina <= 7) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('page', pagina);
+        console.log('🚀 Iniciando coleta de produtos de todas as páginas...');
+        
+        // Mostrar progresso inicial
+        this.mostrarProgressoPaginas(0, 0);
+        
+        // Primeiro, coletar produtos da página atual
+        const produtosPaginaAtual = await this.analisarProdutosPesquisaRapido();
+        produtos.push(...produtosPaginaAtual.map((p, i) => ({
+            ...p,
+            posicaoGlobal: i + 1,
+            paginaOrigem: 1,
+            posicaoNaPagina: i + 1
+        })));
+        posicaoGlobal = produtosPaginaAtual.length + 1;
+        
+        console.log(`✅ Página 1: ${produtosPaginaAtual.length} produtos coletados`);
+        
+        // Agora tentar páginas adicionais
+        while (temMaisPaginas && pagina <= MAX_PAGINAS) {
+            pagina++;
             
             try {
+                const url = new URL(window.location.href);
+                url.searchParams.set('page', pagina);
+                
+                NotificationManager.informacao(`Coletando página ${pagina}...`);
+                
                 const response = await fetch(url.toString());
+                if (!response.ok) {
+                    console.log(`❌ Página ${pagina} não encontrada`);
+                    temMaisPaginas = false;
+                    break;
+                }
+                
                 const html = await response.text();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
                 
-                const elementosProdutos = Array.from(doc.querySelectorAll('[data-asin]:not([data-asin=""])'));
+                // Tentar diferentes seletores para encontrar produtos
+                let elementosProdutos = Array.from(doc.querySelectorAll('[data-asin]:not([data-asin=""])'));
                 
                 if (elementosProdutos.length === 0) {
-                    temMaisPaginas = false;
-                    continue;
+                    elementosProdutos = Array.from(doc.querySelectorAll('.s-result-item[data-component-type="s-search-result"]'));
                 }
                 
-                NotificationManager.informacao(`Coletando produtos da página ${pagina}... (${elementosProdutos.length} produtos)`);
+                if (elementosProdutos.length === 0) {
+                    elementosProdutos = Array.from(doc.querySelectorAll('.s-card-container'));
+                }
                 
+                if (elementosProdutos.length === 0) {
+                    console.log(`📄 Página ${pagina} não contém produtos válidos`);
+                    temMaisPaginas = false;
+                    break;
+                }
+                
+                console.log(`📊 Página ${pagina}: ${elementosProdutos.length} produtos encontrados`);
+                
+                // Atualizar progresso
+                this.mostrarProgressoPaginas(pagina, elementosProdutos.length);
+                
+                // Processar produtos da página atual (sem buscar detalhes individuais)
                 for (let i = 0; i < elementosProdutos.length; i++) {
                     const elemento = elementosProdutos[i];
                     const dadosBasicos = ProductExtractor.extrairDadosProduto(elemento);
                     
                     if (dadosBasicos.titulo && dadosBasicos.asin && dadosBasicos.link) {
-                        NotificationManager.informacao(`Analisando produto ${i + 1}/${elementosProdutos.length} da página ${pagina}...`);
+                        dadosBasicos.posicaoGlobal = posicaoGlobal;
+                        dadosBasicos.paginaOrigem = pagina;
+                        dadosBasicos.posicaoNaPagina = i + 1;
                         
-                        const detalhes = await ProductExtractor.extrairDetalhesProduto(dadosBasicos.link);
-                        
-                        if (detalhes) {
-                            const produtoCompleto = {
-                                ...dadosBasicos,
-                                marca: detalhes.marca || dadosBasicos.marca,
-                                categoria: detalhes.categoria || dadosBasicos.categoria,
-                                categoriaSecundaria: detalhes.categoriaSecundaria || dadosBasicos.categoriaSecundaria,
-                                ranking: detalhes.ranking || dadosBasicos.ranking,
-                                rankingSecundario: detalhes.rankingSecundario || dadosBasicos.rankingSecundario,
-                                posicaoGlobal,
-                                paginaOrigem: pagina
-                            };
-                            
-                            produtos.push(produtoCompleto);
-                        } else {
-                            produtos.push({
-                                ...dadosBasicos,
-                                posicaoGlobal,
-                                paginaOrigem: pagina
-                            });
-                        }
-                        
+                        produtos.push(dadosBasicos);
                         posicaoGlobal++;
-                        await new Promise(resolve => setTimeout(resolve, 200));
                     }
                 }
                 
-                pagina++;
+                // Verificar se há próxima página
+                const proximaPagina = doc.querySelector('.s-pagination-next:not(.s-pagination-disabled)');
+                if (!proximaPagina) {
+                    console.log('📄 Última página alcançada');
+                    temMaisPaginas = false;
+                }
+                
+                // Delay menor entre páginas
+                await new Promise(resolve => setTimeout(resolve, 300));
                 
             } catch (error) {
-                console.error('Erro ao coletar produtos:', error);
+                console.error(`❌ Erro ao coletar produtos da página ${pagina}:`, error);
                 temMaisPaginas = false;
             }
         }
         
-        return produtos.sort((a, b) => a.posicaoGlobal - b.posicaoGlobal);
+        this.ocultarProgressoPaginas();
+        
+        const produtosOrdenados = produtos.sort((a, b) => a.posicaoGlobal - b.posicaoGlobal);
+        
+        console.log(`✅ Coleta concluída: ${produtosOrdenados.length} produtos de ${pagina - 1} páginas`);
+        NotificationManager.sucesso(`Análise completa: ${produtosOrdenados.length} produtos coletados de ${pagina - 1} páginas!`);
+        
+        return produtosOrdenados;
+    }
+
+    static mostrarProgressoPaginas(paginaAtual, produtosNaPagina) {
+        let progressoElement = document.getElementById('progresso-paginas');
+        
+        if (!progressoElement) {
+            progressoElement = document.createElement('div');
+            progressoElement.id = 'progresso-paginas';
+            progressoElement.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.9);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                z-index: 10001;
+                font-family: 'Poppins', sans-serif;
+                font-size: 14px;
+                min-width: 250px;
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            `;
+            document.body.appendChild(progressoElement);
+        }
+        
+        if (paginaAtual === 0) {
+            progressoElement.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <div>
+                        <div style="font-weight: 600;">🔍 Analisando páginas...</div>
+                        <div style="font-size: 12px; opacity: 0.8;">Preparando coleta</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            progressoElement.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 20px; height: 20px; border: 2px solid #f3f3f3; border-top: 2px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <div>
+                        <div style="font-weight: 600;">📄 Página ${paginaAtual}</div>
+                        <div style="font-size: 12px; opacity: 0.8;">${produtosNaPagina} produtos encontrados</div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    static ocultarProgressoPaginas() {
+        const progressoElement = document.getElementById('progresso-paginas');
+        if (progressoElement) {
+            progressoElement.remove();
+        }
     }
 
     static async buscarMarcasFaltantes(produtos, callback) {
@@ -293,7 +383,7 @@ class ProductAnalyzer {
         this.mostrarLoadingMarcas(produtosParaBuscar.length);
         
         // Processar em lotes maiores para maior velocidade
-        const batchSize = 5; // Aumentado de 3 para 5
+        const batchSize = 10; // Aumentado de 5 para 10
         const batches = [];
         
         for (let i = 0; i < produtosParaBuscar.length; i += batchSize) {
@@ -330,7 +420,7 @@ class ProductAnalyzer {
             await Promise.all(promises);
             
             // Delay menor para maior velocidade
-            await new Promise(resolve => setTimeout(resolve, 300)); // Reduzido de 500ms para 300ms
+            await new Promise(resolve => setTimeout(resolve, 200)); // Reduzido de 300ms para 200ms
         }
         
         this.ocultarLoadingMarcas();

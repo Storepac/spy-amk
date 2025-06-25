@@ -4,28 +4,28 @@ class EventManagerLegacy {
         const btnFechar = document.getElementById("fechar-analise");
         if (btnFechar) {
             btnFechar.addEventListener("click", () => {
-                modal.style.display = 'none';
-            });
+            modal.style.display = 'none';
+        });
         }
         
         // Campo de busca por nome
         const buscaProduto = document.getElementById('busca-nome');
         if (buscaProduto) {
             buscaProduto.addEventListener('input', (e) => {
-                const busca = e.target.value.toLowerCase();
-                document.querySelectorAll('.linha-produto').forEach(linha => {
+            const busca = e.target.value.toLowerCase();
+            document.querySelectorAll('.linha-produto').forEach(linha => {
                     const titulo = linha.querySelector('td:nth-child(3) a')?.textContent?.toLowerCase() || '';
-                    linha.style.display = titulo.includes(busca) ? '' : 'none';
-                });
+                linha.style.display = titulo.includes(busca) ? '' : 'none';
             });
+        });
         }
         
         // Ordenação de produtos
         const ordenacao = document.getElementById('ordenacao-produtos');
         if (ordenacao) {
             ordenacao.addEventListener('change', (e) => {
-                TableManager.ordenarTabela(e.target.value);
-            });
+            TableManager.ordenarTabela(e.target.value);
+        });
         }
         
         // Botão recarregar produtos
@@ -37,14 +37,14 @@ class EventManagerLegacy {
                 
                 if (buscaProduto) buscaProduto.value = '';
                 if (ordenacao) ordenacao.value = 'posicao';
-                
-                document.querySelectorAll('.linha-produto').forEach(linha => {
-                    linha.style.display = '';
-                });
-                
-                TableManager.ordenarTabela('posicao');
-                NotificationManager.sucesso('Produtos recarregados com sucesso!');
+            
+            document.querySelectorAll('.linha-produto').forEach(linha => {
+                linha.style.display = '';
             });
+            
+            TableManager.ordenarTabela('posicao');
+            NotificationManager.sucesso('Produtos recarregados com sucesso!');
+        });
         }
         
         // Nova busca
@@ -59,15 +59,15 @@ class EventManagerLegacy {
         }
         
         if (btnBuscar) {
-            btnBuscar.addEventListener('click', executarBusca);
+        btnBuscar.addEventListener('click', executarBusca);
         }
         
         if (inputNovaBusca) {
-            inputNovaBusca.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    executarBusca();
-                }
-            });
+        inputNovaBusca.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                executarBusca();
+            }
+        });
         }
         
         // Fechar modal ao clicar fora
@@ -79,7 +79,7 @@ class EventManagerLegacy {
         
         // Inicializar eventos da tabela
         if (typeof TableManager !== 'undefined') {
-            TableManager.inicializarEventos();
+        TableManager.inicializarEventos();
         }
     }
 

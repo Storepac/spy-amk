@@ -480,6 +480,194 @@ class ModalBuilder {
             </thead>
         `;
     }
+
+    static criarModal() {
+        return `
+            <div id="amazon-analyzer-modal" style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 10000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-family: 'Poppins', sans-serif;
+            ">
+                <div style="
+                    background: var(--bg-primary);
+                    border-radius: 15px;
+                    padding: 30px;
+                    width: 95%;
+                    max-height: 95%;
+                    overflow: auto;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                    border: 1px solid var(--border-light);
+                    position: relative;
+                ">
+                    <!-- Cabeçalho -->
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 25px;
+                        padding-bottom: 15px;
+                        border-bottom: 2px solid var(--border-light);
+                    ">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <img src="${chrome.runtime.getURL('images/logo.png')}" alt="AMK Spy" style="width: 40px; height: 40px; border-radius: 8px;">
+                            <div>
+                                <h1 style="
+                                    margin: 0;
+                                    font-size: 24px;
+                                    font-weight: 700;
+                                    color: var(--text-primary);
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    -webkit-background-clip: text;
+                                    -webkit-text-fill-color: transparent;
+                                    background-clip: text;
+                                ">AMK Spy</h1>
+                                <p style="
+                                    margin: 0;
+                                    font-size: 14px;
+                                    color: var(--text-secondary);
+                                    opacity: 0.8;
+                                ">Analisador Avançado de Produtos Amazon</p>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <button id="btn-tema" style="
+                                background: var(--bg-secondary);
+                                border: 1px solid var(--border-light);
+                                border-radius: 8px;
+                                padding: 8px 12px;
+                                cursor: pointer;
+                                color: var(--text-primary);
+                                font-size: 12px;
+                                transition: all 0.2s;
+                            " title="Alternar tema">
+                                🌙
+                            </button>
+                            <button style="
+                                background: #ef4444;
+                                border: none;
+                                border-radius: 8px;
+                                padding: 8px 12px;
+                                cursor: pointer;
+                                color: white;
+                                font-size: 12px;
+                                transition: all 0.2s;
+                            " title="Fechar">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Opções de Análise -->
+                    <div id="opcoes-analise" style="
+                        background: var(--bg-secondary);
+                        border-radius: 12px;
+                        padding: 20px;
+                        margin-bottom: 20px;
+                        border: 1px solid var(--border-light);
+                    ">
+                        <h3 style="
+                            margin: 0 0 15px 0;
+                            font-size: 18px;
+                            color: var(--text-primary);
+                            font-weight: 600;
+                        ">🔍 Escolha o tipo de análise:</h3>
+                        
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <button id="btn-analise-rapida" style="
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                border: none;
+                                border-radius: 10px;
+                                padding: 15px 20px;
+                                cursor: pointer;
+                                color: white;
+                                font-size: 14px;
+                                font-weight: 600;
+                                transition: all 0.3s;
+                                flex: 1;
+                                min-width: 200px;
+                                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+                            " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                ⚡ Análise Rápida
+                                <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
+                                    Produtos da página atual
+                                </div>
+                            </button>
+                            
+                            <button id="btn-analise-completa" style="
+                                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                                border: none;
+                                border-radius: 10px;
+                                padding: 15px 20px;
+                                cursor: pointer;
+                                color: white;
+                                font-size: 14px;
+                                font-weight: 600;
+                                transition: all 0.3s;
+                                flex: 1;
+                                min-width: 200px;
+                                box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+                            " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                                🚀 Análise Completa
+                                <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
+                                    Todas as páginas disponíveis
+                                </div>
+                            </button>
+                        </div>
+                        
+                        <div style="
+                            margin-top: 15px;
+                            padding: 12px;
+                            background: var(--bg-primary);
+                            border-radius: 8px;
+                            border-left: 4px solid #3b82f6;
+                        ">
+                            <div style="font-size: 13px; color: var(--text-secondary);">
+                                <strong>💡 Dica:</strong> A análise completa pode demorar alguns minutos, mas fornece dados mais completos de todas as páginas de resultados.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conteúdo da Tabela (será preenchido dinamicamente) -->
+                    <div id="conteudo-tabela" style="display: none;">
+                        <!-- A tabela será inserida aqui -->
+                    </div>
+                    
+                    <!-- Botão Nova Busca (aparece quando há produtos armazenados) -->
+                    <div id="nova-busca-container" style="display: none; margin-top: 20px; text-align: center;">
+                        <button id="btn-nova-busca" style="
+                            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                            border: none;
+                            border-radius: 8px;
+                            padding: 12px 20px;
+                            cursor: pointer;
+                            color: white;
+                            font-size: 14px;
+                            font-weight: 600;
+                            transition: all 0.2s;
+                            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+                        " title="Fazer nova busca">
+                            🔄 Nova Busca
+                        </button>
+                        <p style="
+                            margin: 10px 0 0 0;
+                            font-size: 12px;
+                            color: var(--text-secondary);
+                            opacity: 0.8;
+                        ">Clique para fazer uma nova análise e substituir os dados atuais</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
 }
 
 window.ModalBuilder = ModalBuilder; 

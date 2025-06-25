@@ -1,88 +1,211 @@
 class AppController {
+    static produtosArmazenados = null;
+    static tipoAnaliseAnterior = null;
+    
     static async exibirAnalise() {
         try {
-            // Mostrar loading inicial
-            this.mostrarLoadingInicial();
+            console.log('🔧 Iniciando criação do modal...');
             
-            // Coletar produtos
-            const produtos = await ProductAnalyzer.analisarProdutosPesquisaRapido();
+            // Remover modal existente se houver
+            const modalExistente = document.getElementById('amazon-analyzer-modal');
+            if (modalExistente) {
+                modalExistente.remove();
+            }
             
-            if (produtos.length === 0) {
-                NotificationManager.erro('Nenhum produto encontrado.');
-                this.ocultarLoadingInicial();
+            // Verificar se já temos produtos armazenados
+            if (this.produtosArmazenados && this.produtosArmazenados.length > 0) {
+                console.log('📊 Reutilizando produtos armazenados:', this.produtosArmazenados.length);
+                this.exibirTabelaComProdutos(this.produtosArmazenados);
                 return;
             }
             
-            // Criar modal e tabela
+            // Criar modal com opções de análise
             const modal = document.createElement("div");
             modal.id = "amazon-analyzer-modal";
-            modal.innerHTML = TableManager.criarTabelaProdutos(produtos);
+            modal.innerHTML = ModalBuilder.criarModal();
             document.body.appendChild(modal);
             
-            // Inicializar eventos da tabela
-            TableManager.inicializarEventos();
+            console.log('✅ Modal criado e adicionado ao DOM');
+            console.log('🔍 Verificando elementos do modal...');
             
-            // Configurar eventos do modal
-            EventManagerLegacy.configurarEventosModal(modal);
+            // Verificar se os elementos foram criados
+            const opcoesAnalise = document.getElementById('opcoes-analise');
+            const btnRapida = document.getElementById('btn-analise-rapida');
+            const btnCompleta = document.getElementById('btn-analise-completa');
             
-            // Ocultar loading inicial
-            this.ocultarLoadingInicial();
+            console.log('Elementos encontrados:', {
+                opcoesAnalise: !!opcoesAnalise,
+                btnRapida: !!btnRapida,
+                btnCompleta: !!btnCompleta
+            });
             
-            // Iniciar busca automática imediatamente
-            this.iniciarBuscaAutomatica(produtos);
+            // Configurar eventos dos botões
+            this.configurarEventosModal();
+            
+            console.log('✅ Modal de análise exibido com sucesso');
             
         } catch (error) {
-            console.error('Erro na análise:', error);
-            if (typeof NotificationManager !== 'undefined') {
-                NotificationManager.erro('Erro ao analisar produtos.');
-            }
-            this.ocultarLoadingInicial();
+            console.error('Erro ao exibir análise:', error);
+            NotificationManager.erro('Erro ao abrir o analisador.');
         }
+    }
+
+    static exibirTabelaComProdutos(produtos) {
+        console.log('📊 Exibindo tabela com produtos armazenados...');
+        
+        // Criar modal
+        const modal = document.createElement("div");
+        modal.id = "amazon-analyzer-modal";
+        modal.innerHTML = ModalBuilder.criarModal();
+        document.body.appendChild(modal);
+        
+        // Ocultar opções de análise
+        const opcoesAnalise = document.getElementById('opcoes-analise');
+        if (opcoesAnalise) {
+            opcoesAnalise.style.display = 'none';
+        }
+        
+        // Mostrar tabela com produtos
+        const conteudoTabela = document.getElementById('conteudo-tabela');
+        if (conteudoTabela) {
+            conteudoTabela.style.display = 'block';
+            conteudoTabela.innerHTML = TableManager.criarTabelaProdutos(produtos);
+        }
+        
+        // Mostrar botão de nova busca
+        const novaBuscaContainer = document.getElementById('nova-busca-container');
+        if (novaBuscaContainer) {
+            novaBuscaContainer.style.display = 'block';
+        }
+        
+        // Configurar produtos no FilterManager
+        TableManager.filterManager.setProdutos(produtos);
+        
+        // Inicializar eventos da tabela
+        TableManager.inicializarEventos();
+        
+        // Configurar eventos do modal
+        this.configurarEventosModal();
+        
+        NotificationManager.sucesso(`Tabela reaberta com ${produtos.length} produtos!`);
+    }
+
+    static configurarEventosModal() {
+        console.log('🔧 Configurando eventos do modal...');
+        
+        // Botão análise rápida
+        const btnAnaliseRapida = document.getElementById('btn-analise-rapida');
+        console.log('Botão análise rápida encontrado:', !!btnAnaliseRapida);
+        if (btnAnaliseRapida) {
+            btnAnaliseRapida.addEventListener('click', () => {
+                console.log('🚀 Iniciando análise rápida...');
+                this.iniciarAnalise('rapida');
+            });
+        }
+        
+        // Botão análise completa
+        const btnAnaliseCompleta = document.getElementById('btn-analise-completa');
+        console.log('Botão análise completa encontrado:', !!btnAnaliseCompleta);
+        if (btnAnaliseCompleta) {
+            btnAnaliseCompleta.addEventListener('click', () => {
+                console.log('🚀 Iniciando análise completa...');
+                this.iniciarAnalise('todas');
+            });
+        }
+        
+        // Botão nova busca
+        const btnNovaBusca = document.getElementById('btn-nova-busca');
+        console.log('Botão nova busca encontrado:', !!btnNovaBusca);
+        if (btnNovaBusca) {
+            btnNovaBusca.addEventListener('click', () => {
+                console.log('🔄 Iniciando nova busca...');
+                this.limparProdutosArmazenados();
+                this.exibirAnalise();
+            });
+        }
+        
+        // Botão tema
+        const btnTema = document.getElementById('btn-tema');
+        console.log('Botão tema encontrado:', !!btnTema);
+        if (btnTema) {
+            btnTema.addEventListener('click', () => {
+                console.log('🎨 Alternando tema...');
+                // Por enquanto, apenas um log - podemos implementar o tema depois
+                NotificationManager.informacao('Funcionalidade de tema será implementada em breve!');
+            });
+        }
+        
+        // Botão fechar
+        const btnFechar = document.querySelector('#amazon-analyzer-modal button[title="Fechar"]');
+        console.log('Botão fechar encontrado:', !!btnFechar);
+        if (btnFechar) {
+            btnFechar.addEventListener('click', () => {
+                TableManager.fecharModal();
+            });
+        }
+        
+        console.log('✅ Eventos do modal configurados');
     }
 
     static async iniciarAnalise(tipo) {
         try {
+            // Armazenar tipo de análise
+            this.tipoAnaliseAnterior = tipo;
+            
+            // Ocultar opções de análise
+            const opcoesAnalise = document.getElementById('opcoes-analise');
+            if (opcoesAnalise) {
+                opcoesAnalise.style.display = 'none';
+            }
+            
             // Mostrar loading inicial
             this.mostrarLoadingInicial();
             
             let produtos = [];
             
             if (tipo === 'todas') {
+                NotificationManager.informacao('Iniciando análise completa de todas as páginas...');
                 produtos = await ProductAnalyzer.coletarProdutosTodasPaginas();
             } else {
+                NotificationManager.informacao('Iniciando análise rápida da página atual...');
                 produtos = await ProductAnalyzer.analisarProdutosPesquisaRapido();
             }
             
             if (produtos.length === 0) {
                 NotificationManager.erro('Nenhum produto encontrado.');
                 this.ocultarLoadingInicial();
+                this.mostrarOpcoesAnalise();
                 return;
             }
             
-            // Criar modal e tabela
-            const modal = document.createElement("div");
-            modal.id = "amazon-analyzer-modal";
-            modal.innerHTML = TableManager.criarTabelaProdutos(produtos);
-            document.body.appendChild(modal);
+            // Armazenar produtos para reutilização
+            this.produtosArmazenados = produtos;
+            window.produtosTabela = produtos;
+            
+            // Criar tabela imediatamente com produtos básicos
+            const conteudoTabela = document.getElementById('conteudo-tabela');
+            if (conteudoTabela) {
+                conteudoTabela.style.display = 'block';
+                conteudoTabela.innerHTML = TableManager.criarTabelaProdutos(produtos);
+            }
+            
+            // Configurar produtos no FilterManager
+            TableManager.filterManager.setProdutos(produtos);
             
             // Inicializar eventos da tabela
             TableManager.inicializarEventos();
             
-            // Configurar eventos do modal
-            EventManagerLegacy.configurarEventosModal(modal);
-            
             // Ocultar loading inicial
             this.ocultarLoadingInicial();
             
-            // Iniciar busca automática imediatamente
+            // Iniciar busca automática em background
             this.iniciarBuscaAutomatica(produtos);
             
         } catch (error) {
             console.error('Erro na análise:', error);
-            if (typeof NotificationManager !== 'undefined') {
-                NotificationManager.erro('Erro ao analisar produtos.');
-            }
+            NotificationManager.erro('Erro ao analisar produtos.');
             this.ocultarLoadingInicial();
+            this.mostrarOpcoesAnalise();
         }
     }
 
@@ -225,6 +348,13 @@ class AppController {
         }
     }
 
+    static mostrarOpcoesAnalise() {
+        const opcoesAnalise = document.getElementById('opcoes-analise');
+        if (opcoesAnalise) {
+            opcoesAnalise.style.display = 'block';
+        }
+    }
+
     static init() {
         // Verificar se já foi inicializado
         if (window.amkSpyInicializado) {
@@ -249,6 +379,13 @@ class AppController {
             }, 1000);
         }
     }
+
+    static limparProdutosArmazenados() {
+        this.produtosArmazenados = null;
+        this.tipoAnaliseAnterior = null;
+        window.produtosTabela = null;
+        console.log('🗑️ Produtos armazenados limpos');
+    }
 }
 
-window.AppController = AppController; 
+window.AppController = AppController;

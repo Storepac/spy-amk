@@ -333,7 +333,8 @@ class ProductExtractor {
             link: '',
             vendidosElement: elemento.querySelector('.a-color-secondary'),
             vendidos: 0,
-            patrocinado: elemento.querySelector('.puis-sponsored-label-text') !== null,
+            patrocinado: false,
+            organico: false,
             posicaoMatch: elemento.getAttribute('data-cel-widget')?.match(/search_result_(\d+)/),
             posicao: '',
             marca: '',
@@ -402,6 +403,26 @@ class ProductExtractor {
                 dados.vendidos = numero;
             }
         }
+        
+        // Melhorar detecção de produtos patrocinados
+        const patrocinadoSelectors = [
+            '.puis-sponsored-label-text',
+            '[data-component-type="sp-sponsored-result"]',
+            '.s-sponsored-label-info-icon',
+            '.a-color-secondary:contains("Patrocinado")',
+            '.a-color-secondary:contains("Sponsored")'
+        ];
+        
+        dados.patrocinado = patrocinadoSelectors.some(selector => {
+            try {
+                return elemento.querySelector(selector) !== null;
+            } catch (e) {
+                return false;
+            }
+        });
+        
+        // Produto é orgânico se não é patrocinado
+        dados.organico = !dados.patrocinado;
         
         // Calcular receita mensal
         dados.receitaMes = dados.precoNumerico * dados.vendidos;

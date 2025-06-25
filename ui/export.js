@@ -215,6 +215,141 @@ class ExportManager {
         this.setProdutos(produtos);
         return produtos;
     }
+
+    exportarDados() {
+        // Usar produtos da tabela se disponível, senão usar produtos globais
+        let produtosParaExportar = [];
+        
+        if (window.produtosTabela && window.produtosTabela.length > 0) {
+            produtosParaExportar = window.produtosTabela;
+        } else {
+            // Tentar extrair da tabela atual
+            produtosParaExportar = this.extrairProdutosDaTabela();
+        }
+        
+        if (produtosParaExportar.length === 0) {
+            NotificationManager.erro('Nenhum produto encontrado para exportar.');
+            return;
+        }
+        
+        // Configurar produtos no ExportManager
+        this.setProdutos(produtosParaExportar);
+        
+        // Mostrar opções de exportação
+        this.mostrarOpcoesExportacao();
+    }
+    
+    mostrarOpcoesExportacao() {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10001;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+        `;
+        
+        modal.innerHTML = `
+            <div style="
+                background: var(--bg-primary);
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 400px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                border: 1px solid var(--border-light);
+            ">
+                <h3 style="
+                    margin: 0 0 20px 0;
+                    font-size: 18px;
+                    color: var(--text-primary);
+                    font-weight: 600;
+                    text-align: center;
+                ">📊 Exportar Dados</h3>
+                
+                <p style="
+                    margin: 0 0 20px 0;
+                    font-size: 14px;
+                    color: var(--text-secondary);
+                    text-align: center;
+                ">Escolha o formato de exportação para ${this.produtos.length} produtos:</p>
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <button id="btn-exportar-csv" style="
+                        flex: 1;
+                        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                        border: none;
+                        border-radius: 8px;
+                        padding: 12px;
+                        cursor: pointer;
+                        color: white;
+                        font-size: 14px;
+                        font-weight: 600;
+                        transition: all 0.2s;
+                    " title="Exportar como CSV">
+                        📄 CSV
+                    </button>
+                    <button id="btn-exportar-excel" style="
+                        flex: 1;
+                        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                        border: none;
+                        border-radius: 8px;
+                        padding: 12px;
+                        cursor: pointer;
+                        color: white;
+                        font-size: 14px;
+                        font-weight: 600;
+                        transition: all 0.2s;
+                    " title="Exportar como Excel">
+                        📊 Excel
+                    </button>
+                </div>
+                
+                <button id="btn-cancelar-exportar" style="
+                    width: 100%;
+                    background: var(--bg-secondary);
+                    border: 1px solid var(--border-light);
+                    border-radius: 8px;
+                    padding: 10px;
+                    cursor: pointer;
+                    color: var(--text-primary);
+                    font-size: 14px;
+                    transition: all 0.2s;
+                " title="Cancelar">
+                    ❌ Cancelar
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Configurar eventos
+        document.getElementById('btn-exportar-csv').addEventListener('click', () => {
+            this.exportarParaCSV();
+            modal.remove();
+        });
+        
+        document.getElementById('btn-exportar-excel').addEventListener('click', () => {
+            this.exportarParaExcel();
+            modal.remove();
+        });
+        
+        document.getElementById('btn-cancelar-exportar').addEventListener('click', () => {
+            modal.remove();
+        });
+        
+        // Fechar ao clicar fora
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
 }
 
 window.ExportManager = ExportManager; 

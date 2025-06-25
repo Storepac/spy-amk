@@ -1,44 +1,251 @@
 /**
  * TableManager - Gerenciador principal da tabela de produtos
- * Versão refatorada com componentes modulares
+ * Versão refatorada com funcionalidades separadas
  */
 class TableManager {
     static filterManager = new FilterManager();
     static exportManager = new ExportManager();
-    static themeManager = new ThemeManager();
     static eventManager = new EventManager();
 
     static criarTabelaProdutos(produtos) {
-        // Definir produtos globalmente para uso em outras funções
         window.produtosTabela = produtos;
         
-        // Configurar produtos no FilterManager
-        this.filterManager.setProdutos(produtos);
-        
-        // Calcular métricas
-        const metricas = this.atualizarMetricas(produtos);
-        const termoBusca = UrlManager.extrairTermoBusca();
-        
-        // Criar modal usando ModalBuilder
-        const modalHTML = ModalBuilder.criarModalPrincipal(produtos, metricas, termoBusca);
-        
-        // Inserir no DOM
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-        
-        // Inicializar eventos
-        this.inicializarEventos();
-        
-        // Configurar eventos da tabela
-        this.eventManager.configurarEventosTabela();
-        
-        return true;
+        return `
+            <!-- Contador e Filtros -->
+            <div style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+                gap: 15px;
+            ">
+                <div style="
+                    background: var(--bg-secondary);
+                    padding: 10px 15px;
+                    border-radius: 8px;
+                    border: 1px solid var(--border-light);
+                ">
+                    <span class="contador-produtos" style="
+                        color: var(--text-primary);
+                        font-weight: 600;
+                        font-size: 14px;
+                        opacity: 0.9;
+                    ">${produtos.length} produtos</span>
+                </div>
+                
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button id="btn-limpar-filtros" style="
+                        background: var(--bg-secondary);
+                        border: 1px solid var(--border-light);
+                        border-radius: 6px;
+                        padding: 6px 12px;
+                        cursor: pointer;
+                        color: var(--text-primary);
+                        font-size: 12px;
+                        transition: all 0.2s;
+                    " title="Limpar filtros">
+                        🗑️ Limpar
+                    </button>
+                    <button id="btn-exportar-dados" style="
+                        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                        border: none;
+                        border-radius: 6px;
+                        padding: 6px 12px;
+                        cursor: pointer;
+                        color: white;
+                        font-size: 12px;
+                        font-weight: 600;
+                        transition: all 0.2s;
+                    " title="Exportar dados">
+                        📊 Exportar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            ${FilterManager.criarFiltros()}
+
+            <!-- Tabela -->
+            <table id="tabela-produtos" style="
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 12px;
+                background: var(--bg-secondary);
+                border-radius: 10px;
+                overflow: hidden;
+                border: 1px solid var(--border-light);
+            ">
+                <thead>
+                    <tr style="
+                        background: var(--bg-primary);
+                        border-bottom: 2px solid var(--border-light);
+                    ">
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">#</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Imagem</th>
+                        <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Título</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">ASIN</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Marca</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Preço</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Avaliação</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);"># Aval.</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Vendidos</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Receita</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">BSR</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Categoria</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Tipo</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);">Página</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${produtos.map((produto, index) => TableRowBuilder.criarLinhaProduto(produto, index)).join('')}
+                </tbody>
+            </table>
+        `;
     }
 
     static inicializarEventos() {
+        console.log('🔧 Inicializando eventos da tabela...');
+        
         // Aguardar um pouco para garantir que o DOM foi renderizado
         setTimeout(() => {
-            this.eventManager.inicializar();
+            // Configurar eventos do FilterManager
+            if (this.filterManager) {
+                this.filterManager.configurarEventos();
+            }
+            
+            // Configurar eventos do EventManager
+            if (this.eventManager) {
+                this.eventManager.inicializar();
+            }
+            
+            // Configurar eventos dos botões da tabela
+            this.configurarEventosBotoes();
+            
+            // Configurar eventos de cópia de ASIN
+            this.configurarEventosCopiarASIN();
+            
+            // Configurar eventos de BSR
+            this.configurarEventosBSR();
+            
         }, 100);
+    }
+
+    static configurarEventosBotoes() {
+        console.log('🔧 Configurando eventos dos botões...');
+        
+        // Botão limpar filtros
+        const btnLimparFiltros = document.getElementById('btn-limpar-filtros');
+        if (btnLimparFiltros) {
+            btnLimparFiltros.addEventListener('click', () => {
+                console.log('🧹 Limpando filtros...');
+                this.limparFiltros();
+            });
+            console.log('✅ Evento configurado para botão limpar filtros');
+        } else {
+            console.warn('⚠️ Botão limpar filtros não encontrado');
+        }
+        
+        // Botão exportar dados
+        const btnExportarDados = document.getElementById('btn-exportar-dados');
+        if (btnExportarDados) {
+            btnExportarDados.addEventListener('click', () => {
+                console.log('📊 Exportando dados...');
+                this.exportarDados();
+            });
+            console.log('✅ Evento configurado para botão exportar dados');
+        } else {
+            console.warn('⚠️ Botão exportar dados não encontrado');
+        }
+    }
+
+    static configurarEventosCopiarASIN() {
+        console.log('🔧 Configurando eventos de cópia de ASIN...');
+        
+        // Encontrar todos os botões de ASIN
+        const botoesASIN = document.querySelectorAll('button[onclick*="copiarASIN"]');
+        console.log('📋 Encontrados', botoesASIN.length, 'botões de ASIN');
+        
+        botoesASIN.forEach((botao, index) => {
+            // Remover onclick inline
+            botao.removeAttribute('onclick');
+            
+            // Adicionar evento via JavaScript
+            botao.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Extrair ASIN do texto do botão (removendo ícone de duplicado se houver)
+                const asin = botao.textContent.replace('⚠️ ', '').trim();
+                console.log(`📋 Clicou no botão ${index + 1}, ASIN: ${asin}`);
+                
+                if (asin && asin !== 'N/A') {
+                    this.copiarASIN(asin);
+                } else {
+                    NotificationManager.erro('ASIN inválido para copiar.');
+                }
+            });
+            
+            console.log(`✅ Evento configurado para botão ASIN ${index + 1}`);
+        });
+    }
+
+    static configurarEventosBSR() {
+        console.log('🔧 Configurando eventos de BSR...');
+        
+        // Encontrar todas as células de BSR
+        const celulasBSR = document.querySelectorAll('td[onclick*="toggleRankingInfo"]');
+        console.log('📊 Encontradas', celulasBSR.length, 'células de BSR');
+        
+        celulasBSR.forEach((celula, index) => {
+            // Remover onclick inline
+            celula.removeAttribute('onclick');
+            
+            // Adicionar evento via JavaScript
+            celula.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log(`📊 Clicou na célula BSR ${index + 1}`);
+                this.toggleRankingInfo(celula);
+            });
+            
+            console.log(`✅ Evento configurado para célula BSR ${index + 1}`);
+        });
+    }
+
+    static limparFiltros() {
+        console.log('🧹 Iniciando limpeza de filtros...');
+        
+        try {
+            // Limpar filtros no FilterManager
+            if (this.filterManager && typeof this.filterManager.limparFiltros === 'function') {
+                this.filterManager.limparFiltros();
+            } else {
+                console.error('❌ FilterManager não disponível ou método limparFiltros não encontrado');
+                NotificationManager.erro('Erro ao limpar filtros.');
+            }
+        } catch (error) {
+            console.error('❌ Erro ao limpar filtros:', error);
+            NotificationManager.erro('Erro ao limpar filtros.');
+        }
+    }
+
+    static exportarDados() {
+        console.log('📊 Iniciando exportação de dados...');
+        
+        try {
+            // Exportar dados via ExportManager
+            if (this.exportManager && typeof this.exportManager.exportarDados === 'function') {
+                this.exportManager.exportarDados();
+            } else {
+                console.error('❌ ExportManager não disponível ou método exportarDados não encontrado');
+                NotificationManager.erro('Erro ao exportar dados.');
+            }
+        } catch (error) {
+            console.error('❌ Erro ao exportar dados:', error);
+            NotificationManager.erro('Erro ao exportar dados.');
+        }
     }
 
     static atualizarTabelaComFiltros(produtosFiltrados) {
@@ -52,6 +259,10 @@ class TableManager {
         tbody.innerHTML = produtosOrdenados.map((produto, index) => 
             TableRowBuilder.criarLinhaProduto(produto, index)
         ).join('');
+        
+        // Reconfigurar eventos
+        this.configurarEventosCopiarASIN();
+        this.configurarEventosBSR();
     }
 
     static atualizarLinhaProduto(produto, index) {
@@ -83,7 +294,15 @@ class TableManager {
         return 'Baixa 🔴';
     }
 
+    // ===== FUNCIONALIDADE DE COPIAR ASIN =====
     static async copiarASIN(asin) {
+        console.log('📋 Tentando copiar ASIN:', asin);
+        
+        if (!asin || asin === 'N/A') {
+            NotificationManager.erro('ASIN inválido para copiar.');
+            return;
+        }
+        
         const mostrarFeedback = (sucesso) => {
             if (sucesso) {
                 NotificationManager.sucesso(`ASIN ${asin} copiado para a área de transferência!`);
@@ -95,21 +314,25 @@ class TableManager {
         try {
             // Tentar método moderno primeiro
             await navigator.clipboard.writeText(asin);
+            console.log('✅ ASIN copiado com sucesso via navigator.clipboard');
             mostrarFeedback(true);
         } catch (error) {
-            console.log('Método moderno falhou, tentando fallback...');
+            console.log('❌ Método moderno falhou, tentando fallback...', error);
             this.copiarASINFallback(asin, mostrarFeedback);
         }
     }
 
     static copiarASINFallback(asin, mostrarFeedback) {
         try {
+            console.log('🔄 Tentando método fallback...');
+            
             // Criar elemento temporário
             const textArea = document.createElement('textarea');
             textArea.value = asin;
             textArea.style.position = 'fixed';
             textArea.style.left = '-999999px';
             textArea.style.top = '-999999px';
+            textArea.style.opacity = '0';
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
@@ -117,31 +340,52 @@ class TableManager {
             const sucesso = document.execCommand('copy');
             document.body.removeChild(textArea);
             
-            mostrarFeedback(sucesso);
+            if (sucesso) {
+                console.log('✅ ASIN copiado com sucesso via fallback');
+                mostrarFeedback(true);
+            } else {
+                console.log('❌ Fallback falhou, tentando legacy...');
+                this.copiarASINLegacy(asin, mostrarFeedback);
+            }
         } catch (error) {
-            console.error('Fallback também falhou:', error);
+            console.error('❌ Fallback também falhou:', error);
             this.copiarASINLegacy(asin, mostrarFeedback);
         }
     }
 
     static copiarASINLegacy(asin, mostrarFeedback) {
         try {
+            console.log('🔄 Tentando método legacy...');
+            
             // Método mais antigo
             const textArea = document.createElement('textarea');
             textArea.value = asin;
+            textArea.style.position = 'absolute';
+            textArea.style.left = '50%';
+            textArea.style.top = '50%';
+            textArea.style.transform = 'translate(-50%, -50%)';
+            textArea.style.zIndex = '9999';
             document.body.appendChild(textArea);
+            textArea.focus();
             textArea.select();
             
             const sucesso = document.execCommand('copy');
             document.body.removeChild(textArea);
             
-            mostrarFeedback(sucesso);
+            if (sucesso) {
+                console.log('✅ ASIN copiado com sucesso via legacy');
+                mostrarFeedback(true);
+            } else {
+                console.log('❌ Todos os métodos de cópia falharam');
+                mostrarFeedback(false);
+            }
         } catch (error) {
-            console.error('Todos os métodos de cópia falharam:', error);
+            console.error('❌ Todos os métodos de cópia falharam:', error);
             mostrarFeedback(false);
         }
     }
 
+    // ===== FUNCIONALIDADE DE BSR =====
     static toggleRankingInfo(element) {
         const ranking = element.textContent.trim();
         const rankingNumerico = parseInt(ranking) || 0;
@@ -192,7 +436,7 @@ class TableManager {
         
         NotificationManager.informacao(mensagem, 8000);
     }
-
+    
     static realizarNovaBusca() {
         const termo = document.getElementById('nova-busca')?.value?.trim();
         if (!termo) {
@@ -201,7 +445,7 @@ class TableManager {
         }
         
         const url = `https://www.amazon.com.br/s?k=${encodeURIComponent(termo)}`;
-        window.open(url, '_blank');
+        window.location.href = url;
     }
 
     static getTop10BSR(produtos, limite) {
@@ -221,8 +465,10 @@ class TableManager {
         // Limpar eventos
         this.eventManager.limparTodosEventos();
         
-        // Limpar variáveis globais
-        window.produtosTabela = null;
+        // NÃO limpar produtos armazenados - eles ficam para reutilização
+        // window.produtosTabela = null; // Comentado para manter produtos
+        
+        NotificationManager.informacao('Tabela fechada. Clique no AMK Spy para reabrir.');
     }
 
     // Método para verificar se todos os componentes estão carregados
@@ -230,7 +476,6 @@ class TableManager {
         const componentes = {
             'FilterManager': typeof FilterManager !== 'undefined',
             'ExportManager': typeof ExportManager !== 'undefined',
-            'ThemeManager': typeof ThemeManager !== 'undefined',
             'EventManager': typeof EventManager !== 'undefined',
             'ModalBuilder': typeof ModalBuilder !== 'undefined',
             'TableRowBuilder': typeof TableRowBuilder !== 'undefined',

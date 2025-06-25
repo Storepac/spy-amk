@@ -42,7 +42,6 @@
           "core/extractor.js",
           "core/analyzer.js",
           "app.js",
-          "diagnostico_refatoracao.js",
           "content.js"
         ],
         "run_at": "document_end"
