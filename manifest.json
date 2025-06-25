@@ -1,48 +1,68 @@
 {
     "manifest_version": 3,
-    "name": "AMK spy",
-    "version": "2.0",
-    "description": "Análise inteligente de produtos Amazon com arquitetura modular",
+    "name": "AMK Spy - Amazon Product Analyzer",
+    "version": "2.0.0",
+    "description": "Analisador avançado de produtos da Amazon com filtros, exportação e métricas detalhadas",
     "icons": {
       "16": "images/icon16.png",
       "32": "images/icon32.png",
       "48": "images/icon48.png",
+      "64": "images/icon64.png",
       "128": "images/icon128.png"
     },
     "permissions": [
       "activeTab",
-      "scripting"
+      "storage",
+      "clipboardWrite"
     ],
-    "host_permissions": ["https://www.amazon.*/*"],
+    "host_permissions": [
+      "https://www.amazon.com.br/*",
+      "https://www.amazon.com/*"
+    ],
     "content_scripts": [
       {
         "matches": [
-            "https://www.amazon.com/*",
-            "https://www.amazon.com.br/*"
+          "https://www.amazon.com.br/*",
+          "https://www.amazon.com/*"
         ],
         "js": [
+          "utils/clipboard.js",
             "utils/url.js",
-            "utils/clipboard.js",
             "ui/notifications.js",
+          "ui/theme.js",
+          "ui/filters.js",
+          "ui/export.js",
             "ui/table.js",
             "ui/events.js",
-            "ui/product_page.js",
             "core/extractor.js",
             "core/analyzer.js",
             "app.js",
-            "content.js"
+          "content.js"
         ],
-        "run_at": "document_idle"
+        "run_at": "document_end"
+      }
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": [
+          "images/*",
+          "ui/*",
+          "core/*",
+          "utils/*",
+          "*.js"
+        ],
+        "matches": [
+          "https://www.amazon.com.br/*",
+          "https://www.amazon.com/*"
+        ]
       }
     ],
     "action": {
       "default_popup": "popup.html",
-      "default_icon": {
-        "16": "images/icon16.png",
-        "32": "images/icon32.png",
-        "48": "images/icon48.png",
-        "128": "images/icon128.png"
-      }
+      "default_title": "AMK Spy - Analisador de Produtos Amazon"
+    },
+    "background": {
+      "service_worker": "app.js"
     }
 }
   

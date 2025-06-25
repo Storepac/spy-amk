@@ -1,57 +1,86 @@
 class EventManager {
     static configurarEventosModal(modal) {
-        document.getElementById("fechar-analise").addEventListener("click", () => {
-            modal.style.display = 'none';
-        });
-        
-        document.getElementById('busca-produto').addEventListener('input', (e) => {
-            const busca = e.target.value.toLowerCase();
-            document.querySelectorAll('.linha-produto').forEach(linha => {
-                const titulo = linha.getAttribute('data-titulo');
-                linha.style.display = titulo.includes(busca) ? '' : 'none';
+        // Botão fechar análise
+        const btnFechar = document.getElementById("fechar-analise");
+        if (btnFechar) {
+            btnFechar.addEventListener("click", () => {
+                modal.style.display = 'none';
             });
-        });
+        }
         
-        document.getElementById('ordenacao').addEventListener('change', (e) => {
-            TableManager.ordenarTabela(e.target.value);
-        });
-        
-        document.getElementById('reload-produtos').addEventListener('click', () => {
-            document.getElementById('busca-produto').value = '';
-            document.getElementById('ordenacao').value = 'posicao';
-            
-            document.querySelectorAll('.linha-produto').forEach(linha => {
-                linha.style.display = '';
+        // Campo de busca por nome
+        const buscaProduto = document.getElementById('busca-nome');
+        if (buscaProduto) {
+            buscaProduto.addEventListener('input', (e) => {
+                const busca = e.target.value.toLowerCase();
+                document.querySelectorAll('.linha-produto').forEach(linha => {
+                    const titulo = linha.querySelector('td:nth-child(3) a')?.textContent?.toLowerCase() || '';
+                    linha.style.display = titulo.includes(busca) ? '' : 'none';
+                });
             });
-            
-            TableManager.ordenarTabela('posicao');
-            NotificationManager.mostrar('Produtos recarregados com sucesso!');
-        });
+        }
         
+        // Ordenação de produtos
+        const ordenacao = document.getElementById('ordenacao-produtos');
+        if (ordenacao) {
+            ordenacao.addEventListener('change', (e) => {
+                TableManager.ordenarTabela(e.target.value);
+            });
+        }
+        
+        // Botão recarregar produtos
+        const reloadProdutos = document.getElementById('reload-produtos');
+        if (reloadProdutos) {
+            reloadProdutos.addEventListener('click', () => {
+                const buscaProduto = document.getElementById('busca-nome');
+                const ordenacao = document.getElementById('ordenacao-produtos');
+                
+                if (buscaProduto) buscaProduto.value = '';
+                if (ordenacao) ordenacao.value = 'posicao';
+                
+                document.querySelectorAll('.linha-produto').forEach(linha => {
+                    linha.style.display = '';
+                });
+                
+                TableManager.ordenarTabela('posicao');
+                NotificationManager.sucesso('Produtos recarregados com sucesso!');
+            });
+        }
+        
+        // Nova busca
         const inputNovaBusca = document.getElementById('nova-busca');
         const btnBuscar = document.getElementById('btn-buscar');
         
         function executarBusca() {
-            const novoTermo = inputNovaBusca.value.trim();
+            const novoTermo = inputNovaBusca?.value?.trim();
             if (novoTermo) {
                 UrlManager.navegarParaBusca(novoTermo);
             }
         }
         
-        btnBuscar.addEventListener('click', executarBusca);
-        inputNovaBusca.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                executarBusca();
-            }
-        });
+        if (btnBuscar) {
+            btnBuscar.addEventListener('click', executarBusca);
+        }
         
+        if (inputNovaBusca) {
+            inputNovaBusca.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    executarBusca();
+                }
+            });
+        }
+        
+        // Fechar modal ao clicar fora
         modal.addEventListener("click", (e) => {
             if (e.target === modal) {
                 modal.style.display = 'none';
             }
         });
         
-        TableManager.inicializarEventos();
+        // Inicializar eventos da tabela
+        if (typeof TableManager !== 'undefined') {
+            TableManager.inicializarEventos();
+        }
     }
 
     static adicionarBotaoAmkSpy() {
@@ -95,6 +124,11 @@ class EventManager {
             if (modal) {
                 modal.style.display = 'flex';
             } else {
+                // Verificar se já está em processo de análise
+                if (document.getElementById('loading-inicial')) {
+                    console.log('⚠️ Análise já em andamento');
+                    return;
+                }
                 AppController.iniciarAnalise('todas');
             }
         });

@@ -1,0 +1,81 @@
+=== LOG DE ERROS LIMPO - CORREÇÕES APLICADAS ===
+Data: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+
+CORREÇÕES IMPLEMENTADAS:
+1. ✅ Adicionado método atualizarMarcas() no FilterManager
+2. ✅ Corrigido problema de loading duplo com verificações
+3. ✅ Corrigido problema de notificações duplicadas
+4. ✅ Adicionado verificações para evitar inicializações múltiplas
+5. ✅ Melhorado controle de estado da aplicação
+
+PROBLEMAS RESOLVIDOS:
+- Erro: TableManager.filterManager.atualizarMarcas is not a function
+- Loading duplo aparecendo na tela
+- Notificações duplicadas
+- Inicializações múltiplas da aplicação
+
+STATUS: TODOS OS PROBLEMAS CORRIGIDOS ✅
+
+iu3:1 Blocked script execution in 'https://s.amazon-adsystem.com/iu3?d=amazon.com.br&slot=navFooter&a2=01019796b6f2bf361f80d8b288ec86844831eef333335e37335ea7820d7b2ce46b4b&old_oo=0&ts=1750854201016&s=ARjL9s0zz6u-jl6qgMG9IkGnxw9cig6jjbhEnDzPMSa3&gdpr_consent=&gdpr_consent_avl=&cb=1750854201016' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
+iu3:1 Blocked script execution in 'https://s.amazon-adsystem.com/iu3?d=amazon.com.br&slot=navFooter&a2=01019796b6f2bf361f80d8b288ec86844831eef333335e37335ea7820d7b2ce46b4b&old_oo=0&ts=1750854201016&s=ARjL9s0zz6u-jl6qgMG9IkGnxw9cig6jjbhEnDzPMSa3&gdpr_consent=&gdpr_consent_avl=&cb=1750854201016' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
+pr:1 Blocked script execution in 'https://s.amazon-adsystem.com/v3/pr?exlist=n-sk_n-mediarithmics_n-ix-HMT_bk_n-y-HMT_n-semasio-ecm_n-telaria_n-dm2-HMT_n-pm-HMT_nsln_n-kr-new_n-lucid_n-bsw-hmt_n-samba.tv_adelphic_adb&fv=1.0&a=cm&ex-pl-n-kr-new=c_EHuODSQ4yWSYMGZC1NMQ&dmt=1&gdpr_consent=&ep=mfS4I4Lxm4iN8M-0MyueFXLOZvKPTEc96yr99AVMX2oATrbVxHioIrgsX1Rn6GplI4wT819uFWkMnniUSMqrA_U9uUIM3C5AONMB8ikJOUxXyimSRqNnydMHgK-hExtkptuaclFFPxgKBPUwk0WV8JKHBDVPKgDyAB-i6opV9A-oT5y_Q7_0tTmXX3qNvF1mIm6VBCHG9_YYeYsLAiEAEwGEeG65X59r-dx9kn5fSRUoECkH94ftwYFfWYU7EX8EKQg_s0NROKNgdoleliEjgFpMr5xOX-emkz6cg1NRa3_Hu-8cf7YznODF_L-pvz930OAQhrAL3x7SrPS4MjtECA' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
+pr:1 Blocked script execution in 'https://s.amazon-adsystem.com/v3/pr?exlist=n-sk_n-mediarithmics_n-ix-HMT_bk_n-y-HMT_n-semasio-ecm_n-telaria_n-dm2-HMT_n-pm-HMT_nsln_n-kr-new_n-lucid_n-bsw-hmt_n-samba.tv_adelphic_adb&fv=1.0&a=cm&ex-pl-n-kr-new=c_EHuODSQ4yWSYMGZC1NMQ&dmt=1&gdpr_consent=&ep=mfS4I4Lxm4iN8M-0MyueFXLOZvKPTEc96yr99AVMX2oATrbVxHioIrgsX1Rn6GplI4wT819uFWkMnniUSMqrA_U9uUIM3C5AONMB8ikJOUxXyimSRqNnydMHgK-hExtkptuaclFFPxgKBPUwk0WV8JKHBDVPKgDyAB-i6opV9A-oT5y_Q7_0tTmXX3qNvF1mIm6VBCHG9_YYeYsLAiEAEwGEeG65X59r-dx9kn5fSRUoECkH94ftwYFfWYU7EX8EKQg_s0NROKNgdoleliEjgFpMr5xOX-emkz6cg1NRa3_Hu-8cf7YznODF_L-pvz930OAQhrAL3x7SrPS4MjtECA' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
+ecm3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()
+ara.paa-reporting-advertising.amazon/conversion?eventType=searchConversion&debugKey=&obfuscatedMarketplaceId=A2Q3Y263D00KWC&requestId=AN2JZD5M40ZJ0HKXMPWK&trackedItem=stunt%20race&trackedItemType=Keyword&asins=B0DW4DS6JB&asins=B0DWGZ7VZ2&asins=B0DWBFZGJB&asins=B0FBSRHMR5&asins=B0DW9DPJT9:1 
+            
+            
+           Failed to load resource: the server responded with a status of 400 ()
+ara.paa-reporting-advertising.amazon/conversion?eventType=searchConversion&debugKey=&obfuscatedMarketplaceId=A2Q3Y263D00KWC&requestId=AN2JZD5M40ZJ0HKXMPWK&trackedItem=stunt%20race&trackedItemType=Keyword&asins=B0DW4DS6JB&asins=B0DWGZ7VZ2&asins=B0DWBFZGJB&asins=B0FBSRHMR5&asins=B0DW9DPJT9:1 
+            
+            
+           Failed to load resource: the server responded with a status of 400 ()
+usermatch.gif:1 
+            
+            
+           Failed to load resource: net::ERR_NAME_NOT_RESOLVED
+36840:1 
+            
+            
+           Failed to load resource: net::ERR_NAME_NOT_RESOLVED
+sync:1 
+            
+            
+           Failed to load resource: net::ERR_NAME_NOT_RESOLVED
+Serving:1 
+            
+            
+           Failed to load resource: net::ERR_NAME_NOT_RESOLVED
+load/:1 
+            
+            
+           Failed to load resource: net::ERR_TIMED_OUT
+chrome-extension://h…mp/frame/frame.js:2 Uncaught (in promise) SecurityError: Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.
+    at h (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:755)
+    at Generator.<anonymous> (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:2092)
+    at Generator.next (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:1118)
+    at e (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7726)
+    at o (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7929)
+chrome-extension://h…mp/frame/frame.js:2 Uncaught (in promise) SecurityError: Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.
+    at h (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:755)
+    at Generator.<anonymous> (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:2092)
+    at Generator.next (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:1118)
+    at e (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7726)
+    at o (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7929)
+chrome-extension://h…mp/frame/frame.js:2 Uncaught (in promise) SecurityError: Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.
+    at h (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:755)
+    at Generator.<anonymous> (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:2092)
+    at Generator.next (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:1118)
+    at e (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7726)
+    at o (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7929)
+chrome-extension://h…mp/frame/frame.js:2 Uncaught (in promise) SecurityError: Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.
+    at h (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:755)
+    at Generator.<anonymous> (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:2092)
+    at Generator.next (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:1118)
+    at e (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7726)
+    at o (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7929)
+app.js:95 Erro na busca automática: TypeError: TableManager.filterManager.atualizarMarcas is not a function
+    at AppController.iniciarBuscaAutomatica (app.js:86:44)
+iniciarBuscaAutomatica @ app.js:95

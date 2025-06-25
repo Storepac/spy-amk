@@ -7,18 +7,31 @@ class ClipboardManager {
             input.select();
             document.execCommand('copy');
             document.body.removeChild(input);
-            NotificationManager.mostrarFeedbackCopia(botao);
+            this.mostrarFeedbackCopia(botao);
             return;
         }
         
         navigator.clipboard.writeText(texto)
             .then(() => {
-                NotificationManager.mostrarFeedbackCopia(botao);
+                this.mostrarFeedbackCopia(botao);
             })
             .catch(err => {
                 console.error('Erro ao copiar para o clipboard:', err);
-                NotificationManager.mostrar('Erro ao copiar o ASIN');
+                NotificationManager.erro('Erro ao copiar o ASIN');
             });
+    }
+
+    static mostrarFeedbackCopia(botao) {
+        if (typeof NotificationManager !== 'undefined') {
+            NotificationManager.sucesso('ASIN copiado!');
+        }
+        
+        if (botao) {
+            botao.style.background = '#d1fae5';
+            setTimeout(() => {
+                botao.style.background = 'transparent';
+            }, 500);
+        }
     }
 
     static formatarMoeda(valor) {
