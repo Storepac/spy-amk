@@ -118,6 +118,7 @@ class AppController {
                 text-align: center;
                 min-width: 350px;
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(5px);
             `;
             document.body.appendChild(loadingElement);
         }
@@ -143,6 +144,8 @@ class AppController {
             `;
             document.head.appendChild(style);
         }
+        
+        console.log('✅ Loading inicial exibido');
     }
 
     static ocultarLoadingInicial() {

@@ -7,75 +7,522 @@ CORREÇÕES IMPLEMENTADAS:
 3. ✅ Corrigido problema de notificações duplicadas
 4. ✅ Adicionado verificações para evitar inicializações múltiplas
 5. ✅ Melhorado controle de estado da aplicação
+6. ✅ UNIFICADO: loading-marcas e modal principal em um só elemento
 
 PROBLEMAS RESOLVIDOS:
 - Erro: TableManager.filterManager.atualizarMarcas is not a function
 - Loading duplo aparecendo na tela
 - Notificações duplicadas
 - Inicializações múltiplas da aplicação
+- UNIFICAÇÃO: id="loading-marcas" e class="amk-spy-container amk-spy-transition" agora são um só
+
+MELHORIAS DE UNIFICAÇÃO:
+- Loading de marcas agora aparece como overlay dentro do modal principal
+- Eliminada duplicação visual de elementos de loading
+- Interface mais limpa e consistente
+- Transições mais suaves entre estados de loading
+- Fallback mantido para casos onde modal não existe
 
 STATUS: TODOS OS PROBLEMAS CORRIGIDOS ✅
+UNIFICAÇÃO DE LOADINGS CONCLUÍDA ✅
 
-iu3:1 Blocked script execution in 'https://s.amazon-adsystem.com/iu3?d=amazon.com.br&slot=navFooter&a2=01019796b6f2bf361f80d8b288ec86844831eef333335e37335ea7820d7b2ce46b4b&old_oo=0&ts=1750854201016&s=ARjL9s0zz6u-jl6qgMG9IkGnxw9cig6jjbhEnDzPMSa3&gdpr_consent=&gdpr_consent_avl=&cb=1750854201016' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
-iu3:1 Blocked script execution in 'https://s.amazon-adsystem.com/iu3?d=amazon.com.br&slot=navFooter&a2=01019796b6f2bf361f80d8b288ec86844831eef333335e37335ea7820d7b2ce46b4b&old_oo=0&ts=1750854201016&s=ARjL9s0zz6u-jl6qgMG9IkGnxw9cig6jjbhEnDzPMSa3&gdpr_consent=&gdpr_consent_avl=&cb=1750854201016' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
-pr:1 Blocked script execution in 'https://s.amazon-adsystem.com/v3/pr?exlist=n-sk_n-mediarithmics_n-ix-HMT_bk_n-y-HMT_n-semasio-ecm_n-telaria_n-dm2-HMT_n-pm-HMT_nsln_n-kr-new_n-lucid_n-bsw-hmt_n-samba.tv_adelphic_adb&fv=1.0&a=cm&ex-pl-n-kr-new=c_EHuODSQ4yWSYMGZC1NMQ&dmt=1&gdpr_consent=&ep=mfS4I4Lxm4iN8M-0MyueFXLOZvKPTEc96yr99AVMX2oATrbVxHioIrgsX1Rn6GplI4wT819uFWkMnniUSMqrA_U9uUIM3C5AONMB8ikJOUxXyimSRqNnydMHgK-hExtkptuaclFFPxgKBPUwk0WV8JKHBDVPKgDyAB-i6opV9A-oT5y_Q7_0tTmXX3qNvF1mIm6VBCHG9_YYeYsLAiEAEwGEeG65X59r-dx9kn5fSRUoECkH94ftwYFfWYU7EX8EKQg_s0NROKNgdoleliEjgFpMr5xOX-emkz6cg1NRa3_Hu-8cf7YznODF_L-pvz930OAQhrAL3x7SrPS4MjtECA' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
-pr:1 Blocked script execution in 'https://s.amazon-adsystem.com/v3/pr?exlist=n-sk_n-mediarithmics_n-ix-HMT_bk_n-y-HMT_n-semasio-ecm_n-telaria_n-dm2-HMT_n-pm-HMT_nsln_n-kr-new_n-lucid_n-bsw-hmt_n-samba.tv_adelphic_adb&fv=1.0&a=cm&ex-pl-n-kr-new=c_EHuODSQ4yWSYMGZC1NMQ&dmt=1&gdpr_consent=&ep=mfS4I4Lxm4iN8M-0MyueFXLOZvKPTEc96yr99AVMX2oATrbVxHioIrgsX1Rn6GplI4wT819uFWkMnniUSMqrA_U9uUIM3C5AONMB8ikJOUxXyimSRqNnydMHgK-hExtkptuaclFFPxgKBPUwk0WV8JKHBDVPKgDyAB-i6opV9A-oT5y_Q7_0tTmXX3qNvF1mIm6VBCHG9_YYeYsLAiEAEwGEeG65X59r-dx9kn5fSRUoECkH94ftwYFfWYU7EX8EKQg_s0NROKNgdoleliEjgFpMr5xOX-emkz6cg1NRa3_Hu-8cf7YznODF_L-pvz930OAQhrAL3x7SrPS4MjtECA' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
-ecm3:1 
+216YVwoRFDL.js:4 Error logged with the Track&Report JS errors API(http://tiny/1covqr6l8/wamazindeClieUserJava): {"m":"MIX C004 ","name":"Error","csm":"v5 ueLogError stack","logLevel":"WARN","attribution":"[cel_widget_id=\"sb-video-product-collection-desktop_loom-desktop-inline-slot_15\"]","pageURL":"https://www.amazon.com.br/s?k=protetor%20de%20carenagem","f":"https://www.amazon.com.br/s?k=protetor%20de%20carenagem","l":"124","s":["Error:","at b.mix_csa (https://www.amazon.com.br/s?k=protetor%20de%20carenagem:124:492)","at https://www.amazon.com.br/s?k=protetor%20de%20carenagem:2486:300"],"t":3058} {m: 'MIX C004 ', name: 'Error', type: undefined, csm: 'v5 ueLogError stack', logLevel: 'WARN', …}
+y @ 216YVwoRFDL.js:4
+(anonymous) @ 216YVwoRFDL.js:6
+(anonymous) @ 216YVwoRFDL.js:6
+(anonymous) @ 216YVwoRFDL.js:6
+216YVwoRFDL.js:4 Error logged with the Track&Report JS errors API(http://tiny/1covqr6l8/wamazindeClieUserJava): {"m":"MIX C004 ","name":"Error","csm":"v5 ueLogError stack","logLevel":"WARN","attribution":"[cel_widget_id=\"sb-video-product-collection-desktop_loom-desktop-inline-slot_15\"]","pageURL":"https://www.amazon.com.br/s?k=protetor%20de%20carenagem","f":"https://www.amazon.com.br/s?k=protetor%20de%20carenagem","l":"124","s":["Error:","at b.mix_csa (https://www.amazon.com.br/s?k=protetor%20de%20carenagem:124:492)","at https://www.amazon.com.br/s?k=protetor%20de%20carenagem:2516:53219"],"t":3058} {m: 'MIX C004 ', name: 'Error', type: undefined, csm: 'v5 ueLogError stack', logLevel: 'WARN', …}
+y @ 216YVwoRFDL.js:4
+(anonymous) @ 216YVwoRFDL.js:6
+(anonymous) @ 216YVwoRFDL.js:6
+(anonymous) @ 216YVwoRFDL.js:6
+216YVwoRFDL.js:4 Error logged with the Track&Report JS errors API(http://tiny/1covqr6l8/wamazindeClieUserJava): {"m":"MIX C004 ","name":"Error","csm":"v5 ueLogError stack","logLevel":"WARN","attribution":"[cel_widget_id=\"sb-video-product-collection-desktop_loom-desktop-inline-slot_15\"]","pageURL":"https://www.amazon.com.br/s?k=protetor+de+carenagem","f":"https://www.amazon.com.br/s?k=protetor%20de%20carenagem","l":"124","s":["Error:","at b.mix_csa (https://www.amazon.com.br/s?k=protetor%20de%20carenagem:124:492)","at https://www.amazon.com.br/s?k=protetor%20de%20carenagem:2519:253"],"t":3058} {m: 'MIX C004 ', name: 'Error', type: undefined, csm: 'v5 ueLogError stack', logLevel: 'WARN', …}
+y @ 216YVwoRFDL.js:4
+(anonymous) @ 216YVwoRFDL.js:6
+(anonymous) @ 216YVwoRFDL.js:6
+(anonymous) @ 216YVwoRFDL.js:6
+iu3:1 Blocked script execution in 'https://s.amazon-adsystem.com/iu3?d=amazon.com.br&slot=navFooter&a2=01019796b6f2bf361f80d8b288ec86844831eef333335e37335ea7820d7b2ce46b4b&old_oo=0&ts=1750854803315&s=AU4njGK1u0FKImpgkz0SCaeJbnw6aH6WoSl-XPUU-lcH&gdpr_consent=&gdpr_consent_avl=&cb=1750854803315' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
+iu3:1 Blocked script execution in 'https://s.amazon-adsystem.com/iu3?d=amazon.com.br&slot=navFooter&a2=01019796b6f2bf361f80d8b288ec86844831eef333335e37335ea7820d7b2ce46b4b&old_oo=0&ts=1750854803315&s=AU4njGK1u0FKImpgkz0SCaeJbnw6aH6WoSl-XPUU-lcH&gdpr_consent=&gdpr_consent_avl=&cb=1750854803315' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
+pr:1 Blocked script execution in 'https://s.amazon-adsystem.com/v3/pr?exlist=nsln_n-sk_n-lucid_bk_n-samba.tv_n-telaria_adelphic&fv=1.0&a=cm&dmt=1&gdpr_consent=' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
+pr:1 Blocked script execution in 'https://s.amazon-adsystem.com/v3/pr?exlist=nsln_n-sk_n-lucid_bk_n-samba.tv_n-telaria_adelphic&fv=1.0&a=cm&dmt=1&gdpr_consent=' because the document's frame is sandboxed and the 'allow-scripts' permission is not set.
+frame_ant.js:2 
             
             
-           Failed to load resource: the server responded with a status of 404 ()
-ara.paa-reporting-advertising.amazon/conversion?eventType=searchConversion&debugKey=&obfuscatedMarketplaceId=A2Q3Y263D00KWC&requestId=AN2JZD5M40ZJ0HKXMPWK&trackedItem=stunt%20race&trackedItemType=Keyword&asins=B0DW4DS6JB&asins=B0DWGZ7VZ2&asins=B0DWBFZGJB&asins=B0FBSRHMR5&asins=B0DW9DPJT9:1 
+           GET https://ara.paa-reporting-advertising.amazon/conversion?eventType=searchConversion&debugKey=&obfuscatedMarketplaceId=A2Q3Y263D00KWC&requestId=VQZ33M2ZXCXK4YJNEJMG&trackedItem=protetor%20de%20carenagem&trackedItemType=Keyword&asins=B0FCP1HG11&asins=B0F1YZ4NKX&asins=B06XKW2DD8&asins=B07C56GRM1&asins=B07LF7C7YL 400 (Bad Request)
+window.fetch @ frame_ant.js:2
+registerFetch @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:4
+k @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:7
+a.retrieveSearch @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:14
+a.init @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:11
+(anonymous) @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:15
+n @ s?k=protetor%20de%20carenagem:100
+(anonymous) @ s?k=protetor%20de%20carenagem:102
+z @ s?k=protetor%20de%20carenagem:103
+setTimeout
+e @ s?k=protetor%20de%20carenagem:98
+aa @ s?k=protetor%20de%20carenagem:98
+(anonymous) @ s?k=protetor%20de%20carenagem:101
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:61
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:61
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:61
+(anonymous) @ s?k=protetor%20de%20carenagem:102
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:1
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:1
+frame_ant.js:2 
             
             
-           Failed to load resource: the server responded with a status of 400 ()
-ara.paa-reporting-advertising.amazon/conversion?eventType=searchConversion&debugKey=&obfuscatedMarketplaceId=A2Q3Y263D00KWC&requestId=AN2JZD5M40ZJ0HKXMPWK&trackedItem=stunt%20race&trackedItemType=Keyword&asins=B0DW4DS6JB&asins=B0DWGZ7VZ2&asins=B0DWBFZGJB&asins=B0FBSRHMR5&asins=B0DW9DPJT9:1 
+           GET https://ara.paa-reporting-advertising.amazon/conversion?eventType=searchConversion&debugKey=&obfuscatedMarketplaceId=A2Q3Y263D00KWC&requestId=VQZ33M2ZXCXK4YJNEJMG&trackedItem=protetor%20de%20carenagem&trackedItemType=Keyword&asins=B0FCP1HG11&asins=B0F1YZ4NKX&asins=B06XKW2DD8&asins=B07C56GRM1&asins=B07LF7C7YL 400 (Bad Request)
+window.fetch @ frame_ant.js:2
+registerFetch @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:4
+k @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:7
+(anonymous) @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:7
+setTimeout
+(anonymous) @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:7
+(anonymous) @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:7
+Promise.then
+k @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:7
+a.retrieveSearch @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:14
+a.init @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:11
+(anonymous) @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:15
+n @ s?k=protetor%20de%20carenagem:100
+(anonymous) @ s?k=protetor%20de%20carenagem:102
+z @ s?k=protetor%20de%20carenagem:103
+setTimeout
+e @ s?k=protetor%20de%20carenagem:98
+aa @ s?k=protetor%20de%20carenagem:98
+(anonymous) @ s?k=protetor%20de%20carenagem:101
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:61
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:61
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:61
+(anonymous) @ s?k=protetor%20de%20carenagem:102
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:1
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:1
+216YVwoRFDL.js:4 Error logged with the Track&Report JS errors API(http://tiny/1covqr6l8/wamazindeClieUserJava): {"m":"ARA:RegisterTriggerResponseError:SEARCH. Error receiving response from ARAServiceExceeded maximum retries","name":"Error","csm":"v5 ueLogError stack","logLevel":"ERROR","attribution":"ARARegisterTrigger","pageURL":"https://www.amazon.com.br/s?k=protetor+de+carenagem","f":"https://m.media-amazon.com/images/I/21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search","l":"7","s":["Error: Exceeded maximum retries","at https://m.media-amazon.com/images/I/21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:7:486"],"t":11053} {m: 'ARA:RegisterTriggerResponseError:SEARCH. Error rec… response from ARAServiceExceeded maximum retries', name: 'Error', type: undefined, csm: 'v5 ueLogError stack', logLevel: 'ERROR', …}
+y @ 216YVwoRFDL.js:4
+z @ 216YVwoRFDL.js:5
+logError @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:2
+(anonymous) @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:8
+Promise.catch
+k @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:8
+(anonymous) @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:7
+setTimeout
+(anonymous) @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:7
+(anonymous) @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:7
+Promise.then
+k @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:7
+a.retrieveSearch @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:14
+a.init @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:11
+(anonymous) @ 21vARlfe4pL._RC%7C11s0wiXngEL.js_.js?AUIClients/ARARegisterTriggerSubAssets-search:15
+n @ s?k=protetor%20de%20carenagem:100
+(anonymous) @ s?k=protetor%20de%20carenagem:102
+z @ s?k=protetor%20de%20carenagem:103
+setTimeout
+e @ s?k=protetor%20de%20carenagem:98
+aa @ s?k=protetor%20de%20carenagem:98
+(anonymous) @ s?k=protetor%20de%20carenagem:101
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:61
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:61
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:61
+(anonymous) @ s?k=protetor%20de%20carenagem:102
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:1
+(anonymous) @ 41nrkMYuv+L.js?AUIClients/AmazonLightsaberPageAssets:1
+pr:12 
             
             
-           Failed to load resource: the server responded with a status of 400 ()
-usermatch.gif:1 
+           GET https://amazon.partners.tremorhub.com/sync?UIAM&redir=https%3A%2F%2Fs.amazon-adsystem.com%2Fecm3%3Fex%3Dtelaria.com%26id%3D%5BPARTNER_ID%5D net::ERR_NAME_NOT_RESOLVED
+pr:8 
             
             
-           Failed to load resource: net::ERR_NAME_NOT_RESOLVED
-36840:1 
+           GET https://bs.serving-sys.com/Serving?cn=cs&rtu=https%3A%2F%2Fs.amazon-adsystem.com%2Fecm3%3Fex%3Dsizmek%26id%3D%5B%25tp_UserID%25%5D net::ERR_NAME_NOT_RESOLVED
+pr:10 
             
             
-           Failed to load resource: net::ERR_NAME_NOT_RESOLVED
-sync:1 
+           GET https://tags.bluekai.com/site/36840?redir=https%3A%2F%2Fs.amazon-adsystem.com%2Fecm3%3Fex%3Dbluekai.com%26id%3D%24_BK_UUID net::ERR_NAME_NOT_RESOLVED
+pr:7 
             
             
-           Failed to load resource: net::ERR_NAME_NOT_RESOLVED
-Serving:1 
-            
-            
-           Failed to load resource: net::ERR_NAME_NOT_RESOLVED
-load/:1 
-            
-            
-           Failed to load resource: net::ERR_TIMED_OUT
-chrome-extension://h…mp/frame/frame.js:2 Uncaught (in promise) SecurityError: Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.
-    at h (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:755)
-    at Generator.<anonymous> (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:2092)
-    at Generator.next (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:1118)
-    at e (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7726)
-    at o (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7929)
-chrome-extension://h…mp/frame/frame.js:2 Uncaught (in promise) SecurityError: Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.
-    at h (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:755)
-    at Generator.<anonymous> (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:2092)
-    at Generator.next (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:1118)
-    at e (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7726)
-    at o (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7929)
-chrome-extension://h…mp/frame/frame.js:2 Uncaught (in promise) SecurityError: Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.
-    at h (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:755)
-    at Generator.<anonymous> (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:2092)
-    at Generator.next (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:1118)
-    at e (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7726)
-    at o (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7929)
-chrome-extension://h…mp/frame/frame.js:2 Uncaught (in promise) SecurityError: Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.
-    at h (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:755)
-    at Generator.<anonymous> (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:2092)
-    at Generator.next (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:1118)
-    at e (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7726)
-    at o (chrome-extension://hoklmmgfnpapgjgcpechhaamimifchmp/frame/frame.js:2:7929)
-app.js:95 Erro na busca automática: TypeError: TableManager.filterManager.atualizarMarcas is not a function
-    at AppController.iniciarBuscaAutomatica (app.js:86:44)
-iniciarBuscaAutomatica @ app.js:95
+           GET https://loadus.exelator.com/load/?p=204&g=8888&j=0 net::ERR_TIMED_OUT
+frame.js:2 Uncaught (in promise) SecurityError: Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.
+    at h (frame.js:2:755)
+    at Generator.<anonymous> (frame.js:2:2092)
+    at Generator.next (frame.js:2:1118)
+    at e (frame.js:2:7726)
+    at o (frame.js:2:7929)
+h @ frame.js:2
+(anonymous) @ frame.js:2
+(anonymous) @ frame.js:2
+e @ frame.js:2
+o @ frame.js:2
+Promise.then
+e @ frame.js:2
+o @ frame.js:2
+(anonymous) @ frame.js:2
+(anonymous) @ frame.js:2
+r @ frame.js:2
+e @ frame.js:2
+e @ frame.js:2
+value @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+setTimeout
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+setTimeout
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+t @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+frame.js:2 Uncaught (in promise) SecurityError: Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.
+    at h (frame.js:2:755)
+    at Generator.<anonymous> (frame.js:2:2092)
+    at Generator.next (frame.js:2:1118)
+    at e (frame.js:2:7726)
+    at o (frame.js:2:7929)
+h @ frame.js:2
+(anonymous) @ frame.js:2
+(anonymous) @ frame.js:2
+e @ frame.js:2
+o @ frame.js:2
+Promise.then
+e @ frame.js:2
+o @ frame.js:2
+(anonymous) @ frame.js:2
+(anonymous) @ frame.js:2
+r @ frame.js:2
+e @ frame.js:2
+e @ frame.js:2
+value @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+setTimeout
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+setTimeout
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+t @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+frame.js:2 Uncaught (in promise) SecurityError: Failed to read the 'localStorage' property from 'Window': The document is sandboxed and lacks the 'allow-same-origin' flag.
+    at h (frame.js:2:755)
+    at Generator.<anonymous> (frame.js:2:2092)
+    at Generator.next (frame.js:2:1118)
+    at e (frame.js:2:7726)
+    at o (frame.js:2:7929)
+h @ frame.js:2
+(anonymous) @ frame.js:2
+(anonymous) @ frame.js:2
+e @ frame.js:2
+o @ frame.js:2
+Promise.then
+e @ frame.js:2
+o @ frame.js:2
+(anonymous) @ frame.js:2
+(anonymous) @ frame.js:2
+r @ frame.js:2
+e @ frame.js:2
+e @ frame.js:2
+value @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+Promise.then
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+setTimeout
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+setTimeout
+(anonymous) @ frame_start.js:2
+p @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+t @ frame_start.js:2
+u @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+r @ frame_start.js:2
+t @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2
+(anonymous) @ frame_start.js:2

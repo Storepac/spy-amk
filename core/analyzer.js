@@ -666,7 +666,79 @@ class ProductAnalyzer {
     }
 
     static mostrarLoadingMarcas(total) {
-        // Criar ou atualizar loading na interface
+        // Usar o modal principal em vez de criar um elemento separado
+        const modal = document.getElementById('amazon-analyzer-modal');
+        if (!modal) {
+            console.warn('⚠️ Modal principal não encontrado, criando loading separado');
+            this.mostrarLoadingMarcasFallback(total);
+            return;
+        }
+        
+        // Criar overlay de loading dentro do modal
+        let loadingOverlay = document.getElementById('loading-marcas-overlay');
+        
+        if (!loadingOverlay) {
+            loadingOverlay = document.createElement('div');
+            loadingOverlay.id = 'loading-marcas-overlay';
+            loadingOverlay.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                backdrop-filter: blur(5px);
+            `;
+            modal.appendChild(loadingOverlay);
+        }
+        
+        loadingOverlay.innerHTML = `
+            <div style="
+                background: rgba(0, 0, 0, 0.9);
+                color: white;
+                padding: 30px;
+                border-radius: 15px;
+                text-align: center;
+                min-width: 350px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            ">
+                <div style="margin-bottom: 20px;">
+                    <div style="width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                </div>
+                <div style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">🔍 Buscando marcas e categorias...</div>
+                <div style="font-size: 14px; opacity: 0.8; margin-bottom: 15px;">Processando ${total} produtos</div>
+                <div style="margin-top: 15px;">
+                    <div style="background: #333; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div id="progresso-marcas" style="background: #3b82f6; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+                <div id="contador-marcas" style="font-size: 12px; margin-top: 8px; opacity: 0.7;">0 / ${total}</div>
+                <div style="font-size: 11px; margin-top: 10px; opacity: 0.6;">Extraindo marcas e categorias das páginas dos produtos</div>
+            </div>
+        `;
+        
+        // Adicionar CSS para animação se não existir
+        if (!document.getElementById('loading-css')) {
+            const style = document.createElement('style');
+            style.id = 'loading-css';
+            style.textContent = `
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        console.log('✅ Loading de marcas integrado ao modal principal');
+    }
+
+    static mostrarLoadingMarcasFallback(total) {
+        // Fallback para quando o modal principal não existe
         let loadingElement = document.getElementById('loading-marcas');
         
         if (!loadingElement) {
@@ -730,9 +802,19 @@ class ProductAnalyzer {
     }
 
     static ocultarLoadingMarcas() {
+        // Remover overlay do modal principal
+        const loadingOverlay = document.getElementById('loading-marcas-overlay');
+        if (loadingOverlay) {
+            loadingOverlay.remove();
+            console.log('✅ Loading de marcas removido do modal principal');
+            return;
+        }
+        
+        // Fallback: remover elemento separado
         const loadingElement = document.getElementById('loading-marcas');
         if (loadingElement) {
             loadingElement.remove();
+            console.log('✅ Loading de marcas separado removido');
         }
     }
 
