@@ -324,6 +324,70 @@ class TableManager {
                         
                     </div>
                     
+                    <!-- Legenda das Cores do BSR -->
+                    <div class="amk-spy-bg-secondary amk-spy-border-light" style="
+                        padding: 12px 20px; 
+                        border-bottom: 1px solid var(--border-light);
+                        display: flex;
+                        align-items: center;
+                        gap: 20px;
+                        flex-wrap: wrap;
+                        font-family: 'Poppins', sans-serif;
+                        font-size: 12px;
+                    ">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-weight: 600; color: var(--text-primary);">📊 Legenda BSR:</span>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="
+                                width: 12px; 
+                                height: 12px; 
+                                background: #10b981; 
+                                border-radius: 2px;
+                                border: 1px solid rgba(0,0,0,0.1);
+                            "></div>
+                            <span style="color: var(--text-secondary);">Verde (#10b981):</span>
+                            <span style="color: var(--text-primary); font-weight: 500;">Top 100 - Excelente posição</span>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="
+                                width: 12px; 
+                                height: 12px; 
+                                background: #f59e0b; 
+                                border-radius: 2px;
+                                border: 1px solid rgba(0,0,0,0.1);
+                            "></div>
+                            <span style="color: var(--text-secondary);">Laranja (#f59e0b):</span>
+                            <span style="color: var(--text-primary); font-weight: 500;">101-1000 - Boa posição</span>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <div style="
+                                width: 12px; 
+                                height: 12px; 
+                                background: #ef4444; 
+                                border-radius: 2px;
+                                border: 1px solid rgba(0,0,0,0.1);
+                            "></div>
+                            <span style="color: var(--text-secondary);">Vermelho (#ef4444):</span>
+                            <span style="color: var(--text-primary); font-weight: 500;">1000+ - Baixa posição</span>
+                        </div>
+                        
+                        <div style="
+                            margin-left: auto;
+                            padding: 4px 8px;
+                            background: rgba(59, 130, 246, 0.1);
+                            border-radius: 4px;
+                            border: 1px solid rgba(59, 130, 246, 0.2);
+                        ">
+                            <span style="color: var(--text-secondary); font-size: 11px;">
+                                💡 Dica: Clique no BSR para ver detalhes do ranking
+                            </span>
+                        </div>
+                    </div>
+                    
                     <div class="amk-spy-bg-secondary" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 16px; padding: 20px;">
                         <div class="amk-spy-bg-primary amk-spy-shadow" style="padding: 16px; border-radius: 12px; text-align: center;">
                             <div class="amk-spy-text-primary" style="font-size: 12px; font-weight: 500; margin-bottom: 4px;">RECEITA TOTAL</div>
@@ -1123,6 +1187,12 @@ class TableManager {
                         rankingSpan.textContent = `#${bsr}`;
                         rankingSpan.style.color = bsr <= 100 ? '#10b981' : 
                                                  bsr <= 1000 ? '#f59e0b' : '#ef4444';
+                        rankingSpan.style.cursor = 'pointer';
+                        rankingSpan.title = 'Clique para ver detalhes do BSR';
+                        rankingSpan.onclick = (e) => {
+                            e.stopPropagation();
+                            TableManager.toggleRankingInfo(rankingSpan);
+                        };
                         rankingCell.appendChild(rankingSpan);
                     } else {
                         rankingCell.textContent = 'N/A';
@@ -1326,23 +1396,136 @@ class TableManager {
     }
 
     static toggleRankingInfo(element) {
-        // Implementação básica para mostrar informações do ranking
+        // Implementação melhorada para mostrar informações detalhadas do ranking
         const ranking = element.textContent.replace('#', '');
         if (ranking && ranking !== 'N/A') {
-            let mensagem = `Ranking BSR: #${ranking}`;
+            const rankingNum = parseInt(ranking);
+            let mensagem = `📊 Ranking BSR: #${ranking}`;
+            let tipo = '';
+            let cor = '';
             
-            if (parseInt(ranking) <= 100) {
-                mensagem += ' - Excelente posicionamento!';
-            } else if (parseInt(ranking) <= 1000) {
-                mensagem += ' - Bom posicionamento';
-            } else if (parseInt(ranking) <= 10000) {
-                mensagem += ' - Posicionamento médio';
+            if (rankingNum <= 100) {
+                tipo = 'EXCELENTE';
+                cor = '#10b981';
+                mensagem += '\n🏆 Posicionamento: EXCELENTE';
+                mensagem += '\n💡 Este produto está no TOP 100 da categoria!';
+                mensagem += '\n📈 Alto potencial de vendas';
+                mensagem += '\n🎯 Baixa competição';
+            } else if (rankingNum <= 1000) {
+                tipo = 'BOM';
+                cor = '#f59e0b';
+                mensagem += '\n🥈 Posicionamento: BOM';
+                mensagem += '\n💡 Este produto está no TOP 1000 da categoria';
+                mensagem += '\n📈 Bom potencial de vendas';
+                mensagem += '\n🎯 Competição moderada';
+            } else if (rankingNum <= 10000) {
+                tipo = 'MÉDIO';
+                cor = '#f59e0b';
+                mensagem += '\n🥉 Posicionamento: MÉDIO';
+                mensagem += '\n💡 Este produto está no TOP 10000 da categoria';
+                mensagem += '\n📈 Potencial de vendas moderado';
+                mensagem += '\n🎯 Competição alta';
             } else {
-                mensagem += ' - Baixo posicionamento';
+                tipo = 'BAIXO';
+                cor = '#ef4444';
+                mensagem += '\n📉 Posicionamento: BAIXO';
+                mensagem += '\n💡 Este produto está fora do TOP 10000';
+                mensagem += '\n📈 Baixo potencial de vendas';
+                mensagem += '\n🎯 Competição muito alta';
             }
             
+            // Adicionar informações sobre a categoria se disponível
+            const linha = element.closest('tr');
+            if (linha) {
+                const categoriaCell = linha.querySelector('td:nth-child(12)');
+                if (categoriaCell && categoriaCell.textContent !== 'N/A') {
+                    mensagem += `\n📂 Categoria: ${categoriaCell.textContent}`;
+                }
+            }
+            
+            // Adicionar dicas baseadas no ranking
+            mensagem += '\n\n💡 Dicas:';
+            if (rankingNum <= 100) {
+                mensagem += '\n• Produto com alto potencial de lucro';
+                mensagem += '\n• Considere investir em anúncios';
+                mensagem += '\n• Monitore preços da concorrência';
+            } else if (rankingNum <= 1000) {
+                mensagem += '\n• Produto com bom potencial';
+                mensagem += '\n• Analise estratégias de preço';
+                mensagem += '\n• Considere melhorias no produto';
+            } else if (rankingNum <= 10000) {
+                mensagem += '\n• Produto com potencial limitado';
+                mensagem += '\n• Foque em nichos específicos';
+                mensagem += '\n• Considere diferenciação';
+            } else {
+                mensagem += '\n• Produto com baixo potencial';
+                mensagem += '\n• Considere outras categorias';
+                mensagem += '\n• Analise produtos similares';
+            }
+            
+            // Mostrar notificação com informações detalhadas
             if (typeof NotificationManager !== 'undefined') {
-                NotificationManager.informacao(mensagem);
+                // Criar uma notificação customizada com mais informações
+                const notificacao = document.createElement('div');
+                notificacao.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0, 0, 0, 0.95);
+                    color: white;
+                    padding: 20px;
+                    border-radius: 12px;
+                    font-family: 'Poppins', sans-serif;
+                    font-size: 14px;
+                    max-width: 400px;
+                    z-index: 100000;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                    border: 2px solid ${cor};
+                    white-space: pre-line;
+                    line-height: 1.5;
+                `;
+                
+                notificacao.innerHTML = `
+                    <div style="margin-bottom: 15px; text-align: center;">
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">📊 Análise BSR</div>
+                        <div style="font-size: 12px; opacity: 0.8;">Clique fora para fechar</div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        ${mensagem}
+                    </div>
+                    <div style="text-align: center;">
+                        <button onclick="this.parentElement.parentElement.remove()" style="
+                            background: ${cor};
+                            color: white;
+                            border: none;
+                            padding: 8px 16px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 12px;
+                            font-weight: 500;
+                        ">Fechar</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(notificacao);
+                
+                // Fechar ao clicar fora
+                notificacao.addEventListener('click', (e) => {
+                    if (e.target === notificacao) {
+                        notificacao.remove();
+                    }
+                });
+                
+                // Fechar automaticamente após 10 segundos
+                setTimeout(() => {
+                    if (notificacao.parentNode) {
+                        notificacao.remove();
+                    }
+                }, 10000);
+            } else {
+                // Fallback para notificação simples
+                alert(mensagem);
             }
         }
     }

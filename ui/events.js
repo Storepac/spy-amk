@@ -129,6 +129,14 @@ class EventManager {
                     console.log('⚠️ Análise já em andamento');
                     return;
                 }
+                
+                // Verificar se o TableManager está disponível
+                if (typeof TableManager === 'undefined') {
+                    console.error('❌ TableManager não está disponível');
+                    NotificationManager.erro('Erro: Componentes não carregados. Recarregue a página.');
+                    return;
+                }
+                
                 AppController.iniciarAnalise('todas');
             }
         });

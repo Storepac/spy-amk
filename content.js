@@ -29,6 +29,75 @@ if (window.amkSpyContentInicializado) {
         return true;
     }
 
+    // Função para tentar carregar componentes com retry
+    function tentarCarregarComponentes(maxTentativas = 5, intervalo = 1000) {
+        let tentativas = 0;
+        
+        function tentar() {
+            tentativas++;
+            console.log(`🔄 Tentativa ${tentativas}/${maxTentativas} de carregar componentes...`);
+            
+            if (verificarComponentes()) {
+                console.log('✅ Componentes carregados com sucesso!');
+                inicializarAplicacao();
+                return;
+            }
+            
+            if (tentativas < maxTentativas) {
+                console.log(`⏳ Aguardando ${intervalo}ms antes da próxima tentativa...`);
+                setTimeout(tentar, intervalo);
+            } else {
+                console.error('❌ Falha ao carregar componentes após todas as tentativas');
+                mostrarErroCarregamento();
+            }
+        }
+        
+        tentar();
+    }
+
+    // Função para mostrar erro de carregamento
+    function mostrarErroCarregamento() {
+        const erroDiv = document.createElement('div');
+        erroDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            z-index: 999999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 300px;
+        `;
+        erroDiv.innerHTML = `
+            <div style="margin-bottom: 10px; font-weight: 600;">❌ AMK Spy - Erro de Carregamento</div>
+            <div style="font-size: 12px; opacity: 0.9; margin-bottom: 10px;">
+                Alguns componentes não foram carregados corretamente.
+            </div>
+            <button onclick="window.location.reload()" style="
+                background: rgba(255,255,255,0.2);
+                border: none;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 12px;
+                font-weight: 500;
+            ">🔄 Recarregar Página</button>
+        `;
+        document.body.appendChild(erroDiv);
+        
+        // Remover após 10 segundos
+        setTimeout(() => {
+            if (erroDiv.parentNode) {
+                erroDiv.parentNode.removeChild(erroDiv);
+            }
+        }, 10000);
+    }
+
     // Função para inicializar a aplicação
     function inicializarAplicacao() {
         console.log('🚀 Inicializando AMK Spy...');
@@ -43,6 +112,7 @@ if (window.amkSpyContentInicializado) {
                     AppController.init();
                 } else {
                     console.error('❌ Falha ao carregar componentes necessários');
+                    mostrarErroCarregamento();
                 }
             }, 1000);
         } else {
@@ -52,9 +122,11 @@ if (window.amkSpyContentInicializado) {
 
     // Inicializar quando DOM estiver pronto
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', inicializarAplicacao);
+        document.addEventListener('DOMContentLoaded', () => {
+            tentarCarregarComponentes();
+        });
     } else {
-        inicializarAplicacao();
+        tentarCarregarComponentes();
     }
 }
 

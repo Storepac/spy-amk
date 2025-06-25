@@ -22,6 +22,20 @@ class AppController {
             return;
         }
         
+        // Verificar se todos os componentes necessários estão carregados
+        const componentesNecessarios = ['TableManager', 'ProductAnalyzer', 'NotificationManager'];
+        const componentesFaltando = componentesNecessarios.filter(comp => typeof window[comp] === 'undefined');
+        
+        if (componentesFaltando.length > 0) {
+            console.error('❌ Componentes não carregados:', componentesFaltando);
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.erro(`Erro: Componentes não carregados (${componentesFaltando.join(', ')}). Recarregue a página.`);
+            } else {
+                alert(`Erro: Componentes não carregados (${componentesFaltando.join(', ')}). Recarregue a página.`);
+            }
+            return;
+        }
+        
         // Inicializar ThemeManager se ainda não foi inicializado
         if (!window.themeManager) {
             window.themeManager = new ThemeManager();
@@ -60,7 +74,9 @@ class AppController {
             
         } catch (error) {
             console.error('Erro na análise:', error);
-            NotificationManager.erro('Erro ao analisar produtos.');
+            if (typeof NotificationManager !== 'undefined') {
+                NotificationManager.erro('Erro ao analisar produtos.');
+            }
             this.ocultarLoadingInicial();
         }
     }
