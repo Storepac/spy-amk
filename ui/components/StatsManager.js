@@ -134,6 +134,42 @@ class StatsManager {
                         `).join('')}
                     </div>
                 ` : ''}
+                
+                ${this.gerarStatsTracking()}
+            </div>
+        `;
+    }
+    
+    /**
+     * Gera estatísticas do tracking de posições
+     */
+    gerarStatsTracking() {
+        if (!window.PositionTracker) return '';
+        
+        const trackingStats = window.PositionTracker.getEstatisticas();
+        
+        if (trackingStats.totalProdutos === 0) return '';
+        
+        return `
+            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-light);">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-light); padding: 6px; border-radius: 4px; text-align: center;">
+                        <div style="font-size: 8px; color: var(--text-secondary); font-weight: 600;">📈 TRACKING</div>
+                        <div style="font-size: 10px; font-weight: 600; color: var(--text-primary);">${trackingStats.totalProdutos}</div>
+                    </div>
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-light); padding: 6px; border-radius: 4px; text-align: center;">
+                        <div style="font-size: 8px; color: #10b981; font-weight: 600;">↗️ SUBINDO</div>
+                        <div style="font-size: 10px; font-weight: 600; color: #10b981;">${trackingStats.produtosSubindo}</div>
+                    </div>
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-light); padding: 6px; border-radius: 4px; text-align: center;">
+                        <div style="font-size: 8px; color: #ef4444; font-weight: 600;">↘️ DESCENDO</div>
+                        <div style="font-size: 10px; font-weight: 600; color: #ef4444;">${trackingStats.produtosDescendo}</div>
+                    </div>
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-light); padding: 6px; border-radius: 4px; text-align: center;">
+                        <div style="font-size: 8px; color: #3b82f6; font-weight: 600;">🆕 NOVOS</div>
+                        <div style="font-size: 10px; font-weight: 600; color: #3b82f6;">${trackingStats.produtosNovos}</div>
+                    </div>
+                </div>
             </div>
         `;
     }

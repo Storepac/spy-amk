@@ -16,6 +16,7 @@ class ExportManager {
         // Cabeçalhos do CSV atualizados
         const headers = [
             'Posição',
+            'Tendência',
             'Título',
             'ASIN',
             'Marca',
@@ -33,9 +34,18 @@ class ExportManager {
         ];
 
         // Dados dos produtos atualizados
-        const csvData = this.produtos.map(produto => [
-            produto.posicaoGlobal || produto.posicao || '',
-            `"${(produto.titulo || '').replace(/"/g, '""')}"`,
+        const csvData = this.produtos.map(produto => {
+            // Calcular tendência se PositionTracker disponível
+            let tendencia = 'N/A';
+            if (window.PositionTracker && produto.asin) {
+                const tendenciaObj = window.PositionTracker.calcularTendencia(produto.asin);
+                tendencia = `${tendenciaObj.icone} ${tendenciaObj.titulo}`;
+            }
+            
+            return [
+                produto.posicaoGlobal || produto.posicao || '',
+                `"${tendencia}"`,
+                `"${(produto.titulo || '').replace(/"/g, '""')}"`,
             produto.asin || '',
             produto.marca || '',
             produto.preco || '',
@@ -49,7 +59,8 @@ class ExportManager {
             produto.paginaOrigem || '',
             produto.link || '',
             produto.imagem || ''
-        ]);
+        ];
+        });
 
         // Combinar cabeçalhos e dados
         const csvContent = [headers, ...csvData]
@@ -117,6 +128,7 @@ class ExportManager {
                     <thead>
                         <tr>
                             <th>Posição</th>
+                            <th>Tendência</th>
                             <th>Título</th>
                             <th>ASIN</th>
                             <th>Marca</th>
@@ -134,9 +146,18 @@ class ExportManager {
                         </tr>
                     </thead>
                     <tbody>
-                        ${this.produtos.map(produto => `
+                        ${this.produtos.map(produto => {
+                            // Calcular tendência para Excel
+                            let tendencia = 'N/A';
+                            if (window.PositionTracker && produto.asin) {
+                                const tendenciaObj = window.PositionTracker.calcularTendencia(produto.asin);
+                                tendencia = `${tendenciaObj.icone} ${tendenciaObj.titulo}`;
+                            }
+                            
+                            return `
                             <tr class="${produto.patrocinado ? 'patrocinado' : 'organico'}">
                                 <td class="number">${produto.posicaoGlobal || produto.posicao || ''}</td>
+                                <td class="center">${tendencia}</td>
                                 <td>${produto.titulo || ''}</td>
                                 <td class="center" style="font-family: monospace;">${produto.asin || ''}</td>
                                 <td>${produto.marca || ''}</td>
@@ -152,7 +173,8 @@ class ExportManager {
                                 <td><a href="${produto.link || ''}">${produto.link || ''}</a></td>
                                 <td><a href="${produto.imagem || ''}">${produto.imagem || ''}</a></td>
                             </tr>
-                        `).join('')}
+                        `;
+                        }).join('')}
                     </tbody>
                 </table>
                 

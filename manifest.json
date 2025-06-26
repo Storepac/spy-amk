@@ -38,6 +38,7 @@
           "ui/components/FilterManager.js",
           "ui/components/EventManager.js",
           "ui/components/StatsManager.js",
+          "ui/components/PositionTracker.js",
           "ui/components/SidePanel.js",
             "ui/table.js",
             "ui/events.js",

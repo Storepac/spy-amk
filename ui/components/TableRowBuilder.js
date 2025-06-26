@@ -15,6 +15,7 @@ class TableRowBuilder {
                 font-family: 'Poppins', sans-serif;
             " data-asin="${produto.asin}" data-index="${index}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-secondary)'">
                 ${this.criarCelulaPosicao(produto, index)}
+                ${this.criarCelulaTendencia(produto)}
                 ${this.criarCelulaImagem(produto)}
                 ${this.criarCelulaTitulo(produto)}
                 ${this.criarCelulaASIN(produto, asinDuplicado)}
@@ -72,6 +73,26 @@ class TableRowBuilder {
                     <div style="font-size: 11px; font-weight: 700;">${icone} ${posicaoReal}</div>
                     ${temInfoPagina ? `<div style="font-size: 9px; opacity: 0.8;">P${paginaOrigem}:${posicaoNaPagina}</div>` : ''}
                 </div>
+            </td>
+        `;
+    }
+
+    static criarCelulaTendencia(produto) {
+        // Usar PositionTracker se disponível, senão mostrar espaço vazio
+        if (window.PositionTracker && produto.asin) {
+            return window.PositionTracker.gerarColunaTendencia(produto.asin);
+        }
+        
+        return `
+            <td style="
+                text-align: center; 
+                color: #6b7280;
+                padding: 8px;
+                font-size: 14px;
+                border-right: 1px solid var(--border-light);
+                width: 60px;
+            " title="Tendência de posição">
+                ➖
             </td>
         `;
     }
