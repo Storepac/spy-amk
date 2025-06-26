@@ -5,7 +5,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vercel dev"
+    "dev": "vercel dev",
+    "build": "echo 'No build needed for serverless functions'"
   },
   "dependencies": {
     "mongodb": "^6.3.0"
