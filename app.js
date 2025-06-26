@@ -133,14 +133,27 @@ class AppController {
                 return;
             }
             
-            // Armazenar produtos para reutilização (SEM criar tabela automaticamente)
+            // Armazenar produtos para reutilização
             this.produtosArmazenados = produtos;
             window.produtosTabela = produtos;
             
-            console.log(`✅ Análise ${tipo} concluída! ${produtos.length} produtos encontrados.`);
-            NotificationManager.sucesso(`Análise concluída! ${produtos.length} produtos encontrados. Use "Abrir/Fechar Tabela" para visualizar.`);
+            // Verificar se tabela já está aberta para atualizar
+            const modal = document.getElementById('amazon-analyzer-modal');
+            if (modal && modal.style.display === 'flex') {
+                console.log('📊 Tabela já está aberta - atualizando com novos dados...');
+                this.atualizarTabelaExistente(produtos);
+                NotificationManager.sucesso(`Análise concluída! Tabela atualizada com ${produtos.length} produtos.`);
+            } else {
+                console.log(`✅ Análise ${tipo} concluída! ${produtos.length} produtos encontrados.`);
+                NotificationManager.sucesso(`Análise concluída! ${produtos.length} produtos encontrados. Use "Abrir/Fechar Tabela" para visualizar.`);
+            }
             
-            // Iniciar busca automática em background (sem mostrar tabela)
+            // Atualizar status do botão do painel
+            if (typeof SidePanel !== 'undefined') {
+                SidePanel.atualizarStatusBotao();
+            }
+            
+            // Iniciar busca automática em background
             this.iniciarBuscaAutomaticaBackground(produtos);
             
         } catch (error) {
@@ -155,11 +168,45 @@ class AppController {
         console.log('🚀 Iniciando busca automática em background...');
         
         try {
-            // Executar em background sem mostrar loading
-            await ProductAnalyzer.buscarDetalhesEmParalelo(produtos, null);
-            await ProductAnalyzer.buscarMarcasFaltantes(produtos, null);
+            // Verificar se tabela está aberta para usar callback que atualiza
+            let modal = document.getElementById('amazon-analyzer-modal');
+            let tabelaAberta = modal && modal.style.display === 'flex';
+            let produtosProcessados = 0;
+            const totalProdutos = produtos.length;
+            const metadeProdutos = Math.ceil(totalProdutos / 2);
             
-            console.log('✅ Busca automática em background concluída');
+            // Callback inteligente que auto-abre tabela ao atingir 50%
+            const callbackInteligente = (produto, index) => {
+                produtosProcessados++;
+                
+                // Verificar se deve auto-abrir tabela
+                if (!tabelaAberta && produtosProcessados >= metadeProdutos) {
+                    console.log(`📊 ${produtosProcessados}/${totalProdutos} produtos processados - Auto-abrindo tabela!`);
+                    this.autoAbrirTabelaComProgresso(produtos);
+                    tabelaAberta = true;
+                    NotificationManager.sucesso(`Tabela aberta automaticamente! ${produtosProcessados}/${totalProdutos} produtos processados.`);
+                }
+                
+                // Se tabela está aberta, atualizar linha
+                if (tabelaAberta) {
+                    TableManager.atualizarLinhaProduto(produto, index);
+                } else {
+                    console.log(`📊 Produto ${index + 1} processado: ${produto.titulo}`);
+                }
+            };
+            
+            // Executar análise com callback inteligente
+            await ProductAnalyzer.buscarDetalhesEmParalelo(produtos, callbackInteligente);
+            await ProductAnalyzer.buscarMarcasFaltantes(produtos, callbackInteligente);
+            
+            // Atualizar métricas finais se tabela está aberta
+            if (tabelaAberta) {
+                TableManager.atualizarMetricas(produtos);
+                console.log('✅ Busca automática concluída - tabela atualizada');
+                NotificationManager.sucesso(`Análise completa! ${totalProdutos} produtos processados.`);
+            } else {
+                console.log('✅ Busca automática em background concluída');
+            }
             
         } catch (error) {
             console.error('Erro na busca automática em background:', error);
@@ -329,11 +376,9 @@ class AppController {
         
         if (window.location.href.includes('/s?') || window.location.href.includes('/s/')) {
             EventManagerLegacy.adicionarBotaoAmkSpy();
-            // Iniciar análise automática imediatamente
-            setTimeout(() => {
-                console.log('🚀 Iniciando análise automática...');
-                this.exibirAnalise();
-            }, 1000);
+            // NÃO iniciar análise automática na primeira carga
+            // O usuário deve usar o painel lateral para iniciar análises
+            console.log('✅ AMK Spy pronto - use o painel lateral (🔍) para iniciar análises');
         }
     }
 
@@ -395,6 +440,96 @@ class AppController {
             
         } catch (error) {
             console.error('Erro ao criar modal vazio:', error);
+        }
+    }
+
+    static autoAbrirTabelaComProgresso(produtos) {
+        try {
+            console.log('🚀 Auto-abrindo tabela com progresso...');
+            
+            // Criar modal se não existir
+            let modal = document.getElementById('amazon-analyzer-modal');
+            if (!modal) {
+                modal = document.createElement("div");
+                modal.id = "amazon-analyzer-modal";
+                modal.innerHTML = ModalBuilder.criarModal();
+                document.body.appendChild(modal);
+                
+                // Configurar eventos do modal
+                this.configurarEventosModal();
+            }
+            
+            // Mostrar modal
+            modal.style.display = 'flex';
+            
+            // ESCONDER informação sobre análise quando há produtos
+            const infoAnalise = document.getElementById('info-analise');
+            if (infoAnalise) {
+                infoAnalise.style.display = 'none';
+            }
+            
+            // Mostrar tabela com produtos
+            const conteudoTabela = document.getElementById('conteudo-tabela');
+            if (conteudoTabela) {
+                conteudoTabela.style.display = 'block';
+                conteudoTabela.innerHTML = TableManager.criarTabelaProdutos(produtos);
+            }
+            
+            // Mostrar botão de nova busca
+            const novaBuscaContainer = document.getElementById('nova-busca-container');
+            if (novaBuscaContainer) {
+                novaBuscaContainer.style.display = 'block';
+            }
+            
+            // Configurar produtos no FilterManager
+            TableManager.filterManager.setProdutos(produtos);
+            
+            // Inicializar eventos da tabela com limpeza forçada
+            TableManager.inicializarEventos(true);
+            
+            // Atualizar status do botão do painel
+            if (typeof SidePanel !== 'undefined') {
+                SidePanel.atualizarStatusBotao();
+            }
+            
+            console.log('✅ Tabela auto-aberta com sucesso');
+            
+        } catch (error) {
+            console.error('❌ Erro ao auto-abrir tabela:', error);
+        }
+    }
+
+    static atualizarTabelaExistente(produtos) {
+        try {
+            // Atualizar conteúdo da tabela se ela já estiver aberta
+            const conteudoTabela = document.getElementById('conteudo-tabela');
+            if (conteudoTabela) {
+                conteudoTabela.style.display = 'block';
+                conteudoTabela.innerHTML = TableManager.criarTabelaProdutos(produtos);
+            }
+            
+            // ESCONDER informação sobre análise quando há produtos
+            const infoAnalise = document.getElementById('info-analise');
+            if (infoAnalise) {
+                infoAnalise.style.display = 'none';
+            }
+            
+            // Mostrar botão de nova busca
+            const novaBuscaContainer = document.getElementById('nova-busca-container');
+            if (novaBuscaContainer) {
+                novaBuscaContainer.style.display = 'block';
+            }
+            
+            // Configurar produtos no FilterManager
+            TableManager.filterManager.setProdutos(produtos);
+            
+            // Inicializar eventos da tabela com limpeza forçada
+            TableManager.inicializarEventos(true);
+            
+            console.log('✅ Tabela existente atualizada com sucesso');
+            
+        } catch (error) {
+            console.error('❌ Erro ao atualizar tabela existente:', error);
         }
     }
 

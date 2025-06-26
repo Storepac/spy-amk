@@ -120,7 +120,7 @@ class ProductAnalyzer {
     }
 
     static async buscarDetalhesEmParalelo(produtos, atualizarCallback) {
-        const BATCH_SIZE = 20;
+        const BATCH_SIZE = 100;
         let produtosAtualizados = 0;
         
         for (let i = 0; i < produtos.length; i += BATCH_SIZE) {
@@ -176,7 +176,7 @@ class ProductAnalyzer {
             });
             
             await Promise.all(promessas);
-            await new Promise(resolve => setTimeout(resolve, 200));
+            await new Promise(resolve => setTimeout(resolve, 50)); // Reduzido de 200ms para 50ms
         }
     }
 
@@ -383,7 +383,7 @@ class ProductAnalyzer {
         this.mostrarLoadingMarcas(produtosParaBuscar.length);
         
         // Processar em lotes maiores para maior velocidade
-        const batchSize = 10; // Aumentado de 5 para 10
+        const batchSize = 15; // Aumentado de 5 para 15
         const batches = [];
         
         for (let i = 0; i < produtosParaBuscar.length; i += batchSize) {
@@ -420,7 +420,7 @@ class ProductAnalyzer {
             await Promise.all(promises);
             
             // Delay menor para maior velocidade
-            await new Promise(resolve => setTimeout(resolve, 200)); // Reduzido de 300ms para 200ms
+            await new Promise(resolve => setTimeout(resolve, 100)); // Reduzido de 300ms para 100ms
         }
         
         this.ocultarLoadingMarcas();

@@ -351,6 +351,34 @@ class SidePanel {
         this.executarAnaliseAgora(tipo);
     }
 
+    static verificarStatusTabela() {
+        const modal = document.getElementById('amazon-analyzer-modal');
+        return modal && modal.style.display === 'flex';
+    }
+
+    static atualizarStatusBotao() {
+        const btnToggleTable = this.panelElement?.querySelector('#amk-btn-toggle-table');
+        if (!btnToggleTable) return;
+
+        const tabelaAberta = this.verificarStatusTabela();
+        const temProdutos = typeof AppController !== 'undefined' && 
+                           AppController.produtosArmazenados && 
+                           AppController.produtosArmazenados.length > 0;
+
+        if (tabelaAberta) {
+            btnToggleTable.innerHTML = '📊 Fechar Tabela';
+            btnToggleTable.title = 'Fecha a tabela de produtos';
+        } else {
+            if (temProdutos) {
+                btnToggleTable.innerHTML = '📊 Abrir Tabela';
+                btnToggleTable.title = 'Abre a tabela com produtos encontrados';
+            } else {
+                btnToggleTable.innerHTML = '📊 Abrir/Fechar Tabela';
+                btnToggleTable.title = 'Abre/fecha a tabela de produtos';
+            }
+        }
+    }
+
     static toggleTabela() {
         const modal = document.getElementById('amazon-analyzer-modal');
         if (modal) {
@@ -378,6 +406,9 @@ class SidePanel {
                 }
             }
         }
+        
+        // Atualizar texto do botão após alternar
+        setTimeout(() => this.atualizarStatusBotao(), 100);
     }
 
     static showStatus(message, type = 'info') {
@@ -455,7 +486,7 @@ class SidePanel {
             if (typeof AppController !== 'undefined') {
                 // Executar análise sem abrir tabela automaticamente
                 AppController.iniciarAnaliseBackground(tipo === 'rapida' ? 'rapida' : 'todas');
-                this.showStatus(`Análise ${tipo} concluída! Use "Abrir/Fechar Tabela" para ver os resultados.`, 'success');
+                this.showStatus(`Análise ${tipo} iniciada em background...`, 'info');
             } else {
                 this.showStatus('Erro: Componentes não carregados', 'error');
             }
@@ -506,6 +537,14 @@ class SidePanel {
         
         // Verificar se há análise pendente (após navegação)
         this.verificarAnalisePendente();
+        
+        // Atualizar status inicial do botão
+        setTimeout(() => this.atualizarStatusBotao(), 500);
+        
+        // Atualizar status do botão a cada 2 segundos para manter sincronizado
+        setInterval(() => {
+            this.atualizarStatusBotao();
+        }, 2000);
         
         console.log('✅ SidePanel inicializado');
     }

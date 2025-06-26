@@ -4,8 +4,12 @@ class EventManagerLegacy {
         const btnFechar = document.getElementById("fechar-analise");
         if (btnFechar) {
             btnFechar.addEventListener("click", () => {
-            modal.style.display = 'none';
-        });
+                modal.style.display = 'none';
+                // Atualizar status do botão do painel quando tabela é fechada
+                if (typeof SidePanel !== 'undefined') {
+                    setTimeout(() => SidePanel.atualizarStatusBotao(), 100);
+                }
+            });
         }
         
         // Campo de busca por nome
@@ -74,6 +78,10 @@ class EventManagerLegacy {
         modal.addEventListener("click", (e) => {
             if (e.target === modal) {
                 modal.style.display = 'none';
+                // Atualizar status do botão do painel quando tabela é fechada
+                if (typeof SidePanel !== 'undefined') {
+                    setTimeout(() => SidePanel.atualizarStatusBotao(), 100);
+                }
             }
         });
         
@@ -131,6 +139,11 @@ class EventManagerLegacy {
                     modal.style.display = 'none';
                     console.log('📊 Tabela fechada');
                     NotificationManager.informacao('Tabela fechada');
+                }
+                
+                // Atualizar status do botão do painel
+                if (typeof SidePanel !== 'undefined') {
+                    setTimeout(() => SidePanel.atualizarStatusBotao(), 100);
                 }
             } else {
                 // Se não existe modal, criar sempre (com ou sem dados)

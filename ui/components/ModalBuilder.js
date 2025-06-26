@@ -482,6 +482,17 @@ class ModalBuilder {
     }
 
     static criarModal() {
+        // Verificar se o contexto da extensão ainda é válido
+        let logoSrc = '';
+        try {
+            if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
+                logoSrc = chrome.runtime.getURL('images/logo.png');
+            }
+        } catch (error) {
+            console.warn('Extension context invalidated, using fallback logo');
+            logoSrc = ''; // Usará o emoji no lugar
+        }
+
         return `
             <div id="amazon-analyzer-modal" style="
                 position: fixed;
@@ -517,7 +528,18 @@ class ModalBuilder {
                         border-bottom: 2px solid var(--border-light);
                     ">
                         <div style="display: flex; align-items: center; gap: 15px;">
-                            <img src="${chrome.runtime.getURL('images/logo.png')}" alt="AMK Spy" style="width: 40px; height: 40px; border-radius: 8px;">
+                            <div style="
+                                width: 40px; 
+                                height: 40px; 
+                                border-radius: 8px; 
+                                background: linear-gradient(135deg, #014641, #013935);
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 18px;
+                                color: white;
+                                font-weight: bold;
+                            ">📊</div>
                             <div>
                                 <h1 style="
                                     margin: 0;
