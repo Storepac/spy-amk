@@ -15,7 +15,8 @@ function verificarComponentes() {
         'ProductAnalyzer',
         'NotificationManager',
         'EventManager',
-        'ThemeManager'
+        'ThemeManager',
+        'SidePanel'
     ];
     
     const faltando = componentes.filter(comp => typeof window[comp] === 'undefined');
@@ -102,21 +103,30 @@ function verificarComponentes() {
 function inicializarAplicacao() {
     console.log('🚀 Inicializando AMK Spy...');
     
-    // Verificar se estamos em uma página de pesquisa da Amazon
-    if (window.location.href.includes('/s?') || window.location.href.includes('/s/')) {
-        console.log('📊 Página de pesquisa detectada');
+    // Verificar se estamos em qualquer página da Amazon
+    if (window.location.href.includes('amazon.com')) {
+        console.log('🌐 Página da Amazon detectada');
         
         // Aguardar um pouco para garantir que a página carregou completamente
         setTimeout(() => {
             if (verificarComponentes()) {
-                AppController.init();
+                // Inicializar SidePanel em qualquer página da Amazon
+                if (typeof SidePanel !== 'undefined') {
+                    SidePanel.init();
+                }
+                
+                // Só inicializar AppController se for página de pesquisa
+                if (window.location.href.includes('/s?') || window.location.href.includes('/s/')) {
+                    console.log('📊 Página de pesquisa detectada - inicializando AppController');
+                    AppController.init();
+                }
             } else {
                 console.error('❌ Falha ao carregar componentes necessários');
                     mostrarErroCarregamento();
             }
         }, 1000);
     } else {
-        console.log('ℹ️ Não é uma página de pesquisa da Amazon');
+        console.log('ℹ️ Não é uma página da Amazon');
     }
 }
 
@@ -175,6 +185,8 @@ window.diagnosticoAMKSpy = function() {
     console.log('  EventManager:', typeof EventManager !== 'undefined');
     console.log('  ThemeManager:', typeof ThemeManager !== 'undefined');
 };
+
+// Funcionalidade do popup removida - agora usamos o painel lateral
 
 // Log de inicialização
 console.log('📦 AMK Spy carregado - Versão 2.0'); 

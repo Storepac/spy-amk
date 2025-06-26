@@ -578,73 +578,17 @@ class ModalBuilder {
                         </div>
                     </div>
 
-                    <!-- Opções de Análise -->
-                    <div id="opcoes-analise" style="
+                    <!-- Informações sobre a análise -->
+                    <div id="info-analise" style="
                         background: var(--bg-secondary);
                         border-radius: 12px;
-                        padding: 20px;
+                        padding: 15px;
                         margin-bottom: 20px;
                         border: 1px solid var(--border-light);
+                        border-left: 4px solid #3b82f6;
                     ">
-                        <h3 style="
-                            margin: 0 0 15px 0;
-                            font-size: 18px;
-                            color: var(--text-primary);
-                            font-weight: 600;
-                        ">🔍 Escolha o tipo de análise:</h3>
-                        
-                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                            <button id="btn-analise-rapida" style="
-                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                border: none;
-                                border-radius: 10px;
-                                padding: 15px 20px;
-                                cursor: pointer;
-                                color: white;
-                                font-size: 14px;
-                                font-weight: 600;
-                                transition: all 0.3s;
-                                flex: 1;
-                                min-width: 200px;
-                                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-                            " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                                ⚡ Análise Rápida
-                                <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
-                                    Produtos da página atual
-                                </div>
-                            </button>
-                            
-                            <button id="btn-analise-completa" style="
-                                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-                                border: none;
-                                border-radius: 10px;
-                                padding: 15px 20px;
-                                cursor: pointer;
-                                color: white;
-                                font-size: 14px;
-                                font-weight: 600;
-                                transition: all 0.3s;
-                                flex: 1;
-                                min-width: 200px;
-                                box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
-                            " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                                🚀 Análise Completa
-                                <div style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
-                                    Todas as páginas disponíveis
-                                </div>
-                            </button>
-                        </div>
-                        
-                        <div style="
-                            margin-top: 15px;
-                            padding: 12px;
-                            background: var(--bg-primary);
-                            border-radius: 8px;
-                            border-left: 4px solid #3b82f6;
-                        ">
-                            <div style="font-size: 13px; color: var(--text-secondary);">
-                                <strong>💡 Dica:</strong> A análise completa pode demorar alguns minutos, mas fornece dados mais completos de todas as páginas de resultados.
-                            </div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">
+                            <strong>📊 Tabela de Análise:</strong> Use o popup da extensão para iniciar novas análises ou o botão AMK Spy na página para alternar a visualização.
                         </div>
                     </div>
 

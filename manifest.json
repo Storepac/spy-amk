@@ -37,6 +37,7 @@
           "ui/components/TableRowBuilder.js",
           "ui/components/FilterManager.js",
           "ui/components/EventManager.js",
+          "ui/components/SidePanel.js",
             "ui/table.js",
             "ui/events.js",
             "core/extractor.js",

@@ -81,7 +81,7 @@ class TableManager {
                             background: var(--bg-primary);
                         border-bottom: 2px solid var(--border-light);
                     ">
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">#</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Posição na pesquisa da Amazon">🏆 Posição</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Imagem</th>
                         <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Título</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">ASIN</th>
@@ -94,7 +94,6 @@ class TableManager {
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">BSR</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Categoria</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Tipo</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Posição na pesquisa da Amazon">🏆 Posição</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Página</th>
                                     </tr>
                                 </thead>
@@ -108,9 +107,9 @@ class TableManager {
     static inicializarEventos(forcarLimpeza = false) {
         console.log('🔧 Inicializando eventos da tabela...', forcarLimpeza ? '(com limpeza forçada)' : '');
         
-        // Se forçar limpeza, limpar filtros primeiro
-        if (forcarLimpeza && this.filterManager) {
-            console.log('🧹 Forçando limpeza de filtros...');
+        // SEMPRE limpar filtros ao inicializar para garantir funcionamento correto
+        if (this.filterManager) {
+            console.log('🧹 Auto-limpeza de filtros para garantir funcionamento correto...');
             this.filterManager.limparFiltros();
         }
         
@@ -134,6 +133,15 @@ class TableManager {
             if (this.eventManager) {
                 this.eventManager.inicializar();
             }
+            
+            // Executar segunda limpeza após eventos configurados para garantir estado correto
+            setTimeout(() => {
+                if (this.filterManager) {
+                    console.log('🧹 Segunda limpeza para garantir estado correto dos eventos...');
+                    this.filterManager.limparFiltros();
+                    this.reconfigurarEventosTabela();
+                }
+            }, 100);
             
             console.log('✅ Todos os eventos da tabela foram inicializados');
         }, 200); // Aumentado para 200ms para garantir que o DOM está pronto
@@ -297,17 +305,49 @@ class TableManager {
         }
         
         // Aguardar um pouco e reconfigurar todos os eventos
-                setTimeout(() => {
-            this.configurarEventosCopiarASIN();
-            this.configurarEventosBSR();
-            this.configurarEventosBotoes();
+        setTimeout(() => {
+            this.reconfigurarEventosTabela();
+            console.log('✅ Reconfiguração forçada concluída');
+        }, 300);
+    }
+
+    static reconfigurarEventosTabela() {
+        console.log('🔧 Reconfigurando eventos da tabela...');
+        
+        // Reconfigurar eventos de cópia de ASIN
+        this.configurarEventosCopiarASIN();
+        
+        // Reconfigurar eventos de BSR
+        this.configurarEventosBSR();
+        
+        // Reconfigurar eventos dos botões
+        this.configurarEventosBotoes();
+        
+        // Reconfigurar eventos do FilterManager
+        if (this.filterManager) {
+            this.filterManager.configurarEventos();
+        }
+        
+        // Forçar atualização das linhas da tabela
+        const linhasProdutos = document.querySelectorAll('.linha-produto');
+        linhasProdutos.forEach((linha, index) => {
+            linha.style.display = '';
+            // Garantir que os eventos estão ativos
+            const btnASIN = linha.querySelector('.btn-copiar-asin');
+            const btnBSR = linha.querySelector('.bsr-cell');
             
-            if (this.filterManager) {
-                this.filterManager.configurarEventos();
+            if (btnASIN) {
+                btnASIN.style.pointerEvents = 'auto';
+                btnASIN.style.opacity = '1';
             }
             
-            console.log('✅ Reconfiguração forçada concluída');
-                }, 300);
+            if (btnBSR) {
+                btnBSR.style.pointerEvents = 'auto';
+                btnBSR.style.opacity = '1';
+            }
+        });
+        
+        console.log('✅ Eventos da tabela reconfigurados');
     }
 
     static atualizarTabelaComFiltros(produtosFiltrados) {

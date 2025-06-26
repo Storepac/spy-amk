@@ -122,22 +122,28 @@ class EventManagerLegacy {
         document.getElementById('amk-spy-button').addEventListener('click', () => {
             const modal = document.getElementById('amazon-analyzer-modal');
             if (modal) {
-                modal.style.display = 'flex';
+                // Se modal existe, alternar visibilidade
+                if (modal.style.display === 'none' || modal.style.display === '') {
+                    modal.style.display = 'flex';
+                    console.log('📊 Tabela aberta');
+                    NotificationManager.informacao('Tabela aberta');
+                } else {
+                    modal.style.display = 'none';
+                    console.log('📊 Tabela fechada');
+                    NotificationManager.informacao('Tabela fechada');
+                }
             } else {
-                // Verificar se já está em processo de análise
-                if (document.getElementById('loading-inicial')) {
-                    console.log('⚠️ Análise já em andamento');
-                    return;
+                // Se não existe modal, criar sempre (com ou sem dados)
+                if (AppController.produtosArmazenados && AppController.produtosArmazenados.length > 0) {
+                    console.log('📊 Abrindo tabela com produtos armazenados...');
+                    AppController.exibirTabelaComProdutos(AppController.produtosArmazenados);
+                    NotificationManager.sucesso('Tabela aberta com produtos armazenados');
+                } else {
+                    // Não há produtos, criar tabela vazia
+                    console.log('📊 Abrindo tabela vazia...');
+                    AppController.criarModalVazio();
+                    NotificationManager.informacao('Tabela vazia aberta. Use o painel lateral (🔍) para iniciar uma análise.');
                 }
-                
-                // Verificar se o TableManager está disponível
-                if (typeof TableManager === 'undefined') {
-                    console.error('❌ TableManager não está disponível');
-                    NotificationManager.erro('Erro: Componentes não carregados. Recarregue a página.');
-                    return;
-                }
-                
-                AppController.iniciarAnalise('todas');
             }
         });
     }

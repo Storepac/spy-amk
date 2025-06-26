@@ -19,30 +19,9 @@ class AppController {
                 return;
             }
             
-            // Criar modal com opções de análise
-            const modal = document.createElement("div");
-            modal.id = "amazon-analyzer-modal";
-            modal.innerHTML = ModalBuilder.criarModal();
-            document.body.appendChild(modal);
-            
-            console.log('✅ Modal criado e adicionado ao DOM');
-            console.log('🔍 Verificando elementos do modal...');
-            
-            // Verificar se os elementos foram criados
-            const opcoesAnalise = document.getElementById('opcoes-analise');
-            const btnRapida = document.getElementById('btn-analise-rapida');
-            const btnCompleta = document.getElementById('btn-analise-completa');
-            
-            console.log('Elementos encontrados:', {
-                opcoesAnalise: !!opcoesAnalise,
-                btnRapida: !!btnRapida,
-                btnCompleta: !!btnCompleta
-            });
-            
-            // Configurar eventos dos botões
-            this.configurarEventosModal();
-            
-            console.log('✅ Modal de análise exibido com sucesso');
+            // Se não há produtos armazenados, criar modal vazio para aguardar análise
+            console.log('ℹ️ Não há produtos armazenados - criando modal vazio');
+            this.criarModalVazio();
             
         } catch (error) {
             console.error('Erro ao exibir análise:', error);
@@ -59,10 +38,10 @@ class AppController {
         modal.innerHTML = ModalBuilder.criarModal();
         document.body.appendChild(modal);
         
-        // Ocultar opções de análise
-        const opcoesAnalise = document.getElementById('opcoes-analise');
-        if (opcoesAnalise) {
-            opcoesAnalise.style.display = 'none';
+        // Mostrar informação sobre análise
+        const infoAnalise = document.getElementById('info-analise');
+        if (infoAnalise) {
+            infoAnalise.style.display = 'block';
         }
         
         // Mostrar tabela com produtos
@@ -93,26 +72,6 @@ class AppController {
     static configurarEventosModal() {
         console.log('🔧 Configurando eventos do modal...');
         
-        // Botão análise rápida
-        const btnAnaliseRapida = document.getElementById('btn-analise-rapida');
-        console.log('Botão análise rápida encontrado:', !!btnAnaliseRapida);
-        if (btnAnaliseRapida) {
-            btnAnaliseRapida.addEventListener('click', () => {
-                console.log('🚀 Iniciando análise rápida...');
-                this.iniciarAnalise('rapida');
-            });
-        }
-        
-        // Botão análise completa
-        const btnAnaliseCompleta = document.getElementById('btn-analise-completa');
-        console.log('Botão análise completa encontrado:', !!btnAnaliseCompleta);
-        if (btnAnaliseCompleta) {
-            btnAnaliseCompleta.addEventListener('click', () => {
-                console.log('🚀 Iniciando análise completa...');
-                this.iniciarAnalise('todas');
-            });
-        }
-        
         // Botão nova busca
         const btnNovaBusca = document.getElementById('btn-nova-busca');
         console.log('Botão nova busca encontrado:', !!btnNovaBusca);
@@ -120,7 +79,7 @@ class AppController {
             btnNovaBusca.addEventListener('click', () => {
                 console.log('🔄 Iniciando nova busca...');
                 this.limparProdutosArmazenados();
-                this.exibirAnalise();
+                NotificationManager.informacao('Use o popup da extensão para iniciar uma nova análise.');
             });
         }
         
@@ -163,11 +122,7 @@ class AppController {
             // Armazenar tipo de análise
             this.tipoAnaliseAnterior = tipo;
             
-            // Ocultar opções de análise
-            const opcoesAnalise = document.getElementById('opcoes-analise');
-            if (opcoesAnalise) {
-                opcoesAnalise.style.display = 'none';
-            }
+            // Não precisamos mais ocultar opções, já que elas não existem mais
             
             // Mostrar loading inicial
             this.mostrarLoadingInicial();
@@ -388,6 +343,67 @@ class AppController {
                 console.log('🚀 Iniciando análise automática...');
                 this.exibirAnalise();
             }, 1000);
+        }
+    }
+
+    static criarModalVazio() {
+        try {
+            console.log('🔧 Criando modal vazio...');
+            
+            // Remover modal existente se houver
+            const modalExistente = document.getElementById('amazon-analyzer-modal');
+            if (modalExistente) {
+                modalExistente.remove();
+            }
+            
+            // Criar modal vazio
+            const modal = document.createElement("div");
+            modal.id = "amazon-analyzer-modal";
+            modal.innerHTML = ModalBuilder.criarModal();
+            document.body.appendChild(modal);
+            
+            // Mostrar informação sobre análise
+            const infoAnalise = document.getElementById('info-analise');
+            if (infoAnalise) {
+                infoAnalise.style.display = 'block';
+                infoAnalise.innerHTML = `
+                    <div style="font-size: 13px; color: #374151; text-align: center;">
+                        <strong>📊 Aguardando análise...</strong><br>
+                        Use o painel lateral (botão 🔍) para iniciar uma nova análise.
+                    </div>
+                `;
+            }
+            
+            // Mostrar conteúdo da tabela vazio
+            const conteudoTabela = document.getElementById('conteudo-tabela');
+            if (conteudoTabela) {
+                conteudoTabela.style.display = 'block';
+                conteudoTabela.innerHTML = `
+                    <div style="
+                        text-align: center;
+                        padding: 40px 20px;
+                        color: #666;
+                        background: #f9fafb;
+                        border-radius: 10px;
+                        border: 2px dashed #d1d5db;
+                    ">
+                        <div style="font-size: 48px; margin-bottom: 15px;">📊</div>
+                        <h3 style="margin-bottom: 10px; color: #374151;">Tabela Pronta para Análise</h3>
+                        <p style="font-size: 14px; line-height: 1.4; max-width: 400px; margin: 0 auto;">
+                            Use o painel lateral (botão redondo 🔍) para buscar produtos na Amazon.<br>
+                            Os resultados aparecerão aqui automaticamente.
+                        </p>
+                    </div>
+                `;
+            }
+            
+            // Configurar eventos do modal
+            this.configurarEventosModal();
+            
+            console.log('✅ Modal vazio criado com sucesso');
+            
+        } catch (error) {
+            console.error('Erro ao criar modal vazio:', error);
         }
     }
 
