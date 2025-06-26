@@ -1,19 +1,9 @@
 {
   "version": 2,
-  "name": "amk-spy-api",
-  "builds": [
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    }
-  ],
   "functions": {
     "api/**/*.js": {
       "maxDuration": 30
     }
-  },
-  "env": {
-    "NODE_ENV": "production"
   },
   "headers": [
     {
