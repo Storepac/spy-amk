@@ -1,8 +1,4 @@
-import { MongoClient } from 'mongodb';
-
-const uri = process.env.MONGODB_URI || "mongodb+srv://db_amk:iqpW69yVTmoNIqnw@dbamk.imkhszp.mongodb.net/?retryWrites=true&w=majority&appName=dbamk";
-const dbName = 'amk_spy';
-const collectionName = 'position_tracking';
+import { Client } from 'pg';
 
 let cachedClient = null;
 
@@ -11,12 +7,9 @@ async function connectToDatabase() {
         return cachedClient;
     }
     
-    const client = new MongoClient(uri, {
-        serverSelectionTimeoutMS: 10000, // 10 segundos
-        connectTimeoutMS: 10000, // 10 segundos
-        maxPoolSize: 10,
-        minPoolSize: 1,
-        maxIdleTimeMS: 30000
+    const client = new Client({
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false }
     });
     
     await client.connect();
@@ -41,75 +34,77 @@ export default async function handler(req, res) {
     }
     
     try {
-        const { userId, asin, limit = 30 } = req.query;
+        const { asin, userId, dias = 30 } = req.query;
         
-        // Validar dados obrigatórios
+        // Validar parâmetros obrigatórios
         if (!userId) {
             res.status(400).json({ error: 'userId é obrigatório' });
             return;
         }
         
         const client = await connectToDatabase();
-        const db = client.db(dbName);
-        const collection = db.collection(collectionName);
         
-        let query = { usuario_id: userId };
+        let query;
+        let values;
         
-        // Se ASIN específico foi solicitado
         if (asin) {
-            query.asin = asin;
-            
-            const documento = await collection.findOne(query);
-            
-            if (!documento) {
-                res.status(404).json({ error: 'Histórico não encontrado para este produto' });
-                return;
-            }
-            
-            // Ordenar histórico por data (mais recente primeiro)
-            documento.historico = documento.historico
-                .sort((a, b) => new Date(b.data) - new Date(a.data))
-                .slice(0, parseInt(limit));
-            
-            res.status(200).json({
-                success: true,
-                asin: documento.asin,
-                titulo: documento.titulo_produto,
-                termo: documento.termo_pesquisa,
-                historico: documento.historico,
-                total_entries: documento.historico.length
-            });
+            // Buscar histórico de um produto específico
+            query = `
+                SELECT asin, titulo_produto, termo_pesquisa, data, posicao, timestamp
+                FROM position_tracking
+                WHERE asin = $1 AND usuario_id = $2
+                ORDER BY data DESC
+                LIMIT $3
+            `;
+            values = [asin, userId, parseInt(dias)];
         } else {
-            // Buscar todos os produtos do usuário
-            const documentos = await collection.find(query)
-                .sort({ updated_at: -1 })
-                .limit(parseInt(limit))
-                .toArray();
-            
-            // Processar dados para resposta
-            const historico = {};
-            documentos.forEach(doc => {
-                // Ordenar histórico de cada produto
-                doc.historico = doc.historico
-                    .sort((a, b) => new Date(b.data) - new Date(a.data))
-                    .slice(0, 10); // Últimas 10 entradas por produto
-                
-                historico[doc.asin] = {
-                    titulo: doc.titulo_produto,
-                    termo: doc.termo_pesquisa,
-                    historico: doc.historico,
-                    created_at: doc.created_at,
-                    updated_at: doc.updated_at
-                };
-            });
-            
-            res.status(200).json({
-                success: true,
-                usuario_id: userId,
-                total_produtos: documentos.length,
-                historico: historico
-            });
+            // Buscar histórico geral do usuário
+            query = `
+                SELECT asin, titulo_produto, termo_pesquisa, data, posicao, timestamp
+                FROM position_tracking
+                WHERE usuario_id = $1
+                AND data >= CURRENT_DATE - INTERVAL '${parseInt(dias)} days'
+                ORDER BY data DESC, posicao ASC
+            `;
+            values = [userId];
         }
+        
+        const result = await client.query(query, values);
+        
+        // Transformar resultados para formato compatível com frontend
+        const historico = result.rows.map(row => ({
+            asin: row.asin,
+            titulo: row.titulo_produto,
+            termo: row.termo_pesquisa,
+            data: row.data,
+            posicao: row.posicao,
+            timestamp: row.timestamp
+        }));
+        
+        // Se busca específica por ASIN, calcular tendência
+        let tendencia = null;
+        if (asin && historico.length >= 2) {
+            const posicaoAtual = historico[0].posicao;
+            const posicaoAnterior = historico[1].posicao;
+            
+            if (posicaoAtual < posicaoAnterior) {
+                tendencia = 'subiu';
+            } else if (posicaoAtual > posicaoAnterior) {
+                tendencia = 'desceu';
+            } else {
+                tendencia = 'estavel';
+            }
+        }
+        
+        res.status(200).json({
+            success: true,
+            asin: asin || null,
+            userId: userId,
+            dias: parseInt(dias),
+            total: historico.length,
+            tendencia: tendencia,
+            historico: historico
+        });
         
     } catch (error) {
         console.error('Erro ao buscar histórico:', error);

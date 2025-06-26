@@ -9,7 +9,7 @@
     "build": "echo 'No build needed for serverless functions'"
   },
   "dependencies": {
-    "mongodb": "^6.3.0"
+    "pg": "^8.11.3"
   },
   "devDependencies": {
     "@vercel/node": "^3.0.12"

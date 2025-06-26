@@ -1,193 +1,204 @@
-# 🚀 AMK Spy - API Cloud Setup
+# 🚀 AMK Spy - API de Tracking de Posições
 
-## Deploy da API no Vercel com MongoDB
+## **📋 CONFIGURAÇÃO SUPABASE**
 
-### 📋 Pré-requisitos
+### **1. Criar Projeto no Supabase**
+1. Acesse [supabase.com](https://supabase.com)
+2. Crie uma conta e novo projeto
+3. Aguarde a criação do banco PostgreSQL
 
-1. **Conta no Vercel** (gratuita)
-2. **Conta no MongoDB Atlas** (já configurada)
-3. **Git/GitHub** (para deploy automático)
+### **2. Configurar Variáveis de Ambiente**
 
----
-
-## 🔧 Passo a Passo do Deploy
-
-### 1. **Preparar o Repositório**
-
+#### **No Vercel:**
 ```bash
-# Fazer commit de todos os arquivos da API
-git add .
-git commit -m "feat: API completa para tracking de posições"
-git push origin main
+DATABASE_URL = postgresql://postgres.xxx:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres
 ```
 
-### 2. **Deploy no Vercel**
-
-1. Acesse [vercel.com](https://vercel.com)
-2. Clique em **"Import Project"**
-3. Conecte com seu GitHub
-4. Selecione o repositório `spy-amk`
-5. Configure as seguintes **Environment Variables**:
-
-```env
-MONGODB_URI=mongodb+srv://db_amk:iqpW69yVTmoNIqnw@dbamk.imkhszp.mongodb.net/?retryWrites=true&w=majority&appName=dbamk
-NODE_ENV=production
-```
-
-6. Clique em **"Deploy"**
-
-### 3. **Após o Deploy**
-
-1. Anote a URL gerada pelo Vercel (ex: `https://spy-amk.vercel.app`)
-2. Teste os endpoints:
-
+#### **Localmente (.env):**
 ```bash
-# Teste de conectividade
-curl https://sua-app.vercel.app/api/get-history?userId=test
-
-# Deve retornar algo como:
-{
-  "success": true,
-  "usuario_id": "test",
-  "total_produtos": 0,
-  "historico": {}
-}
+DATABASE_URL=postgresql://postgres.xxx:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+NODE_ENV=development
 ```
 
----
+### **3. Estrutura da Tabela**
+```sql
+CREATE TABLE position_tracking (
+    id SERIAL PRIMARY KEY,
+    asin VARCHAR(20) NOT NULL,
+    titulo_produto VARCHAR(200),
+    termo_pesquisa VARCHAR(100),
+    usuario_id VARCHAR(50) NOT NULL,
+    data DATE NOT NULL,
+    posicao INTEGER NOT NULL,
+    timestamp BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(asin, usuario_id, data)
+);
+```
 
-## 🛠️ Endpoints da API
+## **🔗 ENDPOINTS DA API**
 
-### **POST /api/save-position**
-Salva posição de um produto
+### **1. Salvar Posição**
+```
+POST /api/save-position
+```
 
 **Body:**
 ```json
 {
-  "asin": "B08ABC123",
-  "titulo": "Produto Exemplo",
-  "posicao": 5,
-  "termoPesquisa": "mouse gamer",
-  "userId": "user_abc123"
+    "asin": "B08ABC123",
+    "titulo": "Mouse Gamer RGB LED",
+    "posicao": 5,
+    "termoPesquisa": "mouse gamer",
+    "userId": "user_abc123"
 }
 ```
 
-### **GET /api/get-history**
-Busca histórico de posições
+**Resposta:**
+```json
+{
+    "success": true,
+    "message": "Posição salva com sucesso",
+    "asin": "B08ABC123",
+    "posicao": 5,
+    "data": "2024-01-15",
+    "record": { ... }
+}
+```
 
-**Query Params:**
-- `userId` (obrigatório)
-- `asin` (opcional - para produto específico)
-- `limit` (opcional - padrão: 30)
+### **2. Buscar Histórico**
+```
+GET /api/get-history?userId=user_abc123&asin=B08ABC123&dias=30
+```
 
-### **POST /api/sync-data**
-Sincronização em lote
+**Parâmetros:**
+- `userId` (obrigatório): ID do usuário
+- `asin` (opcional): ASIN específico do produto
+- `dias` (opcional): Últimos N dias (padrão: 30)
+
+**Resposta:**
+```json
+{
+    "success": true,
+    "asin": "B08ABC123",
+    "userId": "user_abc123",
+    "dias": 30,
+    "total": 15,
+    "tendencia": "subiu",
+    "historico": [
+        {
+            "asin": "B08ABC123",
+            "titulo": "Mouse Gamer RGB LED",
+            "termo": "mouse gamer",
+            "data": "2024-01-15",
+            "posicao": 3,
+            "timestamp": 1705334400000
+        }
+    ]
+}
+```
+
+### **3. Sincronização em Lote**
+
+#### **UPLOAD (Local → Nuvem):**
+```
+POST /api/sync-data
+```
 
 **Body:**
 ```json
 {
-  "userId": "user_abc123",
-  "historico": { ... },
-  "action": "merge"
+    "userId": "user_abc123",
+    "dados": [
+        {
+            "asin": "B08ABC123",
+            "titulo": "Mouse Gamer",
+            "termo": "mouse gamer",
+            "historico": [
+                {
+                    "data": "2024-01-15",
+                    "posicao": 5,
+                    "timestamp": 1705334400000
+                }
+            ]
+        }
+    ]
 }
 ```
 
----
-
-## 🔌 Configurar na Extensão
-
-### 1. **Configurar URL da API**
-
-1. Carregue qualquer página da Amazon
-2. Aguarde a extensão carregar
-3. Clique no botão **"☁️ SYNC CLOUD"** nos cards de estatísticas
-4. Clique em **"🔧 Configurar API"**
-5. Cole a URL do Vercel: `https://sua-app.vercel.app`
-
-### 2. **Testar Sincronização**
-
-1. No painel de sync, clique **"☁️ Sincronizar Tudo"**
-2. Verifique os logs de sincronização
-3. Status deve mostrar "✅ API Configurada"
-
----
-
-## 📊 Estrutura do Banco (MongoDB)
-
-### **Collection: position_tracking**
-
-```javascript
-{
-  _id: ObjectId(),
-  asin: "B08ABC123",
-  titulo_produto: "Mouse Gamer RGB...",
-  termo_pesquisa: "mouse gamer",
-  usuario_id: "user_abc123",
-  historico: [
-    {
-      data: "2024-01-15",      // YYYY-MM-DD
-      posicao: 5,              // Posição na busca
-      timestamp: 1705334400000 // Unix timestamp
-    }
-  ],
-  created_at: ISODate(),
-  updated_at: ISODate()
-}
+#### **DOWNLOAD (Nuvem → Local):**
+```
+GET /api/sync-data?userId=user_abc123&ultimaSync=1705334400000
 ```
 
+## **🚀 DEPLOY NO VERCEL**
+
+### **1. Instalar Vercel CLI**
+```bash
+npm install -g vercel
+```
+
+### **2. Configurar Variáveis**
+```bash
+vercel env add DATABASE_URL
+# Cole sua connection string do Supabase
+```
+
+### **3. Deploy**
+```bash
+vercel --prod
+```
+
+### **4. Verificar Deploy**
+```bash
+curl https://seu-projeto.vercel.app/api/save-position \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"asin":"TEST123","posicao":1,"userId":"test"}'
+```
+
+## **🔧 VANTAGENS DO SUPABASE**
+
+### **✅ Benefícios sobre MongoDB Atlas:**
+- 🚀 **Mais rápido** - Latência menor com Vercel
+- 🔧 **Mais simples** - SQL familiar 
+- 💰 **Mais barato** - Plano gratuito generoso
+- 🛡️ **Mais confiável** - Menos timeouts
+- 📊 **Dashboard melhor** - Interface mais intuitiva
+- 🔍 **Queries mais fáceis** - SQL vs agregações MongoDB
+
+### **📊 Plano Gratuito:**
+- 500MB de armazenamento
+- 2GB de transferência
+- 50.000 requisições mensais
+- Autenticação incluída
+
+## **🐛 TROUBLESHOOTING**
+
+### **Erro de Conexão:**
+```bash
+# Verificar se URL está correta
+echo $DATABASE_URL
+
+# Testar conexão local
+psql $DATABASE_URL -c "SELECT version();"
+```
+
+### **Tabela não existe:**
+A API cria automaticamente a tabela na primeira execução.
+
+### **SSL Error:**
+A configuração `ssl: { rejectUnauthorized: false }` já está incluída.
+
+## **📈 PRÓXIMOS PASSOS**
+
+1. ✅ API funcionando com Supabase
+2. 🔄 Testar sincronização completa
+3. 📱 Implementar notificações
+4. 📊 Dashboard de analytics
+5. 🔐 Sistema de autenticação
+6. 🚀 Otimizações de performance
+
 ---
-
-## 🐛 Troubleshooting
-
-### **Erro de CORS**
-- Verificar se headers estão configurados no `vercel.json`
-- Testar com `curl` para confirmar API funcionando
-
-### **Erro de Conexão MongoDB**
-- Verificar se `MONGODB_URI` está correta nas env vars
-- Confirmar se IP está whitelistado no MongoDB Atlas (usar 0.0.0.0/0 para permitir todos)
-
-### **API não responde**
-- Verificar logs no dashboard do Vercel
-- Confirmar se arquivo `package.json` está correto
-- Verificar se functions estão sendo buildadas
-
-### **Extensão não conecta**
-- Verificar se URL está correta (sem / no final)
-- Abrir DevTools e verificar erros de console
-- Testar endpoint manualmente primeiro
-
----
-
-## 📈 Recursos do Sistema Híbrido
-
-### **Funcionalidades**
-
-✅ **Tracking Local**: Sempre funciona, mesmo offline  
-✅ **Sync Automático**: Sincroniza quando online  
-✅ **Merge Inteligente**: Combina dados local + nuvem  
-✅ **Fila Offline**: Guarda dados para sync posterior  
-✅ **Fingerprint Anônimo**: Identifica usuário sem dados pessoais  
-✅ **Rate Limiting**: Evita sobrecarga da API  
-
-### **Vantagens**
-
-- 🔒 **Privacidade**: Fingerprint anônimo, sem dados pessoais
-- ⚡ **Performance**: Cache local + sync inteligente
-- 🌐 **Offline-First**: Funciona sem internet
-- 📱 **Cross-Device**: Dados sincronizados entre dispositivos
-- 💰 **Custo Zero**: MongoDB Atlas + Vercel gratuitos
-
----
-
-## 🎯 Próximos Passos
-
-1. **Deploy da API** ✅
-2. **Configurar na extensão** 
-3. **Testar sincronização**
-4. **Monitorar uso no MongoDB Atlas**
-5. **Configurar alertas no Vercel (opcional)**
-
----
-
-**🚀 Após configurar tudo, você terá um sistema completo de tracking com backup na nuvem!** 
+**🎯 API Pronta para Produção com Supabase!** 
