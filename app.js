@@ -38,10 +38,10 @@ class AppController {
         modal.innerHTML = ModalBuilder.criarModal();
         document.body.appendChild(modal);
         
-        // Mostrar informação sobre análise
+        // ESCONDER informação sobre análise quando há produtos
         const infoAnalise = document.getElementById('info-analise');
         if (infoAnalise) {
-            infoAnalise.style.display = 'block';
+            infoAnalise.style.display = 'none';
         }
         
         // Mostrar tabela com produtos
@@ -94,16 +94,7 @@ class AppController {
             });
         }
         
-        // Botão teste eventos
-        const btnTesteEventos = document.getElementById('btn-teste-eventos');
-        console.log('Botão teste eventos encontrado:', !!btnTesteEventos);
-        if (btnTesteEventos) {
-            btnTesteEventos.addEventListener('click', () => {
-                console.log('🔧 Forçando reconfiguração dos eventos...');
-                TableManager.forcarReconfiguracaoEventos();
-                NotificationManager.sucesso('Eventos reconfigurados! Tente copiar ASIN ou clicar em BSR agora.');
-            });
-        }
+        // Botão teste eventos removido - função integrada automaticamente
         
         // Botão fechar
         const btnFechar = document.querySelector('#amazon-analyzer-modal button[title="Fechar"]');
@@ -117,15 +108,13 @@ class AppController {
         console.log('✅ Eventos do modal configurados');
     }
 
-    static async iniciarAnalise(tipo) {
+    static async iniciarAnaliseBackground(tipo) {
         try {
             // Armazenar tipo de análise
             this.tipoAnaliseAnterior = tipo;
             
-            // Não precisamos mais ocultar opções, já que elas não existem mais
-            
-            // Mostrar loading inicial
-            this.mostrarLoadingInicial();
+            // Executar análise em background sem mostrar modal
+            console.log(`🔄 Iniciando análise ${tipo} em background...`);
             
             let produtos = [];
             
@@ -144,34 +133,36 @@ class AppController {
                 return;
             }
             
-            // Armazenar produtos para reutilização
+            // Armazenar produtos para reutilização (SEM criar tabela automaticamente)
             this.produtosArmazenados = produtos;
             window.produtosTabela = produtos;
             
-            // Criar tabela imediatamente com produtos básicos
-            const conteudoTabela = document.getElementById('conteudo-tabela');
-            if (conteudoTabela) {
-                conteudoTabela.style.display = 'block';
-                conteudoTabela.innerHTML = TableManager.criarTabelaProdutos(produtos);
-            }
+            console.log(`✅ Análise ${tipo} concluída! ${produtos.length} produtos encontrados.`);
+            NotificationManager.sucesso(`Análise concluída! ${produtos.length} produtos encontrados. Use "Abrir/Fechar Tabela" para visualizar.`);
             
-            // Configurar produtos no FilterManager
-            TableManager.filterManager.setProdutos(produtos);
-            
-            // Inicializar eventos da tabela com limpeza forçada
-            TableManager.inicializarEventos(true);
-            
-            // Ocultar loading inicial
-            this.ocultarLoadingInicial();
-            
-            // Iniciar busca automática em background
-            this.iniciarBuscaAutomatica(produtos);
+            // Iniciar busca automática em background (sem mostrar tabela)
+            this.iniciarBuscaAutomaticaBackground(produtos);
             
         } catch (error) {
             console.error('Erro na análise:', error);
             NotificationManager.erro('Erro ao analisar produtos.');
             this.ocultarLoadingInicial();
             this.mostrarOpcoesAnalise();
+        }
+    }
+
+    static async iniciarBuscaAutomaticaBackground(produtos) {
+        console.log('🚀 Iniciando busca automática em background...');
+        
+        try {
+            // Executar em background sem mostrar loading
+            await ProductAnalyzer.buscarDetalhesEmParalelo(produtos, null);
+            await ProductAnalyzer.buscarMarcasFaltantes(produtos, null);
+            
+            console.log('✅ Busca automática em background concluída');
+            
+        } catch (error) {
+            console.error('Erro na busca automática em background:', error);
         }
     }
 

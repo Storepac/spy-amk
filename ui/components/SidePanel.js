@@ -453,8 +453,9 @@ class SidePanel {
         
         setTimeout(() => {
             if (typeof AppController !== 'undefined') {
-                AppController.iniciarAnalise(tipo === 'rapida' ? 'rapida' : 'todas');
-                this.showStatus(`Análise ${tipo} iniciada com sucesso!`, 'success');
+                // Executar análise sem abrir tabela automaticamente
+                AppController.iniciarAnaliseBackground(tipo === 'rapida' ? 'rapida' : 'todas');
+                this.showStatus(`Análise ${tipo} concluída! Use "Abrir/Fechar Tabela" para ver os resultados.`, 'success');
             } else {
                 this.showStatus('Erro: Componentes não carregados', 'error');
             }

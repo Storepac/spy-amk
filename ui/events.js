@@ -113,7 +113,7 @@ class EventManagerLegacy {
             " onmouseover="this.style.background='linear-gradient(135deg, #013935, #012925)'"
                onmouseout="this.style.background='linear-gradient(135deg, #014641, #013935)'"
             >
-                🔍 AMK spy
+                📊 Abrir Pesquisa
             </button>
         `;
         
