@@ -10,18 +10,13 @@ class TableManager {
     static criarTabelaProdutos(produtos) {
         window.produtosTabela = produtos;
         
-        // Inicializar componentes na ordem correta
-        console.log('🔧 Inicializando componentes...');
-        
-        // 1. Primeiro inicializar o FilterManager com os produtos
+        // Inicializar o FilterManager com os produtos
         if (this.filterManager) {
-            console.log('📊 Configurando FilterManager com', produtos.length, 'produtos');
             this.filterManager.setProdutos(produtos);
         }
         
-        // 2. Depois inicializar o StatsManager com os produtos
+        // Inicializar StatsManager se disponível (sem interferir nos filtros)
         if (window.StatsManager) {
-            console.log('📊 Configurando StatsManager com', produtos.length, 'produtos');
             setTimeout(() => {
                 window.StatsManager.inicializar(produtos);
             }, 100);
@@ -141,10 +136,14 @@ class TableManager {
             // Configurar eventos dos botões da tabela
             this.configurarEventosBotoes();
             
-            // Configurar eventos do FilterManager (APENAS uma vez)
+            // Configurar eventos do FilterManager
             if (this.filterManager) {
-                console.log('🔧 Configurando eventos do FilterManager...');
                 this.filterManager.configurarEventos();
+            }
+            
+            // Configurar eventos do EventManager
+            if (this.eventManager) {
+                this.eventManager.inicializar();
             }
             
             // Executar segunda limpeza após eventos configurados para garantir estado correto
