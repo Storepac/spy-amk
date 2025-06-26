@@ -39,6 +39,7 @@
           "ui/components/EventManager.js",
           "ui/components/StatsManager.js",
           "ui/components/PositionTracker.js",
+          "ui/components/SyncPanel.js",
           "ui/components/SidePanel.js",
             "ui/table.js",
             "ui/events.js",

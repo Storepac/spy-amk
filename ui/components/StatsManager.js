@@ -165,12 +165,29 @@ class StatsManager {
                         <div style="font-size: 8px; color: #ef4444; font-weight: 600;">↘️ DESCENDO</div>
                         <div style="font-size: 10px; font-weight: 600; color: #ef4444;">${trackingStats.produtosDescendo}</div>
                     </div>
-                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-light); padding: 6px; border-radius: 4px; text-align: center;">
-                        <div style="font-size: 8px; color: #3b82f6; font-weight: 600;">🆕 NOVOS</div>
-                        <div style="font-size: 10px; font-weight: 600; color: #3b82f6;">${trackingStats.produtosNovos}</div>
-                    </div>
-                </div>
-            </div>
+                                         <div style="background: var(--bg-secondary); border: 1px solid var(--border-light); padding: 6px; border-radius: 4px; text-align: center;">
+                         <div style="font-size: 8px; color: #3b82f6; font-weight: 600;">🆕 NOVOS</div>
+                         <div style="font-size: 10px; font-weight: 600; color: #3b82f6;">${trackingStats.produtosNovos}</div>
+                     </div>
+                 </div>
+                 
+                 <!-- Botão Sync Cloud -->
+                 <div style="margin-top: 6px; text-align: center;">
+                     <button onclick="window.SyncPanel?.show()" style="
+                         background: linear-gradient(135deg, #6366f1, #4f46e5);
+                         color: white;
+                         border: none;
+                         padding: 4px 8px;
+                         border-radius: 4px;
+                         font-size: 9px;
+                         font-weight: 600;
+                         cursor: pointer;
+                         transition: all 0.2s;
+                     " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" title="Abrir painel de sincronização na nuvem">
+                         ☁️ SYNC CLOUD
+                     </button>
+                 </div>
+             </div>
         `;
     }
 
