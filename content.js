@@ -16,6 +16,7 @@ function verificarComponentes() {
         'NotificationManager',
         'EventManager',
         'ThemeManager',
+        'StatsManager',
         'SidePanel'
     ];
     
@@ -184,6 +185,7 @@ window.diagnosticoAMKSpy = function() {
     console.log('  NotificationManager:', typeof NotificationManager !== 'undefined');
     console.log('  EventManager:', typeof EventManager !== 'undefined');
     console.log('  ThemeManager:', typeof ThemeManager !== 'undefined');
+    console.log('  StatsManager:', typeof StatsManager !== 'undefined');
 };
 
 // Funcionalidade do popup removida - agora usamos o painel lateral

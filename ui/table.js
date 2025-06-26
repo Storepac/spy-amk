@@ -10,6 +10,23 @@ class TableManager {
     static criarTabelaProdutos(produtos) {
         window.produtosTabela = produtos;
         
+        // Inicializar componentes na ordem correta
+        console.log('🔧 Inicializando componentes...');
+        
+        // 1. Primeiro inicializar o FilterManager com os produtos
+        if (this.filterManager) {
+            console.log('📊 Configurando FilterManager com', produtos.length, 'produtos');
+            this.filterManager.setProdutos(produtos);
+        }
+        
+        // 2. Depois inicializar o StatsManager com os produtos
+        if (window.StatsManager) {
+            console.log('📊 Configurando StatsManager com', produtos.length, 'produtos');
+            setTimeout(() => {
+                window.StatsManager.inicializar(produtos);
+            }, 100);
+        }
+        
         return `
             <!-- Contador e Filtros -->
                     <div style="
@@ -124,14 +141,10 @@ class TableManager {
             // Configurar eventos dos botões da tabela
             this.configurarEventosBotoes();
             
-            // Configurar eventos do FilterManager
+            // Configurar eventos do FilterManager (APENAS uma vez)
             if (this.filterManager) {
+                console.log('🔧 Configurando eventos do FilterManager...');
                 this.filterManager.configurarEventos();
-            }
-            
-            // Configurar eventos do EventManager
-            if (this.eventManager) {
-                this.eventManager.inicializar();
             }
             
             // Executar segunda limpeza após eventos configurados para garantir estado correto
@@ -351,16 +364,24 @@ class TableManager {
     }
 
     static atualizarTabelaComFiltros(produtosFiltrados) {
+        console.log('🔄 TableManager.atualizarTabelaComFiltros() iniciado com', produtosFiltrados.length, 'produtos');
+        
         const tbody = document.querySelector('#tabela-produtos tbody');
-        if (!tbody) return;
+        if (!tbody) {
+            console.error('❌ Tbody da tabela não encontrado');
+            return;
+        }
 
         // Aplicar ordenação se necessário
         const produtosOrdenados = this.filterManager.aplicarOrdenacao(produtosFiltrados);
+        console.log('📊 Produtos após ordenação:', produtosOrdenados.length);
         
         // Recriar linhas da tabela
         tbody.innerHTML = produtosOrdenados.map((produto, index) => 
             TableRowBuilder.criarLinhaProduto(produto, index)
         ).join('');
+        
+        console.log('✅ Tabela atualizada com', produtosOrdenados.length, 'produtos');
         
         // Aguardar um pouco para garantir que o DOM foi atualizado
             setTimeout(() => {

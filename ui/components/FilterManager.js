@@ -56,10 +56,31 @@ class FilterManager {
     }
 
     aplicarFiltros() {
+        console.log('🔄 FilterManager.aplicarFiltros() iniciado');
+        console.log('📦 Produtos disponíveis:', this.produtos.length);
+        
         this.atualizarFiltros();
-        const produtosFiltrados = this.filtrarProdutos();
+        console.log('🔍 Filtros atualizados:', this.filtros);
+        
+        let produtosFiltrados = this.filtrarProdutos();
+        console.log('✅ Produtos filtrados:', produtosFiltrados.length);
+        
+        // Aplicar ordenação se necessário
+        produtosFiltrados = this.aplicarOrdenacao(produtosFiltrados);
+        
+        // Atualizar tabela
         TableManager.atualizarTabelaComFiltros(produtosFiltrados);
         this.atualizarContador(produtosFiltrados.length);
+        
+        // Sincronizar estatísticas com os filtros aplicados
+        if (window.StatsManager) {
+            console.log('📊 Sincronizando estatísticas com', produtosFiltrados.length, 'produtos filtrados');
+            window.StatsManager.sincronizarComFiltros(produtosFiltrados);
+        } else {
+            console.warn('⚠️ StatsManager não disponível');
+        }
+        
+        console.log('✅ FilterManager.aplicarFiltros() concluído');
     }
 
     atualizarFiltros() {
@@ -240,6 +261,12 @@ class FilterManager {
         if (this.produtos && this.produtos.length > 0) {
             TableManager.atualizarTabelaComFiltros(this.produtos);
             this.atualizarContador(this.produtos.length);
+            
+            // Sincronizar estatísticas quando filtros são limpos
+            if (window.StatsManager) {
+                window.StatsManager.sincronizarComFiltros(this.produtos);
+            }
+            
             NotificationManager.sucesso('Filtros limpos!');
         } else {
             console.warn('⚠️ Nenhum produto disponível para limpar filtros');
@@ -259,6 +286,8 @@ class FilterManager {
     }
 
     configurarEventos() {
+        console.log('🔧 FilterManager: Configurando eventos...');
+        
         // Evento para campo customizado BSR
         const filtroBSRFaixa = document.getElementById('filtro-bsr-faixa');
         if (filtroBSRFaixa) {
@@ -268,6 +297,7 @@ class FilterManager {
                     customBSR.style.display = e.target.value === 'custom' ? 'flex' : 'none';
                 }
             });
+            console.log('✅ Evento BSR customizado configurado');
         }
 
         // Eventos para aplicar filtros automaticamente
@@ -276,15 +306,56 @@ class FilterManager {
             'filtro-vendas', 'filtro-bsr-faixa', 'filtro-bsr-min', 'filtro-bsr-max', 'filtro-tipo', 'filtro-posicao'
         ];
 
+        let eventosConfigurados = 0;
         camposFiltro.forEach(id => {
             const elemento = document.getElementById(id);
             if (elemento) {
-                elemento.addEventListener('change', () => this.aplicarFiltros());
+                // Remover eventos anteriores se existirem
+                elemento.removeEventListener('change', this.aplicarFiltros);
+                elemento.removeEventListener('input', this.aplicarFiltros);
+                
+                // Adicionar novos eventos com bind correto
+                const handlerChange = () => {
+                    console.log(`🔄 Filtro ${id} alterado, aplicando filtros...`);
+                    this.aplicarFiltros();
+                };
+                
+                const handlerInput = () => {
+                    console.log(`🔄 Input ${id} alterado, aplicando filtros...`);
+                    this.aplicarFiltros();
+                };
+                
+                elemento.addEventListener('change', handlerChange.bind(this));
+                
                 if (elemento.tagName === 'INPUT') {
-                    elemento.addEventListener('input', () => this.aplicarFiltros());
+                    elemento.addEventListener('input', handlerInput.bind(this));
                 }
+                eventosConfigurados++;
+            } else {
+                console.warn(`⚠️ Elemento ${id} não encontrado`);
             }
         });
+        
+        console.log(`✅ FilterManager: ${eventosConfigurados} eventos configurados com sucesso`);
+        
+        // Testar um filtro automaticamente para debug
+        setTimeout(() => {
+            console.log('🔍 Teste: Aplicando filtros automaticamente...');
+            this.aplicarFiltros();
+        }, 500);
+    }
+
+    // Método de teste para debug
+    testarFiltros() {
+        console.log('🧪 Testando filtros:');
+        console.log('  - Produtos:', this.produtos.length);
+        console.log('  - Filtros ativos:', this.filtros);
+        console.log('  - DOM filtros:', {
+            'busca-nome': document.getElementById('busca-nome')?.value,
+            'filtro-preco': document.getElementById('filtro-preco')?.value,
+            'filtro-marca': document.getElementById('filtro-marca')?.value
+        });
+        this.aplicarFiltros();
     }
 
     static criarFiltros() {

@@ -321,8 +321,8 @@ class ModalBuilder {
 
     static criarBotoesFiltro() {
         return `
-            <button onclick="TableManager.aplicarFiltros()" id="btn-aplicar-filtros" style="${this.getEstilosBotaoFiltro('#014641')}">🔍 Filtrar</button>
-            <button onclick="TableManager.limparFiltros()" id="btn-limpar-filtros" style="${this.getEstilosBotaoFiltro('#6b7280')}">🗑️ Limpar</button>
+            <button onclick="TableManager.filterManager.aplicarFiltros()" id="btn-aplicar-filtros" style="${this.getEstilosBotaoFiltro('#014641')}">🔍 Filtrar</button>
+            <button onclick="TableManager.filterManager.limparFiltros()" id="btn-limpar-filtros" style="${this.getEstilosBotaoFiltro('#6b7280')}">🗑️ Limpar</button>
         `;
     }
 
@@ -528,18 +528,27 @@ class ModalBuilder {
                         border-bottom: 2px solid var(--border-light);
                     ">
                         <div style="display: flex; align-items: center; gap: 15px;">
-                            <div style="
-                                width: 40px; 
-                                height: 40px; 
-                                border-radius: 8px; 
-                                background: linear-gradient(135deg, #014641, #013935);
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                font-size: 18px;
-                                color: white;
-                                font-weight: bold;
-                            ">📊</div>
+                            ${logoSrc ? `
+                                <img src="${logoSrc}" style="
+                                    width: 40px; 
+                                    height: 40px; 
+                                    border-radius: 8px;
+                                    object-fit: contain;
+                                " alt="AMK Spy Logo">
+                            ` : `
+                                <div style="
+                                    width: 40px; 
+                                    height: 40px; 
+                                    border-radius: 8px; 
+                                    background: linear-gradient(135deg, #014641, #013935);
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 18px;
+                                    color: white;
+                                    font-weight: bold;
+                                ">📊</div>
+                            `}
                             <div>
                                 <h1 style="
                                     margin: 0;
@@ -559,6 +568,7 @@ class ModalBuilder {
                                 ">Analisador Avançado de Produtos Amazon</p>
                             </div>
                         </div>
+                        
                         
                         <div style="display: flex; gap: 10px;">
                             <button id="btn-tema" style="
