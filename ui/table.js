@@ -81,7 +81,7 @@ class TableManager {
                             background: var(--bg-primary);
                         border-bottom: 2px solid var(--border-light);
                     ">
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">#</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Posição na pesquisa da Amazon">🏆 Posição</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Imagem</th>
                         <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Título</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">ASIN</th>
@@ -94,7 +94,6 @@ class TableManager {
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">BSR</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Categoria</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Tipo</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Posição na pesquisa da Amazon">🏆 Posição</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Página</th>
                                     </tr>
                                 </thead>
@@ -198,7 +197,7 @@ class TableManager {
                     
                     if (asin && asin !== 'N/A') {
                         this.copiarASIN(asin);
-                    } else {
+            } else {
                         NotificationManager.erro('ASIN inválido para copiar.');
                     }
                 };
@@ -261,7 +260,7 @@ class TableManager {
             // Limpar filtros no FilterManager
             if (this.filterManager && typeof this.filterManager.limparFiltros === 'function') {
                 this.filterManager.limparFiltros();
-            } else {
+        } else {
                 console.error('❌ FilterManager não disponível ou método limparFiltros não encontrado');
                 NotificationManager.erro('Erro ao limpar filtros.');
             }
@@ -278,7 +277,7 @@ class TableManager {
             // Exportar dados via ExportManager
             if (this.exportManager && typeof this.exportManager.exportarDados === 'function') {
                 this.exportManager.exportarDados();
-            } else {
+                } else {
                 console.error('❌ ExportManager não disponível ou método exportarDados não encontrado');
                 NotificationManager.erro('Erro ao exportar dados.');
             }
@@ -297,7 +296,7 @@ class TableManager {
         }
         
         // Aguardar um pouco e reconfigurar todos os eventos
-        setTimeout(() => {
+                setTimeout(() => {
             this.configurarEventosCopiarASIN();
             this.configurarEventosBSR();
             this.configurarEventosBotoes();
@@ -307,7 +306,7 @@ class TableManager {
             }
             
             console.log('✅ Reconfiguração forçada concluída');
-        }, 300);
+                }, 300);
     }
 
     static atualizarTabelaComFiltros(produtosFiltrados) {
@@ -323,7 +322,7 @@ class TableManager {
         ).join('');
         
         // Aguardar um pouco para garantir que o DOM foi atualizado
-        setTimeout(() => {
+            setTimeout(() => {
             // Reconfigurar eventos
             this.configurarEventosCopiarASIN();
             this.configurarEventosBSR();
@@ -372,7 +371,7 @@ class TableManager {
         const mostrarFeedback = (sucesso) => {
             if (sucesso) {
                 NotificationManager.sucesso(`ASIN ${asin} copiado para a área de transferência!`);
-            } else {
+        } else {
                 NotificationManager.erro('Erro ao copiar ASIN. Tente novamente.');
             }
         };
@@ -441,7 +440,7 @@ class TableManager {
             if (sucesso) {
                 console.log('✅ ASIN copiado com sucesso via legacy');
                 mostrarFeedback(true);
-            } else {
+                } else {
                 console.log('❌ Todos os métodos de cópia falharam');
                 mostrarFeedback(false);
             }

@@ -399,4 +399,4 @@ class AppController {
     }
 }
 
-window.AppController = AppController;
+window.AppController = AppController; 
