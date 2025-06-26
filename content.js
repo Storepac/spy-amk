@@ -7,27 +7,27 @@ if (window.amkSpyContentInicializado) {
 } else {
     window.amkSpyContentInicializado = true;
 
-    // Função para verificar se todos os componentes estão carregados
-    function verificarComponentes() {
-        const componentes = [
-            'AppController',
-            'TableManager', 
-            'ProductAnalyzer',
-            'NotificationManager',
-            'EventManager',
-            'ThemeManager'
-        ];
-        
-        const faltando = componentes.filter(comp => typeof window[comp] === 'undefined');
-        
-        if (faltando.length > 0) {
-            console.warn('⚠️ Componentes não carregados:', faltando);
-            return false;
-        }
-        
-        console.log('✅ Todos os componentes carregados com sucesso');
-        return true;
+// Função para verificar se todos os componentes estão carregados
+function verificarComponentes() {
+    const componentes = [
+        'AppController',
+        'TableManager', 
+        'ProductAnalyzer',
+        'NotificationManager',
+        'EventManager',
+        'ThemeManager'
+    ];
+    
+    const faltando = componentes.filter(comp => typeof window[comp] === 'undefined');
+    
+    if (faltando.length > 0) {
+        console.warn('⚠️ Componentes não carregados:', faltando);
+        return false;
     }
+    
+    console.log('✅ Todos os componentes carregados com sucesso');
+    return true;
+}
 
     // Função para tentar carregar componentes com retry
     function tentarCarregarComponentes(maxTentativas = 5, intervalo = 1000) {
@@ -98,34 +98,34 @@ if (window.amkSpyContentInicializado) {
         }, 10000);
     }
 
-    // Função para inicializar a aplicação
-    function inicializarAplicacao() {
-        console.log('🚀 Inicializando AMK Spy...');
+// Função para inicializar a aplicação
+function inicializarAplicacao() {
+    console.log('🚀 Inicializando AMK Spy...');
+    
+    // Verificar se estamos em uma página de pesquisa da Amazon
+    if (window.location.href.includes('/s?') || window.location.href.includes('/s/')) {
+        console.log('📊 Página de pesquisa detectada');
         
-        // Verificar se estamos em uma página de pesquisa da Amazon
-        if (window.location.href.includes('/s?') || window.location.href.includes('/s/')) {
-            console.log('📊 Página de pesquisa detectada');
-            
-            // Aguardar um pouco para garantir que a página carregou completamente
-            setTimeout(() => {
-                if (verificarComponentes()) {
-                    AppController.init();
-                } else {
-                    console.error('❌ Falha ao carregar componentes necessários');
+        // Aguardar um pouco para garantir que a página carregou completamente
+        setTimeout(() => {
+            if (verificarComponentes()) {
+                AppController.init();
+            } else {
+                console.error('❌ Falha ao carregar componentes necessários');
                     mostrarErroCarregamento();
-                }
-            }, 1000);
-        } else {
-            console.log('ℹ️ Não é uma página de pesquisa da Amazon');
-        }
+            }
+        }, 1000);
+    } else {
+        console.log('ℹ️ Não é uma página de pesquisa da Amazon');
     }
+}
 
-    // Inicializar quando DOM estiver pronto
-    if (document.readyState === 'loading') {
+// Inicializar quando DOM estiver pronto
+if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             tentarCarregarComponentes();
         });
-    } else {
+} else {
         tentarCarregarComponentes();
     }
 }
