@@ -552,10 +552,11 @@ class SupabaseManager {
             console.log(`- Produtos novos (${produtosNovos.length}):`, produtosNovos.slice(0, 3).map(p => ({ asin: p.asin, isNovo: p.isNovo })));
             console.log(`- Produtos existentes (${produtosExistentes.length}):`, produtosExistentes.slice(0, 3).map(p => ({ asin: p.asin, isNovo: p.isNovo })));
             
-            const analiseTradicional = {
+            // Será atualizado depois da combinação
+            let analiseTradicional = {
                 produtos_novos: produtosNovos,
                 produtos_existentes: produtosExistentes,
-                produtos_combinados: todosProdutos,
+                produtos_combinados: todosProdutos, // Temporário
                 estatisticas: {
                     total_amazon: produtosValidos.length,
                     total_salvos: totalSalvos,
@@ -603,7 +604,12 @@ class SupabaseManager {
             // 5.2. Buscar tendências do servidor e aplicar aos produtos combinados
             await this.aplicarTendenciasAosProdutos(produtosCombinados, termoPesquisa);
             
-            // 6. Mostrar notificação
+            // 5.3. Atualizar análise com produtos combinados
+            analiseTradicional.produtos_combinados = produtosCombinados;
+            analiseTradicional.estatisticas.total_combinado = produtosCombinados.length;
+            analiseTradicional.estatisticas.do_banco = produtosDoBanco.length;
+            
+            // 6. Mostrar notificação atualizada
             this.mostrarNotificacaoAnalise(analiseTradicional.estatisticas);
             
             return {
@@ -650,8 +656,17 @@ class SupabaseManager {
         if (typeof NotificationManager !== 'undefined') {
             const emoji = stats.novos > 0 ? '🆕' : '📊';
             const metodo = stats.metodo === 'tradicional' ? ' (tradicional)' : '';
-            const mensagem = `${emoji} Análise${metodo}!\n✨ ${stats.novos} produtos novos\n📍 ${stats.existentes} já conhecidos\n📊 Posições ${stats.posicao_range}`;
-            NotificationManager.sucesso(mensagem, 5000);
+            
+            let mensagem = `${emoji} Análise${metodo}!\n✨ ${stats.novos} produtos novos\n📍 ${stats.existentes} já conhecidos`;
+            
+            // Adicionar info de produtos combinados se disponível
+            if (stats.total_combinado && stats.do_banco !== undefined) {
+                mensagem += `\n🔗 ${stats.total_combinado} produtos total (${stats.do_banco} do banco)`;
+            }
+            
+            mensagem += `\n📊 Posições ${stats.posicao_range}`;
+            
+            NotificationManager.sucesso(mensagem, 6000);
         }
     }
 
@@ -873,8 +888,8 @@ class SupabaseManager {
                 );
             }
             
-            // Limitar a 20 produtos para não sobrecarregar
-            produtosFiltrados = produtosFiltrados.slice(0, 20);
+            // Limitar a 100 produtos para mostrar mais resultados
+            produtosFiltrados = produtosFiltrados.slice(0, 100);
             
             // Marcar como produtos do banco
             produtosFiltrados.forEach(produto => {
