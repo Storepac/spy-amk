@@ -801,7 +801,7 @@ class SupabaseManager {
             };
             console.log(`📤 Enviando request:`, requestBody);
             
-            const response = await fetch(`${this.apiBaseUrl}/api/get-products-simple`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/get-products`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody)

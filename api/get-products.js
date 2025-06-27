@@ -35,22 +35,22 @@ module.exports = async (req, res) => {
     let query;
     let params;
 
-            if (termoPesquisa && incluirSimilares) {
-            // Busca inteligente: termo exato + similares
-            const palavras = termoPesquisa.toLowerCase().split(' ').filter(p => p.length > 2);
-            const condicoesBusca = palavras.map((_, index) => `LOWER(titulo) LIKE $${index + 2}`).join(' OR ');
-            
-            query = `
-                SELECT DISTINCT asin, titulo, preco, avaliacao, num_avaliacoes, categoria, marca, bsr, 
-                       created_at, updated_at
-                FROM produtos 
-                WHERE usuario_id = $1 
-                AND (${condicoesBusca})
-                ORDER BY updated_at DESC
-                LIMIT $${palavras.length + 2}
-            `;
-            
-            params = [userId, ...palavras.map(p => `%${p}%`), limite];
+    if (termoPesquisa && incluirSimilares) {
+      // Busca inteligente: termo exato + similares
+      const palavras = termoPesquisa.toLowerCase().split(' ').filter(p => p.length > 2);
+      const condicoesBusca = palavras.map((_, index) => `LOWER(titulo) LIKE $${index + 2}`).join(' OR ');
+      
+      query = `
+        SELECT DISTINCT asin, titulo, preco, avaliacao, num_avaliacoes, categoria, marca, bsr, 
+               created_at, updated_at
+        FROM produtos 
+        WHERE usuario_id = $1 
+        AND (${condicoesBusca})
+        ORDER BY updated_at DESC
+        LIMIT $${palavras.length + 2}
+      `;
+      
+      params = [userId, ...palavras.map(p => `%${p}%`), limite];
       
     } else if (termoPesquisa) {
       // Busca simples por termo
