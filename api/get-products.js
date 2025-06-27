@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { userId, termoPesquisa, incluirSimilares = false, limite = 100 } = req.body || {};
+    const { userId, termoPesquisa, limite = 50 } = req.body || {};
     
     if (!userId) {
       return res.status(400).json({ 
@@ -32,55 +32,30 @@ module.exports = async (req, res) => {
 
     console.log(`🔍 Buscando produtos para ${userId}, termo: "${termoPesquisa}"`);
 
-    let query;
-    let params;
+    // Query simples para evitar erros
+    let query = `
+      SELECT asin, titulo, preco, avaliacao, num_avaliacoes, categoria, marca, bsr
+      FROM produtos 
+      WHERE usuario_id = $1
+    `;
+    let params = [userId];
 
-    if (termoPesquisa && incluirSimilares) {
-      // Busca inteligente: termo exato + similares
-      const palavras = termoPesquisa.toLowerCase().split(' ').filter(p => p.length > 2);
-      const condicoesBusca = palavras.map((_, index) => `LOWER(titulo) LIKE $${index + 2}`).join(' OR ');
-      
-      query = `
-        SELECT DISTINCT asin, titulo, preco, avaliacao, num_avaliacoes, categoria, marca, bsr, 
-               created_at, updated_at
-        FROM produtos 
-        WHERE usuario_id = $1 
-        AND (${condicoesBusca})
-        ORDER BY updated_at DESC
-        LIMIT $${palavras.length + 2}
-      `;
-      
-      params = [userId, ...palavras.map(p => `%${p}%`), limite];
-      
-    } else if (termoPesquisa) {
-      // Busca simples por termo
-      query = `
-        SELECT DISTINCT asin, titulo, preco, avaliacao, num_avaliacoes, categoria, marca, bsr,
-               created_at, updated_at
-        FROM produtos 
-        WHERE usuario_id = $1 
-        AND LOWER(titulo) LIKE $2
-        ORDER BY updated_at DESC
-        LIMIT $3
-      `;
-      params = [userId, `%${termoPesquisa.toLowerCase()}%`, limite];
-      
-    } else {
-      // Buscar todos os produtos do usuário
-      query = `
-        SELECT DISTINCT asin, titulo, preco, avaliacao, num_avaliacoes, categoria, marca, bsr,
-               created_at, updated_at
-        FROM produtos 
-        WHERE usuario_id = $1 
-        ORDER BY updated_at DESC
-        LIMIT $2
-      `;
-      params = [userId, limite];
+    // Se tem termo de pesquisa, filtrar
+    if (termoPesquisa) {
+      query += ` AND LOWER(titulo) LIKE $2`;
+      params.push(`%${termoPesquisa.toLowerCase()}%`);
     }
+
+    query += ` ORDER BY created_at DESC LIMIT ${limite}`;
+
+    console.log(`📊 Query: ${query}`);
+    console.log(`📋 Params: ${JSON.stringify(params)}`);
 
     const result = await pool.query(query, params);
     
-    // Formatar produtos para compatibilidade com o frontend
+    console.log(`📦 Resultado: ${result.rows.length} produtos encontrados`);
+
+    // Formatar produtos
     const produtos = result.rows.map(row => ({
       asin: row.asin,
       titulo: row.titulo,
@@ -94,18 +69,13 @@ module.exports = async (req, res) => {
       bsr: row.bsr || null,
       link: `https://www.amazon.com.br/dp/${row.asin}`,
       origem: 'banco',
-      isNovo: false,
-      dataUltimaAtualizacao: row.updated_at,
-      dataCriacao: row.created_at
+      isNovo: false
     }));
-
-    console.log(`📦 Encontrados ${produtos.length} produtos no banco`);
 
     return res.status(200).json({
       success: true,
       total: produtos.length,
-      termo_pesquisa: termoPesquisa,
-      incluir_similares: incluirSimilares,
+      termo_pesquisa: termoPesquisa || 'todos',
       produtos: produtos
     });
 
@@ -115,7 +85,8 @@ module.exports = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: 'Erro interno do servidor',
-      message: error.message
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 }; 
