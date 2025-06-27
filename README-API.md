@@ -1,26 +1,105 @@
-# 🚀 AMK Spy - API de Tracking de Posições
+# 🚀 AMK Spy API - PostgreSQL Integration
 
-## **📋 CONFIGURAÇÃO SUPABASE**
+API para sincronização de dados do AMK Spy com banco PostgreSQL serverless.
 
-### **1. Criar Projeto no Supabase**
-1. Acesse [supabase.com](https://supabase.com)
-2. Crie uma conta e novo projeto
-3. Aguarde a criação do banco PostgreSQL
+## 📋 Configuração
 
-### **2. Configurar Variáveis de Ambiente**
+### Banco de Dados
+- **Provedor**: Neon PostgreSQL Serverless (Recomendado) 
+- **Alternativas**: Railway, PlanetScale, Supabase
+- **SSL**: Obrigatório
+- **Compatibilidade**: IPv4 ✅ Vercel
 
-#### **No Vercel:**
-```bash
-DATABASE_URL = postgresql://postgres.xxx:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+### String de Conexão (Neon)
+Configure a variável `DATABASE_URL` no Vercel com sua string do Neon:
+```
+postgresql://user:password@ep-xyz.region.aws.neon.tech/database?sslmode=require
 ```
 
-#### **Localmente (.env):**
-```bash
-DATABASE_URL=postgresql://postgres.xxx:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres
-NODE_ENV=development
+## 🔗 Endpoints Disponíveis
+
+### 1. Inserir Produto
+**POST** `/api/insert-product`
+
+Insere ou atualiza um produto no banco.
+
+```javascript
+{
+  "asin": "B08N5WRWNW",
+  "titulo": "Echo Dot (4ª Geração) - Smart Speaker com Alexa",
+  "preco": 299.90,
+  "avaliacao": 4.5,
+  "numAvaliacoes": 12500,
+  "categoria": "Eletrônicos > Smart Home",
+  "marca": "Amazon",
+  "bsr": 150,
+  "userId": "user123"
+}
 ```
 
-### **3. Estrutura da Tabela**
+### 2. Salvar Posição
+**POST** `/api/save-position`
+
+Salva a posição de um produto na pesquisa.
+
+```javascript
+{
+  "asin": "B08N5WRWNW",
+  "titulo": "Echo Dot (4ª Geração)",
+  "posicao": 5,
+  "termoPesquisa": "alexa echo dot",
+  "userId": "user123"
+}
+```
+
+### 3. Sincronizar Dados
+**POST/GET** `/api/sync-data`
+
+- **POST**: Upload de dados locais para nuvem
+- **GET**: Download de dados da nuvem para local
+
+### 4. Buscar Histórico
+**GET** `/api/get-history?userId=user123&dias=30`
+
+Busca histórico de posições de um usuário.
+
+### 5. Testar Conexão
+**GET** `/api/test-connection`
+
+Testa a conectividade com o banco Supabase.
+
+### 6. Listar Tabelas
+**GET** `/api/list-tables`
+
+Lista todas as tabelas do banco com detalhes.
+
+### 7. Contar Registros
+**GET** `/api/count-records`
+
+Mostra estatísticas dos registros no banco.
+
+## 📊 Estrutura das Tabelas
+
+### Tabela: `produtos`
+```sql
+CREATE TABLE produtos (
+    id SERIAL PRIMARY KEY,
+    asin VARCHAR(20) NOT NULL,
+    titulo VARCHAR(500),
+    preco DECIMAL(10,2),
+    avaliacao DECIMAL(3,2),
+    num_avaliacoes INTEGER,
+    categoria VARCHAR(200),
+    marca VARCHAR(200),
+    bsr INTEGER,
+    usuario_id VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(asin, usuario_id)
+);
+```
+
+### Tabela: `position_tracking`
 ```sql
 CREATE TABLE position_tracking (
     id SERIAL PRIMARY KEY,
@@ -37,168 +116,138 @@ CREATE TABLE position_tracking (
 );
 ```
 
-## **🔗 ENDPOINTS DA API**
+## 🧪 Teste da API
 
-### **1. Salvar Posição**
-```
-POST /api/save-position
-```
+### Teste Manual
+Abra o arquivo `teste-api.html` no navegador para:
+- ✅ Testar conexão com Supabase
+- ✅ Inserir produtos
+- ✅ Salvar posições
+- ✅ Visualizar tabelas e registros
 
-**Body:**
-```json
-{
-    "asin": "B08ABC123",
-    "titulo": "Mouse Gamer RGB LED",
-    "posicao": 5,
-    "termoPesquisa": "mouse gamer",
-    "userId": "user_abc123"
-}
-```
+### Teste Automático (Extension)
+1. **Carregue a extensão** no Chrome/Edge
+2. **Vá para uma página de pesquisa da Amazon** (ex: https://amazon.com.br/s?k=mouse+gamer)
+3. **Abra o painel lateral** da extensão (botão AMK Spy)
+4. **Clique em "Analisar Página"** - os produtos serão automaticamente:
+   - 📊 Extraídos da pesquisa
+   - 💾 Salvos na tabela `produtos` do Supabase
+   - 📍 Posições salvas na tabela `position_tracking`
+   - 🔄 Sincronizados em tempo real
 
-**Resposta:**
-```json
-{
-    "success": true,
-    "message": "Posição salva com sucesso",
-    "asin": "B08ABC123",
-    "posicao": 5,
-    "data": "2024-01-15",
-    "record": { ... }
-}
+**Resultado esperado:**
+```
+✅ X produtos salvos no Supabase!
+📍 Posições registradas automaticamente
+💾 Dados sincronizados com banco
 ```
 
-### **2. Buscar Histórico**
-```
-GET /api/get-history?userId=user_abc123&asin=B08ABC123&dias=30
-```
+## 🚀 Deploy no Vercel
 
-**Parâmetros:**
-- `userId` (obrigatório): ID do usuário
-- `asin` (opcional): ASIN específico do produto
-- `dias` (opcional): Últimos N dias (padrão: 30)
+### Variáveis de Ambiente
+Configure no Vercel dashboard:
 
-**Resposta:**
-```json
-{
-    "success": true,
-    "asin": "B08ABC123",
-    "userId": "user_abc123",
-    "dias": 30,
-    "total": 15,
-    "tendencia": "subiu",
-    "historico": [
-        {
-            "asin": "B08ABC123",
-            "titulo": "Mouse Gamer RGB LED",
-            "termo": "mouse gamer",
-            "data": "2024-01-15",
-            "posicao": 3,
-            "timestamp": 1705334400000
-        }
-    ]
-}
+```env
+DATABASE_URL=postgresql://user:password@ep-xyz.region.aws.neon.tech/database?sslmode=require
+NODE_ENV=production
 ```
 
-### **3. Sincronização em Lote**
+### Alternativas de Banco
 
-#### **UPLOAD (Local → Nuvem):**
-```
-POST /api/sync-data
-```
+**🥇 Neon (Recomendado)**
+- ✅ Grátis: 512MB, 1 projeto
+- ✅ IPv4 compatível com Vercel
+- ✅ PostgreSQL completo
+- ✅ Serverless autoscaling
 
-**Body:**
-```json
-{
-    "userId": "user_abc123",
-    "dados": [
-        {
-            "asin": "B08ABC123",
-            "titulo": "Mouse Gamer",
-            "termo": "mouse gamer",
-            "historico": [
-                {
-                    "data": "2024-01-15",
-                    "posicao": 5,
-                    "timestamp": 1705334400000
-                }
-            ]
-        }
-    ]
-}
-```
+**🥈 Railway**
+- ✅ $5/mês após trial
+- ✅ PostgreSQL completo
+- ✅ Fácil deploy
 
-#### **DOWNLOAD (Nuvem → Local):**
-```
-GET /api/sync-data?userId=user_abc123&ultimaSync=1705334400000
-```
+**🥉 PlanetScale**
+- ✅ Grátis: 5GB
+- ⚠️ MySQL (requer ajustes SQL)
 
-## **🚀 DEPLOY NO VERCEL**
-
-### **1. Instalar Vercel CLI**
+### Comandos de Deploy
 ```bash
-npm install -g vercel
-```
+# Instalar Vercel CLI
+npm i -g vercel
 
-### **2. Configurar Variáveis**
-```bash
-vercel env add DATABASE_URL
-# Cole sua connection string do Supabase
-```
-
-### **3. Deploy**
-```bash
+# Deploy
 vercel --prod
+
+# Ou conectar com GitHub para deploy automático
 ```
 
-### **4. Verificar Deploy**
-```bash
-curl https://seu-projeto.vercel.app/api/save-position \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"asin":"TEST123","posicao":1,"userId":"test"}'
+## 📱 Uso no Extension
+
+### Inserir Produto
+```javascript
+const produto = {
+    asin: 'B08N5WRWNW',
+    titulo: 'Echo Dot',
+    preco: 299.90,
+    avaliacao: 4.5,
+    numAvaliacoes: 12500,
+    categoria: 'Eletrônicos',
+    marca: 'Amazon',
+    bsr: 150,
+    userId: 'user123'
+};
+
+fetch('/api/insert-product', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(produto)
+});
 ```
 
-## **🔧 VANTAGENS DO SUPABASE**
+### Salvar Posição
+```javascript
+const posicao = {
+    asin: 'B08N5WRWNW',
+    titulo: 'Echo Dot',
+    posicao: 5,
+    termoPesquisa: 'alexa',
+    userId: 'user123'
+};
 
-### **✅ Benefícios sobre MongoDB Atlas:**
-- 🚀 **Mais rápido** - Latência menor com Vercel
-- 🔧 **Mais simples** - SQL familiar 
-- 💰 **Mais barato** - Plano gratuito generoso
-- 🛡️ **Mais confiável** - Menos timeouts
-- 📊 **Dashboard melhor** - Interface mais intuitiva
-- 🔍 **Queries mais fáceis** - SQL vs agregações MongoDB
-
-### **📊 Plano Gratuito:**
-- 500MB de armazenamento
-- 2GB de transferência
-- 50.000 requisições mensais
-- Autenticação incluída
-
-## **🐛 TROUBLESHOOTING**
-
-### **Erro de Conexão:**
-```bash
-# Verificar se URL está correta
-echo $DATABASE_URL
-
-# Testar conexão local
-psql $DATABASE_URL -c "SELECT version();"
+fetch('/api/save-position', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(posicao)
+});
 ```
 
-### **Tabela não existe:**
-A API cria automaticamente a tabela na primeira execução.
+## 🔧 Troubleshooting
 
-### **SSL Error:**
-A configuração `ssl: { rejectUnauthorized: false }` já está incluída.
+### Connection Timeout
+- Verificar se o IP está na whitelist do Supabase
+- Confirmar a string de conexão
 
-## **📈 PRÓXIMOS PASSOS**
+### SSL Certificate Error
+- Certificar que `ssl: { rejectUnauthorized: false }` está configurado
 
-1. ✅ API funcionando com Supabase
-2. 🔄 Testar sincronização completa
-3. 📱 Implementar notificações
-4. 📊 Dashboard de analytics
-5. 🔐 Sistema de autenticação
-6. 🚀 Otimizações de performance
+### Tabela não existe
+- As tabelas são criadas automaticamente na primeira inserção
+- Verificar permissões do usuário
+
+## 📊 Performance
+
+- **Connection Pooling**: Implementado com cache de conexões
+- **Timeout**: 60 segundos por função
+- **CORS**: Configurado para todos os origins
+- **SSL**: Conexão segura obrigatória
+
+## 🔐 Segurança
+
+- String de conexão com SSL obrigatório
+- Validação de dados de entrada
+- Sanitização de inputs
+- Rate limiting via Vercel
 
 ---
-**🎯 API Pronta para Produção com Supabase!** 
+
+**Versão**: 2.0.0 - Supabase Integration  
+**Atualizado**: 2024 

@@ -156,6 +156,9 @@ class AppController {
             // Iniciar busca automática em background
             this.iniciarBuscaAutomaticaBackground(produtos);
             
+            // Salvar produtos no Supabase automaticamente
+            this.salvarProdutosNoSupabase(produtos);
+            
         } catch (error) {
             console.error('Erro na análise:', error);
             NotificationManager.erro('Erro ao analisar produtos.');
@@ -484,6 +487,11 @@ class AppController {
             // Configurar produtos no FilterManager
             TableManager.filterManager.setProdutos(produtos);
             
+            // Atualizar estatísticas
+            if (window.statsUpdater) {
+                window.statsUpdater.atualizarEstatisticas(produtos);
+            }
+            
             // Inicializar eventos da tabela com limpeza forçada
             TableManager.inicializarEventos(true);
             
@@ -523,6 +531,11 @@ class AppController {
             // Configurar produtos no FilterManager
             TableManager.filterManager.setProdutos(produtos);
             
+            // Atualizar estatísticas
+            if (window.statsUpdater) {
+                window.statsUpdater.atualizarEstatisticas(produtos);
+            }
+            
             // Inicializar eventos da tabela com limpeza forçada
             TableManager.inicializarEventos(true);
             
@@ -538,6 +551,114 @@ class AppController {
         this.tipoAnaliseAnterior = null;
         window.produtosTabela = null;
         console.log('🗑️ Produtos armazenados limpos');
+    }
+
+    /**
+     * Salvar produtos no Supabase com análise avançada
+     */
+    static async salvarProdutosNoSupabase(produtos) {
+        if (!produtos || produtos.length === 0) return;
+
+        try {
+            // Verificar se SupabaseManager está disponível
+            if (typeof window.supabaseManager === 'undefined') {
+                console.warn('⚠️ SupabaseManager não está disponível');
+                return;
+            }
+
+            // Obter termo de pesquisa da URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const termoPesquisa = urlParams.get('k') || 'termo-nao-identificado';
+            const paginaAtual = parseInt(urlParams.get('page') || '1');
+
+            console.log(`🔍 Iniciando análise avançada de ${produtos.length} produtos (página ${paginaAtual})...`);
+
+            // Usar análise avançada
+            const resultado = await window.supabaseManager.analisarPosicoes(
+                produtos, 
+                termoPesquisa,
+                paginaAtual
+            );
+
+            if (resultado.success) {
+                const stats = resultado.analise.estatisticas;
+                const metodo = resultado.metodo || 'avançado';
+                console.log(`✅ Análise ${metodo} concluída:`, stats);
+                
+                // Usar produtos combinados com marcações de status se disponível
+                if (resultado.produtosCombinados && resultado.produtosCombinados.length > 0) {
+                    console.log(`🔄 Atualizando tabela com ${resultado.produtosCombinados.length} produtos marcados`);
+                    
+                    // Atualizar tabela com produtos que têm marcação de status
+                    this.atualizarTabelaExistente(resultado.produtosCombinados);
+                    
+                    // Atualizar estatísticas dinâmicas
+                    if (window.statsUpdater) {
+                        window.statsUpdater.atualizarEstatisticas(
+                            resultado.produtosCombinados, 
+                            resultado.analise.estatisticas
+                        );
+                    }
+                }
+                
+                // A notificação já é mostrada pelo SupabaseManager
+                // Apenas log adicional se for método tradicional
+                if (resultado.metodo === 'tradicional') {
+                    console.log(`📊 Fallback usado: ${resultado.resultadoSalvamento?.saved || 0} salvos, ${resultado.resultadoSalvamento?.queued || 0} na fila`);
+                }
+            } else {
+                console.warn('⚠️ Todas as análises falharam, usando método simples...');
+                await this.salvarProdutosSimplesNoSupabase(produtos);
+            }
+
+        } catch (error) {
+            console.error('❌ Erro na análise avançada, usando método tradicional:', error);
+            await this.salvarProdutosSimplesNoSupabase(produtos);
+        }
+    }
+
+    /**
+     * Método de salvamento simples (fallback)
+     */
+    static async salvarProdutosSimplesNoSupabase(produtos) {
+        try {
+            // Obter termo de pesquisa da URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const termoPesquisa = urlParams.get('k') || 'termo-nao-identificado';
+
+            console.log(`💾 Salvamento simples de ${produtos.length} produtos...`);
+
+            // Processar produtos em lotes menores para não sobrecarregar
+            const tamanhoLote = 8;
+            let totalSalvos = 0;
+
+            for (let i = 0; i < produtos.length; i += tamanhoLote) {
+                const lote = produtos.slice(i, i + tamanhoLote);
+                
+                const resultado = await window.supabaseManager.processarListaProdutos(lote, termoPesquisa);
+                totalSalvos += resultado.saved + resultado.queued;
+
+                // Delay entre lotes
+                if (i + tamanhoLote < produtos.length) {
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
+            }
+
+            if (totalSalvos > 0) {
+                console.log(`✅ ${totalSalvos} produtos processados tradicionalmente`);
+                
+                // Mostrar notificação simples
+                if (typeof NotificationManager !== 'undefined') {
+                    NotificationManager.informacao(
+                        `💾 ${totalSalvos}/${produtos.length} produtos salvos no banco!`,
+                        4000
+                    );
+                }
+            }
+
+        } catch (error) {
+            console.error('❌ Erro no salvamento simples:', error);
+        }
     }
 }
 

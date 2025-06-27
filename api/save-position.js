@@ -7,8 +7,15 @@ async function connectToDatabase() {
         return cachedClient;
     }
     
+    // String de conexão via variável de ambiente
+    const connectionString = process.env.DATABASE_URL;
+    
+    if (!connectionString) {
+        throw new Error('DATABASE_URL não configurada');
+    }
+    
     const client = new Client({
-        connectionString: process.env.DATABASE_URL,
+        connectionString: connectionString,
         ssl: { rejectUnauthorized: false }
     });
     

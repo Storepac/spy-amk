@@ -1,23 +1,11 @@
-import { Client } from 'pg';
+const { Pool } = require('pg');
 
-let cachedClient = null;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
-async function connectToDatabase() {
-    if (cachedClient) {
-        return cachedClient;
-    }
-    
-    const client = new Client({
-        connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false }
-    });
-    
-    await client.connect();
-    cachedClient = client;
-    return client;
-}
-
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
     // Configurar CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -41,8 +29,6 @@ export default async function handler(req, res) {
             res.status(400).json({ error: 'userId é obrigatório' });
             return;
         }
-        
-        const client = await connectToDatabase();
         
         let query;
         let values;
@@ -69,13 +55,16 @@ export default async function handler(req, res) {
             values = [userId];
         }
         
-        const result = await client.query(query, values);
+        console.log('Query histórico:', query);
+        console.log('Params:', values);
+        
+        const result = await pool.query(query, values);
         
         // Transformar resultados para formato compatível com frontend
         const historico = result.rows.map(row => ({
             asin: row.asin,
-            titulo: row.titulo_produto,
-            termo: row.termo_pesquisa,
+            titulo_produto: row.titulo_produto,
+            termo_pesquisa: row.termo_pesquisa,
             data: row.data,
             posicao: row.posicao,
             timestamp: row.timestamp

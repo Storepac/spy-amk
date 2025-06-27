@@ -87,7 +87,11 @@ class ModalBuilder {
         return `
             <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="font-size: 14px; opacity: 0.8;">Buscar:</span>
-                <input type="text" id="nova-busca" value="${termoBusca}" placeholder="Digite um termo..." style="${this.getEstilosInputBusca()}">
+                                    <input type="text" id="nova-busca" value="${termoBusca}" placeholder="Digite um termo..." style="${this.getEstilosInputBusca()}">
+                <label style="display: flex; align-items: center; gap: 4px; color: white; font-size: 12px; cursor: pointer;">
+                    <input type="checkbox" id="incluir-patrocinados" checked style="margin: 0;">
+                    <span>Incluir Patrocinados</span>
+                </label>
                 <button id="btn-buscar" style="${this.getEstilosBotaoBusca()}">🔍 Buscar</button>
             </div>
         `;
@@ -396,6 +400,9 @@ class ModalBuilder {
                 ${this.criarCardMetrica('📈 PRODUTOS PATROCINADOS', produtos.filter(p => p.patrocinado).length || 0, produtos.length)}
                 ${this.criarCardMetrica('🎯 COMPETITIVIDADE', TableManager.calcularNivelCompetitividade(metricas), null, 'Baseado em BSR e avaliações')}
             </div>
+            <div id="stats-container" class="amk-spy-bg-secondary" style="padding: 0; margin: 0;">
+                <!-- Container para estatísticas dinâmicas - será preenchido pelo StatsUpdater -->
+            </div>
         `;
     }
 
@@ -429,9 +436,9 @@ class ModalBuilder {
 
     static criarTabela(produtos) {
         return `
-            <div style="flex: 1; overflow-y: auto; padding: 0; scrollbar-width: thin; scrollbar-color: #d1d5db #f8fafc; border-radius: 0 0 16px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+            <div style="flex: 1; overflow: auto; padding: 0; scrollbar-width: thin; scrollbar-color: #d1d5db #f8fafc; border-radius: 0 0 16px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                 ${this.getEstilosScrollbar()}
-                <table id="tabela-produtos" class="amk-spy-bg-primary" style="width: 100%; border-collapse: collapse; font-family: 'Poppins', sans-serif; background: var(--bg-primary);">
+                <table id="tabela-produtos" class="amk-spy-bg-primary" style="min-width: 1400px; width: 100%; border-collapse: collapse; font-family: 'Poppins', sans-serif; background: var(--bg-primary);">
                     ${this.criarHeaderTabela()}
                     <tbody>
                         ${produtos.map((produto, index) => TableRowBuilder.criarLinhaProduto(produto, index)).join('')}
@@ -475,6 +482,8 @@ class ModalBuilder {
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);">Receita/Mês</th>
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);">BSR</th>
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);">Categoria</th>
+                    <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);" title="Status do produto (novo/existente)">🔄 Status</th>
+                    <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);" title="Tendência de posição baseada no histórico">📊 Tendência</th>
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600;">Tipo</th>
                 </tr>
             </thead>

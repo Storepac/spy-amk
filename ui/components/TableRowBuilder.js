@@ -15,7 +15,6 @@ class TableRowBuilder {
                 font-family: 'Poppins', sans-serif;
             " data-asin="${produto.asin}" data-index="${index}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-secondary)'">
                 ${this.criarCelulaPosicao(produto, index)}
-                ${this.criarCelulaTendencia(produto)}
                 ${this.criarCelulaImagem(produto)}
                 ${this.criarCelulaTitulo(produto)}
                 ${this.criarCelulaASIN(produto, asinDuplicado)}
@@ -27,8 +26,9 @@ class TableRowBuilder {
                 ${this.criarCelulaReceita(produto)}
                 ${this.criarCelulaBSR(produto)}
                 ${this.criarCelulaCategoria(produto)}
+                ${this.criarCelulaStatus(produto)}
+                ${this.criarCelulaTendencia(produto)}
                 ${this.criarCelulaTipo(produto)}
-                ${this.criarCelulaPagina(produto)}
             </tr>
         `;
     }
@@ -78,21 +78,95 @@ class TableRowBuilder {
     }
 
     static criarCelulaTendencia(produto) {
-        // Usar PositionTracker se disponível, senão mostrar espaço vazio
-        if (window.PositionTracker && produto.asin) {
-            return window.PositionTracker.gerarColunaTendencia(produto.asin);
+        // Verificar se tem dados de tendência
+        const tendencia = produto.tendencia;
+        
+        let icone = '➖';
+        let cor = '#6b7280';
+        let titulo = 'Sem dados de tendência';
+        let fundo = 'transparent';
+        
+        if (tendencia) {
+            switch (tendencia.tendencia) {
+                case 'subiu':
+                    icone = '📈';
+                    cor = '#10b981';
+                    titulo = `Subiu da posição ${tendencia.posicao_anterior} para ${tendencia.posicao_atual}`;
+                    fundo = 'rgba(16, 185, 129, 0.1)';
+                    break;
+                case 'desceu':
+                    icone = '📉';
+                    cor = '#ef4444';
+                    titulo = `Desceu da posição ${tendencia.posicao_anterior} para ${tendencia.posicao_atual}`;
+                    fundo = 'rgba(239, 68, 68, 0.1)';
+                    break;
+                case 'manteve':
+                    icone = '➖';
+                    cor = '#6b7280';
+                    titulo = `Manteve na posição ${tendencia.posicao_atual}`;
+                    fundo = 'rgba(107, 114, 128, 0.1)';
+                    break;
+                case 'novo':
+                    icone = '🆕';
+                    cor = '#3b82f6';
+                    titulo = `Produto novo na posição ${tendencia.posicao_atual}`;
+                    fundo = 'rgba(59, 130, 246, 0.1)';
+                    break;
+            }
+        } else if (produto.isNovo) {
+            // Se é novo mas não tem tendência calculada
+            icone = '🆕';
+            cor = '#3b82f6';
+            titulo = 'Produto novo';
+            fundo = 'rgba(59, 130, 246, 0.1)';
         }
         
         return `
             <td style="
                 text-align: center; 
-                color: #6b7280;
+                color: ${cor};
                 padding: 8px;
-                font-size: 14px;
+                font-size: 16px;
                 border-right: 1px solid var(--border-light);
-                width: 60px;
-            " title="Tendência de posição">
-                ➖
+                width: 80px;
+                background: ${fundo};
+                font-weight: 600;
+            " title="${titulo}">
+                ${icone}
+            </td>
+        `;
+    }
+
+    static criarCelulaStatus(produto) {
+        // Verificar se o produto é novo ou existente
+        const isNovo = produto.isNovo !== false; // Default é novo se não especificado
+        const status = isNovo ? 'NOVO' : 'EXISTENTE';
+        const icone = isNovo ? '🆕' : '♻️';
+        const corFundo = isNovo ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #3b82f6, #2563eb)';
+        const corTexto = 'white';
+        
+        return `
+            <td style="
+                padding: 8px;
+                text-align: center;
+                border-right: 1px solid var(--border-light);
+                width: 80px;
+            ">
+                <div style="
+                    background: ${corFundo};
+                    color: ${corTexto};
+                    padding: 4px 8px;
+                    border-radius: 12px;
+                    font-size: 10px;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 2px;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+                " title="${isNovo ? 'Produto novo na base de dados' : 'Produto já existe na base de dados'}">
+                    ${icone} ${status}
+                </div>
             </td>
         `;
     }

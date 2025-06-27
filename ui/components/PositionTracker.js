@@ -9,7 +9,7 @@ class PositionTracker {
         this.maxProductsTracked = 1000; // Limite de produtos monitorados
         
         // Configuração da API
-        this.apiBaseUrl = 'https://sua-app.vercel.app'; // Será configurado depois
+        this.apiBaseUrl = Constants.API.BASE_URL;
         this.userId = this.generateUserFingerprint();
         this.isOnline = navigator.onLine;
         this.syncQueue = []; // Fila para sincronização offline
@@ -222,6 +222,89 @@ class PositionTracker {
     }
 
     /**
+     * Calcula tendências usando API do servidor
+     * @param {Array} asins - Lista de ASINs para calcular tendência
+     * @param {string} termoPesquisa - Termo de pesquisa atual
+     * @returns {Promise<Object>} Objeto com tendências calculadas
+     */
+    async calcularTendenciasServidor(asins, termoPesquisa = '') {
+        // TEMPORÁRIO: Usar apenas método local até API ser deployada
+        console.log(`📈 Usando método local para ${asins.length} ASINs (API ainda não deployada)`);
+        return this.calcularTendenciasLocal(asins);
+        
+        /* CÓDIGO PARA QUANDO API ESTIVER DEPLOYADA:
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/api/get-position-history`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    asins: asins,
+                    userId: this.userId,
+                    termoPesquisa: termoPesquisa
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    console.log(`📈 Tendências do servidor: ${data.tendencias_calculadas}/${data.total_asins}`);
+                    return data.tendencias;
+                }
+            }
+            
+            console.warn('Falha na API de tendências, usando método local');
+            return this.calcularTendenciasLocal(asins);
+            
+        } catch (error) {
+            console.warn('Erro na API de tendências, usando método local:', error);
+            return this.calcularTendenciasLocal(asins);
+        }
+        */
+    }
+
+    /**
+     * Calcula tendências usando dados locais (fallback)
+     * @param {Array} asins - Lista de ASINs
+     * @returns {Object} Tendências calculadas localmente
+     */
+    calcularTendenciasLocal(asins) {
+        const tendencias = {};
+        const historico = this.getHistorico();
+        
+        console.log(`📊 Calculando tendências locais para ${asins.length} ASINs...`);
+        
+        asins.forEach(asin => {
+            const tendenciaLocal = this.calcularTendencia(asin);
+            
+            // Obter posições atual e anterior do histórico
+            let posicaoAtual = null;
+            let posicaoAnterior = null;
+            
+            if (historico[asin] && historico[asin].historico.length > 0) {
+                const entries = historico[asin].historico.sort((a, b) => new Date(b.data) - new Date(a.data));
+                posicaoAtual = entries[0].posicao;
+                if (entries.length > 1) {
+                    posicaoAnterior = entries[1].posicao;
+                }
+            }
+            
+            // Converter formato local para formato da API
+            tendencias[asin] = {
+                tendencia: tendenciaLocal.tipo,
+                icone: tendenciaLocal.icone,
+                cor: tendenciaLocal.cor,
+                posicao_atual: posicaoAtual,
+                posicao_anterior: posicaoAnterior,
+                diferenca: tendenciaLocal.diferenca || 0,
+                titulo: tendenciaLocal.titulo
+            };
+        });
+        
+        console.log(`✅ Tendências locais calculadas:`, Object.keys(tendencias).length, tendencias);
+        return tendencias;
+    }
+
+    /**
      * Calcula a tendência de um produto (subiu, desceu, manteve)
      * @param {string} asin - ASIN do produto
      * @returns {Object} Objeto com tendência e dados
@@ -271,25 +354,60 @@ class PositionTracker {
     /**
      * Gera o HTML da coluna de tendência para um produto
      * @param {string} asin - ASIN do produto
+     * @param {Object} tendenciaServidor - Tendência calculada pelo servidor (opcional)
      * @returns {string} HTML da célula de tendência
      */
-    gerarColunaTendencia(asin) {
+    gerarColunaTendencia(asin, tendenciaServidor = null) {
         if (!asin) return '<td style="text-align: center; color: #6b7280;">-</td>';
 
-        const tendencia = this.calcularTendencia(asin);
+        // Usar tendência do servidor se disponível, senão calcular local
+        const tendencia = tendenciaServidor || this.calcularTendencia(asin);
+        
+        // Normalizar propriedades (API usa nomes diferentes)
+        const tipo = tendencia.tendencia || tendencia.tipo;
+        const icone = tendencia.icone;
+        const cor = tendencia.cor;
+        const diferenca = tendencia.diferenca;
+        const titulo = tendencia.titulo || this.gerarTituloTendencia(tendencia);
         
         return `
             <td style="
                 text-align: center; 
                 font-size: 16px; 
-                color: ${tendencia.cor};
+                color: ${cor};
                 cursor: help;
                 padding: 8px;
-            " title="${tendencia.titulo}">
-                ${tendencia.icone}
-                ${tendencia.diferenca ? `<span style="font-size: 10px; margin-left: 2px;">${tendencia.diferenca}</span>` : ''}
+                border-right: 1px solid var(--border-light);
+            " title="${titulo}">
+                ${icone}
+                ${diferenca && diferenca > 0 ? `<span style="font-size: 10px; margin-left: 2px;">${diferenca}</span>` : ''}
             </td>
         `;
+    }
+
+    /**
+     * Gera título da tendência baseado nos dados
+     * @param {Object} tendencia - Dados da tendência
+     * @returns {string} Título formatado
+     */
+    gerarTituloTendencia(tendencia) {
+        const tipo = tendencia.tendencia || tendencia.tipo;
+        const atual = tendencia.posicao_atual;
+        const anterior = tendencia.posicao_anterior;
+        const diferenca = tendencia.diferenca;
+
+        switch (tipo) {
+            case 'subiu':
+                return `Subiu ${diferenca} posição${diferenca > 1 ? 'ões' : ''} (${anterior} → ${atual})`;
+            case 'desceu':
+                return `Desceu ${diferenca} posição${diferenca > 1 ? 'ões' : ''} (${anterior} → ${atual})`;
+            case 'manteve':
+                return `Manteve a posição ${atual}`;
+            case 'novo':
+                return `Produto novo - posição ${atual}`;
+            default:
+                return 'Sem dados de tendência';
+        }
     }
 
     /**

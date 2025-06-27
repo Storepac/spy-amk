@@ -99,6 +99,23 @@ class Constants {
         AMAZON_PRODUCT: 'https://www.amazon.com.br/dp/'
     };
 
+    // Configurações de API
+    static API = {
+        BASE_URL: window.location.origin.includes('localhost') 
+            ? 'http://localhost:3000' 
+            : 'https://spy-amk.vercel.app',
+        ENDPOINTS: {
+            INSERT_PRODUCT: '/api/insert-product',
+            SAVE_POSITION: '/api/save-position',
+            CHECK_EXISTING: '/api/check-existing',
+            GET_HISTORY: '/api/get-history',
+            GET_POSITION_HISTORY: '/api/get-position-history',
+            ANALYZE_POSITIONS: '/api/analyze-positions',
+            SYNC_DATA: '/api/sync-data',
+            TEST_CONNECTION: '/api/test-connection'
+        }
+    };
+
     // Configurações de seletores CSS
     static SELECTORS = {
         PRODUTO: '[data-asin]:not([data-asin=""])',

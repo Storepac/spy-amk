@@ -32,6 +32,12 @@ class StatsManager {
     atualizarEstatisticas(produtos) {
         if (!produtos || !this.container) return;
         
+        // Usar StatsUpdater se disponível (novo sistema)
+        if (window.statsUpdater) {
+            window.statsUpdater.atualizarEstatisticas(produtos);
+        }
+        
+        // Manter sistema antigo para compatibilidade
         const stats = this.calcularEstatisticas(produtos);
         this.renderizarCards(stats);
     }
@@ -135,20 +141,19 @@ class StatsManager {
                     </div>
                 ` : ''}
                 
-                ${this.gerarStatsTracking()}
+                ${this.gerarStatsTracking(this.produtos)}
             </div>
         `;
     }
     
     /**
-     * Gera estatísticas do tracking de posições
+     * Gera estatísticas de tracking baseadas nos produtos da tabela atual
      */
-    gerarStatsTracking() {
-        if (!window.PositionTracker) return '';
+    gerarStatsTracking(produtos = []) {
+        if (!produtos || produtos.length === 0) return '';
         
-        const trackingStats = window.PositionTracker.getEstatisticas();
-        
-        if (trackingStats.totalProdutos === 0) return '';
+        // Calcular estatísticas baseadas nos produtos da tabela atual
+        const trackingStats = this.calcularStatsTracking(produtos);
         
         return `
             <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-light);">
@@ -165,30 +170,82 @@ class StatsManager {
                         <div style="font-size: 8px; color: #ef4444; font-weight: 600;">↘️ DESCENDO</div>
                         <div style="font-size: 10px; font-weight: 600; color: #ef4444;">${trackingStats.produtosDescendo}</div>
                     </div>
-                                         <div style="background: var(--bg-secondary); border: 1px solid var(--border-light); padding: 6px; border-radius: 4px; text-align: center;">
-                         <div style="font-size: 8px; color: #3b82f6; font-weight: 600;">🆕 NOVOS</div>
-                         <div style="font-size: 10px; font-weight: 600; color: #3b82f6;">${trackingStats.produtosNovos}</div>
-                     </div>
-                 </div>
-                 
-                 <!-- Botão Sync Cloud -->
-                 <div style="margin-top: 6px; text-align: center;">
-                     <button onclick="window.SyncPanel?.show()" style="
-                         background: linear-gradient(135deg, #6366f1, #4f46e5);
-                         color: white;
-                         border: none;
-                         padding: 4px 8px;
-                         border-radius: 4px;
-                         font-size: 9px;
-                         font-weight: 600;
-                         cursor: pointer;
-                         transition: all 0.2s;
-                     " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" title="Abrir painel de sincronização na nuvem">
-                         ☁️ SYNC CLOUD
-                     </button>
-                 </div>
-             </div>
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-light); padding: 6px; border-radius: 4px; text-align: center;">
+                        <div style="font-size: 8px; color: #3b82f6; font-weight: 600;">🆕 NOVOS</div>
+                        <div style="font-size: 10px; font-weight: 600; color: #3b82f6;">${trackingStats.produtosNovos}</div>
+                    </div>
+                </div>
+                
+                <!-- Botão Sync Cloud -->
+                <div style="margin-top: 6px; text-align: center;">
+                    <button onclick="window.SyncPanel?.show()" style="
+                        background: linear-gradient(135deg, #6366f1, #4f46e5);
+                        color: white;
+                        border: none;
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        font-size: 9px;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" title="Abrir painel de sincronização na nuvem">
+                        ☁️ SYNC CLOUD
+                    </button>
+                </div>
+            </div>
         `;
+    }
+
+    /**
+     * Calcula estatísticas de tracking baseadas nos produtos atuais
+     */
+    calcularStatsTracking(produtos) {
+        let totalProdutos = produtos.length;
+        let produtosSubindo = 0;
+        let produtosDescendo = 0;
+        let produtosNovos = 0;
+        let produtosMantendo = 0;
+
+        produtos.forEach(produto => {
+            // Contar produtos novos (inseridos no banco)
+            if (produto.isNovo === true) {
+                produtosNovos++;
+            }
+
+            // Contar tendências de posição
+            if (produto.tendencia) {
+                switch (produto.tendencia.tendencia) {
+                    case 'subiu':
+                        produtosSubindo++;
+                        break;
+                    case 'desceu':
+                        produtosDescendo++;
+                        break;
+                    case 'manteve':
+                        produtosMantendo++;
+                        break;
+                    case 'novo':
+                        // Produto novo na pesquisa (diferente de novo no banco)
+                        break;
+                }
+            }
+        });
+
+        console.log(`📊 Stats Tracking calculados:`, {
+            total: totalProdutos,
+            subindo: produtosSubindo,
+            descendo: produtosDescendo,
+            novos: produtosNovos,
+            mantendo: produtosMantendo
+        });
+
+        return {
+            totalProdutos,
+            produtosSubindo,
+            produtosDescendo,
+            produtosNovos,
+            produtosMantendo
+        };
     }
 
     sincronizarComFiltros(produtosFiltrados) {
