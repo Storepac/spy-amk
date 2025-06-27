@@ -891,11 +891,40 @@ class SupabaseManager {
             // Limitar a 100 produtos para mostrar mais resultados
             produtosFiltrados = produtosFiltrados.slice(0, 100);
             
-            // Marcar como produtos do banco
-            produtosFiltrados.forEach(produto => {
+            // Completar dados dos produtos do banco para compatibilidade
+            produtosFiltrados.forEach((produto, index) => {
                 produto.isNovo = false;
                 produto.origem = 'local';
-                produto.posicao = null;
+                produto.posicao = null; // Sem posição atual da Amazon
+                
+                // Completar dados faltantes para compatibilidade com tabela
+                if (!produto.imagem) {
+                    produto.imagem = 'https://via.placeholder.com/150x150?text=Sem+Imagem';
+                }
+                if (!produto.link && produto.asin) {
+                    produto.link = `https://www.amazon.com.br/dp/${produto.asin}`;
+                }
+                if (!produto.ranking && produto.bsr) {
+                    produto.ranking = produto.bsr;
+                }
+                if (!produto.precoNumerico) {
+                    const precoStr = produto.preco || '0';
+                    produto.precoNumerico = parseFloat(precoStr.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+                }
+                if (!produto.vendidos) {
+                    produto.vendidos = 'N/A';
+                }
+                if (!produto.receita) {
+                    produto.receita = 'N/A';
+                }
+                if (!produto.tipo) {
+                    produto.tipo = 'Histórico';
+                }
+                
+                // Adicionar indicador visual de que é produto do histórico
+                if (produto.titulo && !produto.titulo.includes('📚')) {
+                    produto.titulo = `📚 ${produto.titulo}`;
+                }
             });
             
             console.log(`💾 Encontrados ${produtosFiltrados.length} produtos localmente`);
@@ -921,12 +950,18 @@ class SupabaseManager {
                     asin: produto.asin,
                     titulo: produto.titulo,
                     preco: produto.preco,
+                    precoNumerico: produto.precoNumerico || 0,
                     avaliacao: produto.avaliacao,
                     numAvaliacoes: produto.numAvaliacoes,
                     categoria: produto.categoria,
                     marca: produto.marca,
                     bsr: produto.ranking || produto.bsr,
+                    ranking: produto.ranking || produto.bsr,
                     link: produto.link,
+                    imagem: produto.imagem,
+                    vendidos: produto.vendidos || 'N/A',
+                    receita: produto.receita || 'N/A',
+                    tipo: 'Histórico',
                     dataAdicionado: new Date().toISOString()
                 });
                 
