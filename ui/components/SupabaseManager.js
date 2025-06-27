@@ -574,9 +574,15 @@ class SupabaseManager {
             if (produtosNovos.length > 0) {
                 resultadoSalvamento = await this.processarListaProdutos(produtosNovos, termoPesquisa);
                 console.log(`💾 Salvos apenas produtos novos: ${resultadoSalvamento.saved + resultadoSalvamento.queued}/${produtosNovos.length}`);
+                
+                // Salvar produtos novos no histórico local para fallback
+                produtosNovos.forEach(produto => this.salvarProdutoNoHistoricoLocal(produto));
             } else {
                 console.log(`✅ Todos os produtos já existem no banco`);
             }
+            
+            // 3.1. Salvar produtos existentes também no histórico local
+            produtosExistentes.forEach(produto => this.salvarProdutoNoHistoricoLocal(produto));
             
             // 4. Salvar tracking de posições para todos os produtos
             await this.salvarTrackingPosicoes(produtosValidos, termoPesquisa, paginaAtual);
@@ -832,12 +838,92 @@ class SupabaseManager {
                 console.error(`❌ Erro HTTP ${response.status}:`, errorText);
             }
             
-            console.log('📦 Nenhum produto encontrado no banco');
-            return [];
+            console.log('⚠️ API falhou, usando fallback local...');
+            return this.buscarProdutosDoBancoLocal(termoPesquisa);
             
         } catch (error) {
             console.error('❌ Erro ao buscar produtos do banco:', error);
+            console.log('⚠️ Usando fallback local...');
+            return this.buscarProdutosDoBancoLocal(termoPesquisa);
+        }
+    }
+
+    /**
+     * FALLBACK: Buscar produtos do localStorage (método offline)
+     */
+    buscarProdutosDoBancoLocal(termoPesquisa) {
+        try {
+            console.log(`💾 Buscando produtos localmente para: "${termoPesquisa}"`);
+            
+            // Buscar produtos salvos localmente
+            const produtosLocais = JSON.parse(localStorage.getItem('spy_produtos_historico') || '[]');
+            
+            if (!produtosLocais.length) {
+                console.log('💾 Nenhum produto encontrado no localStorage');
+                return [];
+            }
+            
+            let produtosFiltrados = produtosLocais;
+            
+            // Filtrar por termo se fornecido
+            if (termoPesquisa) {
+                const termo = termoPesquisa.toLowerCase();
+                produtosFiltrados = produtosLocais.filter(produto => 
+                    produto.titulo && produto.titulo.toLowerCase().includes(termo)
+                );
+            }
+            
+            // Limitar a 20 produtos para não sobrecarregar
+            produtosFiltrados = produtosFiltrados.slice(0, 20);
+            
+            // Marcar como produtos do banco
+            produtosFiltrados.forEach(produto => {
+                produto.isNovo = false;
+                produto.origem = 'local';
+                produto.posicao = null;
+            });
+            
+            console.log(`💾 Encontrados ${produtosFiltrados.length} produtos localmente`);
+            return produtosFiltrados;
+            
+        } catch (error) {
+            console.error('❌ Erro no fallback local:', error);
             return [];
+        }
+    }
+
+    /**
+     * NOVO: Salvar produtos no histórico local para fallback
+     */
+    salvarProdutoNoHistoricoLocal(produto) {
+        try {
+            const historico = JSON.parse(localStorage.getItem('spy_produtos_historico') || '[]');
+            
+            // Verificar se produto já existe
+            const existe = historico.find(p => p.asin === produto.asin);
+            if (!existe) {
+                historico.push({
+                    asin: produto.asin,
+                    titulo: produto.titulo,
+                    preco: produto.preco,
+                    avaliacao: produto.avaliacao,
+                    numAvaliacoes: produto.numAvaliacoes,
+                    categoria: produto.categoria,
+                    marca: produto.marca,
+                    bsr: produto.ranking || produto.bsr,
+                    link: produto.link,
+                    dataAdicionado: new Date().toISOString()
+                });
+                
+                // Manter apenas últimos 500 produtos para não sobrecarregar
+                if (historico.length > 500) {
+                    historico.splice(0, historico.length - 500);
+                }
+                
+                localStorage.setItem('spy_produtos_historico', JSON.stringify(historico));
+            }
+        } catch (error) {
+            console.warn('Erro ao salvar produto no histórico local:', error);
         }
     }
 
