@@ -584,8 +584,18 @@ class SupabaseManager {
             // 4.1. Registrar posições no PositionTracker local
             this.registrarPosicoesLocal(produtosValidos, termoPesquisa, paginaAtual);
             
-            // 5. Buscar tendências do servidor e aplicar aos produtos
-            await this.aplicarTendenciasAosProdutos(todosProdutos, termoPesquisa);
+            // 5. NOVO: Buscar produtos do banco relacionados ao termo
+            console.log(`🔍 BUSCANDO produtos do banco para termo: "${termoPesquisa}"`);
+            const produtosDoBanco = await this.buscarProdutosDoBanco(termoPesquisa);
+            console.log(`📦 RETORNADOS do banco: ${produtosDoBanco.length} produtos`);
+            
+            // 5.1. Combinar produtos: Amazon + Banco (evitando duplicatas)
+            console.log(`🔗 COMBINANDO: ${todosProdutos.length} Amazon + ${produtosDoBanco.length} banco`);
+            const produtosCombinados = this.combinarProdutos(todosProdutos, produtosDoBanco);
+            console.log(`📊 RESULTADO COMBINADO: ${produtosCombinados.length} produtos totais`);
+            
+            // 5.2. Buscar tendências do servidor e aplicar aos produtos combinados
+            await this.aplicarTendenciasAosProdutos(produtosCombinados, termoPesquisa);
             
             // 6. Mostrar notificação
             this.mostrarNotificacaoAnalise(analiseTradicional.estatisticas);
@@ -594,7 +604,7 @@ class SupabaseManager {
                 success: true,
                 message: `Análise tradicional: ${resultadoSalvamento.saved + resultadoSalvamento.queued} produtos processados`,
                 analise: analiseTradicional,
-                produtosCombinados: todosProdutos,
+                produtosCombinados: produtosCombinados,
                 resultadoSalvamento: resultadoSalvamento,
                 metodo: 'tradicional'
             };
@@ -773,6 +783,84 @@ class SupabaseManager {
         } else {
             throw new Error(`HTTP ${response.status}`);
         }
+    }
+
+    /**
+     * NOVO: Buscar produtos do banco relacionados ao termo de pesquisa
+     */
+    async buscarProdutosDoBanco(termoPesquisa) {
+        try {
+            console.log(`🔍 Buscando produtos do banco relacionados a: "${termoPesquisa}"`);
+            console.log(`🌐 URL da API: ${this.apiBaseUrl}/api/get-products`);
+            console.log(`👤 UserID: ${this.userId}`);
+            
+            const requestBody = {
+                userId: this.userId,
+                termoPesquisa: termoPesquisa,
+                incluirSimilares: true // Buscar termos similares
+            };
+            console.log(`📤 Enviando request:`, requestBody);
+            
+            const response = await fetch(`${this.apiBaseUrl}/api/get-products-simple`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+
+            console.log(`📥 Response status: ${response.status}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log(`📊 Response data:`, data);
+                
+                if (data.success && data.produtos) {
+                    console.log(`📦 Encontrados ${data.produtos.length} produtos do banco`);
+                    
+                    // Marcar produtos do banco
+                    data.produtos.forEach(produto => {
+                        produto.isNovo = false; // Produtos do banco são existentes
+                        produto.origem = 'banco';
+                        produto.posicao = null; // Sem posição atual da Amazon
+                    });
+                    
+                    return data.produtos;
+                } else {
+                    console.log(`⚠️ API retornou success: ${data.success}, produtos: ${data.produtos?.length || 0}`);
+                }
+            } else {
+                const errorText = await response.text();
+                console.error(`❌ Erro HTTP ${response.status}:`, errorText);
+            }
+            
+            console.log('📦 Nenhum produto encontrado no banco');
+            return [];
+            
+        } catch (error) {
+            console.error('❌ Erro ao buscar produtos do banco:', error);
+            return [];
+        }
+    }
+
+    /**
+     * NOVO: Combinar produtos da Amazon com produtos do banco (evitando duplicatas)
+     */
+    combinarProdutos(produtosAmazon, produtosBanco) {
+        const asinsAmazon = new Set(produtosAmazon.map(p => p.asin));
+        
+        // Filtrar produtos do banco que NÃO estão na página atual da Amazon
+        const produtosBancoUnicos = produtosBanco.filter(produto => 
+            !asinsAmazon.has(produto.asin)
+        );
+        
+        // Combinar: Amazon primeiro (com posições), depois banco
+        const produtosCombinados = [
+            ...produtosAmazon,
+            ...produtosBancoUnicos
+        ];
+        
+        console.log(`🔗 Produtos combinados: ${produtosAmazon.length} Amazon + ${produtosBancoUnicos.length} banco únicos = ${produtosCombinados.length} total`);
+        
+        return produtosCombinados;
     }
 
     /**
