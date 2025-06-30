@@ -206,21 +206,33 @@ A coluna de vendas agora possui:
 ```
 
 **2. Indicadores Visuais nas Células:**
-- **📈** Ícone para valores com estimativa aplicada
-- **Tooltip individual** mostrando texto original da Amazon
+- **Tooltip individual** mostrando se são vendas estimadas ou exatas
 - **Cursor help** em valores estimados
+- **Interface clean** sem emojis desnecessários
 
 **3. Exemplos na Interface:**
-- `4.800 📈` - Estimativa baseada em "Mais de 4 mil compras"
-- `1.000` - Valor exato de "1 mil compras"
-- `750` - Número simples direto
+- `4.800` - Estimativa baseada em "Mais de 4 mil compras" (tooltip: "Vendas estimadas")
+- `1.000` - Valor exato de "1 mil compras" (tooltip: "Vendas")
+- `750` - Número simples direto (tooltip: "Vendas")
+
+### Melhorias Clean na Interface
+
+✅ **Coluna Status Simplificada:**
+- Removidos cards coloridos e emojis
+- Apenas texto: "Novo" (verde) ou "Existente" (azul)
+- Interface mais profissional e limpa
+
+✅ **Coluna Vendidos Simplificada:**
+- Removido emoji 📈 das células
+- Tooltip simples: "Vendas estimadas" ou "Vendas"
+- Foco na informação essencial
 
 ### Benefícios da Transparência
 
 ✅ **Confiança do usuário** - Sabe exatamente como os números são calculados  
 ✅ **Decisões informadas** - Entende a margem de erro das estimativas  
-✅ **Feedback visual** - Identifica rapidamente valores estimados vs exatos  
-✅ **Rastreabilidade** - Pode ver o texto original da Amazon no tooltip
+✅ **Interface clean** - Design profissional sem elementos visuais desnecessários  
+✅ **Informação clara** - Tooltips diretos e objetivos
 
 ---
 

@@ -192,33 +192,19 @@ class TableRowBuilder {
     static criarCelulaStatus(produto) {
         // Verificar se o produto é novo ou existente
         const isNovo = produto.isNovo !== false; // Default é novo se não especificado
-        const status = isNovo ? 'NOVO' : 'EXISTENTE';
-        const icone = isNovo ? '🆕' : '♻️';
-        const corFundo = isNovo ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #3b82f6, #2563eb)';
-        const corTexto = 'white';
+        const status = isNovo ? 'Novo' : 'Existente';
+        const corTexto = isNovo ? '#059669' : '#3b82f6';
         
         return `
             <td style="
                 padding: 8px;
                 text-align: center;
                 border-right: 1px solid var(--border-light);
-                width: 80px;
-            ">
-                <div style="
-                    background: ${corFundo};
-                    color: ${corTexto};
-                    padding: 4px 8px;
-                    border-radius: 12px;
-                    font-size: 10px;
-                    font-weight: 600;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 2px;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-                " title="${isNovo ? 'Produto novo na base de dados' : 'Produto já existe na base de dados'}">
-                    ${icone} ${status}
-                </div>
+                font-size: 12px;
+                font-weight: 600;
+                color: ${corTexto};
+            " title="${isNovo ? 'Produto novo na base de dados' : 'Produto já existe na base de dados'}">
+                ${status}
             </td>
         `;
     }
@@ -377,9 +363,7 @@ class TableRowBuilder {
         const corVendidos = vendidos > 0 ? 'var(--text-primary)' : 'var(--text-secondary)';
         
         // Verificar se este valor pode ter estimativa aplicada
-        // Baseado no texto original de vendas se disponível
         let temEstimativa = false;
-        let iconEstimativa = '';
         
         if (produto.vendidosTextoOriginal) {
             const textoOriginal = produto.vendidosTextoOriginal.toLowerCase();
@@ -389,12 +373,11 @@ class TableRowBuilder {
                 textoOriginal.includes('above') ||
                 textoOriginal.includes('over')) {
                 temEstimativa = true;
-                iconEstimativa = ' 📈';
             }
         }
         
         const tituloTooltip = temEstimativa ? 
-            `Vendas estimadas: ${vendidos.toLocaleString('pt-BR')}${iconEstimativa}${vendidos > 0 ? '\nTexto original: "' + (produto.vendidosTextoOriginal || 'N/A') + '"\n(+20% aplicado para "mais de X")' : ''}` :
+            `Vendas estimadas: ${vendidos.toLocaleString('pt-BR')}` :
             `Vendas: ${vendidos.toLocaleString('pt-BR')}`;
         
         return `
@@ -407,7 +390,7 @@ class TableRowBuilder {
                 color: ${corVendidos};
                 cursor: ${temEstimativa ? 'help' : 'default'};
             " title="${tituloTooltip}">
-                ${vendidos.toLocaleString('pt-BR')}${iconEstimativa}
+                ${vendidos.toLocaleString('pt-BR')}
             </td>
         `;
     }

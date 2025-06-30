@@ -482,7 +482,7 @@ class ModalBuilder {
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);">Receita/Mês</th>
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);">BSR</th>
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);">Categoria</th>
-                    <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);" title="Status do produto (novo/existente)">🔄 Status</th>
+                    <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);" title="Status do produto (novo/existente)">Status</th>
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);" title="Tendência de posição baseada no histórico">📊 Tendência</th>
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600;">Tipo</th>
                 </tr>

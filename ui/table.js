@@ -113,7 +113,7 @@ class TableManager {
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Receita</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">BSR</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Categoria</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Status do produto (novo/existente)">🔄 Status</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);" title="Status do produto (novo/existente)">Status</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Tendência de posição (subiu/desceu/manteve)">📈 Tendência</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Tipo</th>
                                     </tr>
