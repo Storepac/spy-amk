@@ -72,6 +72,9 @@ class ProductAnalyzer {
     static async analisarProdutosPesquisaRapido() {
         const produtos = [];
         
+        // Carregar filtros salvos
+        const filtros = this.carregarFiltrosAnalise();
+        
         // Tentar diferentes seletores para encontrar produtos
         let elementosProdutos = document.querySelectorAll('[data-asin]:not([data-asin=""])');
         
@@ -92,7 +95,7 @@ class ProductAnalyzer {
             return produtos;
         }
         
-        NotificationManager.informacao(`Coletando ${elementosProdutos.length} produtos básicos...`);
+        NotificationManager.informacao(`Coletando ${elementosProdutos.length} produtos básicos${this.temFiltrosAtivos(filtros) ? ' com filtros' : ''}...`);
         
         elementosProdutos.forEach((elemento, index) => {
             try {
@@ -108,15 +111,29 @@ class ProductAnalyzer {
             }
         });
         
-        console.log(`Produtos extraídos com sucesso: ${produtos.length}`);
+        console.log(`Produtos extraídos: ${produtos.length}`);
         
-        if (produtos.length === 0) {
-            NotificationManager.erro('Nenhum produto válido foi extraído. Verifique se a página está carregada completamente.');
-        } else {
-            NotificationManager.sucesso(`${produtos.length} produtos coletados com sucesso!`);
+        // Aplicar filtros se configurados
+        let produtosFiltrados = produtos;
+        if (this.temFiltrosAtivos(filtros)) {
+            produtosFiltrados = this.aplicarFiltros(produtos, filtros);
+            console.log(`🎯 Filtros aplicados: ${produtos.length} → ${produtosFiltrados.length} produtos`);
         }
         
-        return produtos;
+        if (produtosFiltrados.length === 0) {
+            if (this.temFiltrosAtivos(filtros)) {
+                NotificationManager.erro('Nenhum produto passou pelos filtros configurados. Tente ajustar os critérios.');
+            } else {
+                NotificationManager.erro('Nenhum produto válido foi extraído. Verifique se a página está carregada completamente.');
+            }
+        } else {
+            const mensagem = this.temFiltrosAtivos(filtros) 
+                ? `${produtosFiltrados.length} produtos coletados (${produtos.length - produtosFiltrados.length} filtrados)!`
+                : `${produtosFiltrados.length} produtos coletados com sucesso!`;
+            NotificationManager.sucesso(mensagem);
+        }
+        
+        return produtosFiltrados;
     }
 
     static async buscarDetalhesEmParalelo(produtos, atualizarCallback) {
@@ -303,10 +320,23 @@ class ProductAnalyzer {
         
         const produtosOrdenados = produtos.sort((a, b) => a.posicaoGlobal - b.posicaoGlobal);
         
-        console.log(`✅ Coleta concluída: ${produtosOrdenados.length} produtos de ${pagina - 1} páginas`);
-        NotificationManager.sucesso(`Análise completa: ${produtosOrdenados.length} produtos coletados de ${pagina - 1} páginas!`);
+        // Aplicar filtros se configurados
+        const filtros = this.carregarFiltrosAnalise();
+        let produtosFiltrados = produtosOrdenados;
         
-        return produtosOrdenados;
+        if (this.temFiltrosAtivos(filtros)) {
+            produtosFiltrados = this.aplicarFiltros(produtosOrdenados, filtros);
+            console.log(`🎯 Filtros aplicados: ${produtosOrdenados.length} → ${produtosFiltrados.length} produtos`);
+        }
+        
+        console.log(`✅ Coleta concluída: ${produtosFiltrados.length} produtos de ${pagina - 1} páginas`);
+        
+        const mensagem = this.temFiltrosAtivos(filtros) 
+            ? `Análise completa: ${produtosFiltrados.length} produtos coletados (${produtosOrdenados.length - produtosFiltrados.length} filtrados) de ${pagina - 1} páginas!`
+            : `Análise completa: ${produtosFiltrados.length} produtos coletados de ${pagina - 1} páginas!`;
+        NotificationManager.sucesso(mensagem);
+        
+        return produtosFiltrados;
     }
 
     static mostrarProgressoPaginas(paginaAtual, produtosNaPagina) {
@@ -922,6 +952,72 @@ class ProductAnalyzer {
         
         console.log('✅ Análise completa finalizada');
         NotificationManager.sucesso('Análise completa finalizada!');
+    }
+
+    static carregarFiltrosAnalise() {
+        try {
+            const filtrosSalvos = sessionStorage.getItem('amk_filtros_analise');
+            if (filtrosSalvos) {
+                const filtros = JSON.parse(filtrosSalvos);
+                console.log('🎯 Filtros carregados para análise:', filtros);
+                return filtros;
+            }
+        } catch (error) {
+            console.warn('⚠️ Erro ao carregar filtros:', error);
+        }
+        return {};
+    }
+
+    static temFiltrosAtivos(filtros) {
+        if (!filtros) return false;
+        
+        return filtros.bsrTop100 || 
+               filtros.precoMin || filtros.precoMax ||
+               filtros.bsrMin || filtros.bsrMax ||
+               filtros.vendasMin || filtros.vendasMax;
+    }
+
+    static aplicarFiltros(produtos, filtros) {
+        if (!produtos || produtos.length === 0) return produtos;
+        if (!this.temFiltrosAtivos(filtros)) return produtos;
+
+        let produtosFiltrados = produtos.filter(produto => {
+            // Filtro BSR ≤ 100
+            if (filtros.bsrTop100) {
+                const bsr = parseInt(produto.ranking || produto.bsr || 0);
+                if (bsr > 100 || bsr === 0) return false;
+            }
+
+            // Filtro BSR personalizado (só se toggle estiver desmarcado)
+            if (!filtros.bsrTop100 && (filtros.bsrMin || filtros.bsrMax)) {
+                const bsr = parseInt(produto.ranking || produto.bsr || 0);
+                if (filtros.bsrMin && bsr < filtros.bsrMin) return false;
+                if (filtros.bsrMax && bsr > filtros.bsrMax) return false;
+            }
+
+            // Filtro de preço
+            if (filtros.precoMin || filtros.precoMax) {
+                const preco = produto.precoNumerico || 0;
+                if (filtros.precoMin && preco < filtros.precoMin) return false;
+                if (filtros.precoMax && preco > filtros.precoMax) return false;
+            }
+
+            // Filtro de vendas
+            if (filtros.vendasMin || filtros.vendasMax) {
+                const vendas = parseInt(produto.vendidos || 0);
+                if (filtros.vendasMin && vendas < filtros.vendasMin) return false;
+                if (filtros.vendasMax && vendas > filtros.vendasMax) return false;
+            }
+
+            return true;
+        });
+
+        // Reajustar posições após filtros
+        produtosFiltrados.forEach((produto, index) => {
+            produto.posicaoFiltrada = index + 1;
+        });
+
+        return produtosFiltrados;
     }
 }
 

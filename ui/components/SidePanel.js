@@ -116,6 +116,205 @@ class SidePanel {
                         >
                     </div>
 
+                    <!-- Filtros Avançados -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="
+                            font-size: 14px;
+                            font-weight: 600;
+                            color: #014641;
+                            margin-bottom: 12px;
+                            text-align: center;
+                        ">🎯 Filtros de Análise:</div>
+                        
+                        <!-- Toggle BSR > 100 -->
+                        <div style="
+                            background: #f8f9fa;
+                            border-radius: 8px;
+                            padding: 12px;
+                            margin-bottom: 15px;
+                            border: 1px solid #e9ecef;
+                        ">
+                            <label style="
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                                cursor: pointer;
+                                font-size: 13px;
+                                font-weight: 500;
+                                color: #495057;
+                            ">
+                                <input 
+                                    type="checkbox" 
+                                    id="amk-filter-bsr-top100"
+                                    style="
+                                        width: 16px;
+                                        height: 16px;
+                                        accent-color: #014641;
+                                    "
+                                >
+                                <span>📊 Apenas produtos BSR ≤ 100</span>
+                            </label>
+                            <div style="font-size: 11px; color: #6c757d; margin-top: 4px; margin-left: 24px;">
+                                Quando marcado, desabilita filtros BSR personalizados
+                            </div>
+                        </div>
+
+                        <!-- Preço do BuyBox -->
+                        <div style="
+                            background: #f8f9fa;
+                            border-radius: 8px;
+                            padding: 12px;
+                            margin-bottom: 12px;
+                            border: 1px solid #e9ecef;
+                        ">
+                            <div style="
+                                font-size: 13px;
+                                font-weight: 600;
+                                color: #014641;
+                                margin-bottom: 8px;
+                            ">💰 Preço do BuyBox</div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <div style="flex: 1;">
+                                    <input 
+                                        type="number" 
+                                        id="amk-filter-preco-min"
+                                        placeholder="R$ Mín"
+                                        min="0"
+                                        step="0.01"
+                                        style="
+                                            width: 100%;
+                                            padding: 8px;
+                                            border: 1px solid #ced4da;
+                                            border-radius: 4px;
+                                            font-size: 12px;
+                                            box-sizing: border-box;
+                                        "
+                                    >
+                                </div>
+                                <span style="color: #6c757d; font-size: 12px;">até</span>
+                                <div style="flex: 1;">
+                                    <input 
+                                        type="number" 
+                                        id="amk-filter-preco-max"
+                                        placeholder="R$ Máx"
+                                        min="0"
+                                        step="0.01"
+                                        style="
+                                            width: 100%;
+                                            padding: 8px;
+                                            border: 1px solid #ced4da;
+                                            border-radius: 4px;
+                                            font-size: 12px;
+                                            box-sizing: border-box;
+                                        "
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ranking Categoria (BSR) -->
+                        <div id="amk-bsr-custom-container" style="
+                            background: #f8f9fa;
+                            border-radius: 8px;
+                            padding: 12px;
+                            margin-bottom: 12px;
+                            border: 1px solid #e9ecef;
+                        ">
+                            <div style="
+                                font-size: 13px;
+                                font-weight: 600;
+                                color: #014641;
+                                margin-bottom: 8px;
+                            ">🏆 Ranking Categoria (BSR)</div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <div style="flex: 1;">
+                                    <input 
+                                        type="number" 
+                                        id="amk-filter-bsr-min"
+                                        placeholder="BSR Mín"
+                                        min="1"
+                                        style="
+                                            width: 100%;
+                                            padding: 8px;
+                                            border: 1px solid #ced4da;
+                                            border-radius: 4px;
+                                            font-size: 12px;
+                                            box-sizing: border-box;
+                                        "
+                                    >
+                                </div>
+                                <span style="color: #6c757d; font-size: 12px;">até</span>
+                                <div style="flex: 1;">
+                                    <input 
+                                        type="number" 
+                                        id="amk-filter-bsr-max"
+                                        placeholder="BSR Máx"
+                                        min="1"
+                                        style="
+                                            width: 100%;
+                                            padding: 8px;
+                                            border: 1px solid #ced4da;
+                                            border-radius: 4px;
+                                            font-size: 12px;
+                                            box-sizing: border-box;
+                                        "
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- N° de Vendas -->
+                        <div style="
+                            background: #f8f9fa;
+                            border-radius: 8px;
+                            padding: 12px;
+                            margin-bottom: 15px;
+                            border: 1px solid #e9ecef;
+                        ">
+                            <div style="
+                                font-size: 13px;
+                                font-weight: 600;
+                                color: #014641;
+                                margin-bottom: 8px;
+                            ">📈 N° de Vendas</div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <div style="flex: 1;">
+                                    <input 
+                                        type="number" 
+                                        id="amk-filter-vendas-min"
+                                        placeholder="Vendas Mín"
+                                        min="0"
+                                        style="
+                                            width: 100%;
+                                            padding: 8px;
+                                            border: 1px solid #ced4da;
+                                            border-radius: 4px;
+                                            font-size: 12px;
+                                            box-sizing: border-box;
+                                        "
+                                    >
+                                </div>
+                                <span style="color: #6c757d; font-size: 12px;">até</span>
+                                <div style="flex: 1;">
+                                    <input 
+                                        type="number" 
+                                        id="amk-filter-vendas-max"
+                                        placeholder="Vendas Máx"
+                                        min="0"
+                                        style="
+                                            width: 100%;
+                                            padding: 8px;
+                                            border: 1px solid #ced4da;
+                                            border-radius: 4px;
+                                            font-size: 12px;
+                                            box-sizing: border-box;
+                                        "
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Botões de Análise -->
                     <div style="margin-bottom: 20px;">
                         <div style="
@@ -301,8 +500,51 @@ class SidePanel {
             btnToggleTable.addEventListener('click', () => this.toggleTabela());
         }
 
+        // Configurar eventos dos filtros
+        this.configurarEventosFiltros();
+
         // Hover effects
         this.adicionarHoverEffects();
+    }
+
+    static configurarEventosFiltros() {
+        const panel = this.panelElement;
+        if (!panel) return;
+
+        // Toggle BSR ≤ 100
+        const toggleBSR = panel.querySelector('#amk-filter-bsr-top100');
+        const bsrContainer = panel.querySelector('#amk-bsr-custom-container');
+        const bsrMinInput = panel.querySelector('#amk-filter-bsr-min');
+        const bsrMaxInput = panel.querySelector('#amk-filter-bsr-max');
+
+        if (toggleBSR && bsrContainer && bsrMinInput && bsrMaxInput) {
+            const toggleBSRFields = () => {
+                const isChecked = toggleBSR.checked;
+                
+                // Desabilitar/habilitar campos BSR personalizados
+                bsrMinInput.disabled = isChecked;
+                bsrMaxInput.disabled = isChecked;
+                
+                // Visual feedback
+                bsrContainer.style.opacity = isChecked ? '0.5' : '1';
+                bsrContainer.style.pointerEvents = isChecked ? 'none' : 'auto';
+                
+                // Limpar valores se desabilitado
+                if (isChecked) {
+                    bsrMinInput.value = '';
+                    bsrMaxInput.value = '';
+                }
+                
+                console.log(`🎯 BSR Filter: ${isChecked ? 'Top 100 only' : 'Custom range'}`);
+            };
+
+            toggleBSR.addEventListener('change', toggleBSRFields);
+            
+            // Aplicar estado inicial
+            toggleBSRFields();
+        }
+
+        console.log('✅ Eventos dos filtros configurados');
     }
 
     static adicionarHoverEffects() {
@@ -320,6 +562,78 @@ class SidePanel {
         });
     }
 
+    static coletarFiltros() {
+        if (!this.panelElement) return {};
+
+        const panel = this.panelElement;
+        
+        // Coletar valores dos filtros
+        const filtros = {
+            // BSR Toggle
+            bsrTop100: panel.querySelector('#amk-filter-bsr-top100')?.checked || false,
+            
+            // Preço
+            precoMin: parseFloat(panel.querySelector('#amk-filter-preco-min')?.value) || null,
+            precoMax: parseFloat(panel.querySelector('#amk-filter-preco-max')?.value) || null,
+            
+            // BSR Personalizado (só se toggle estiver desmarcado)
+            bsrMin: null,
+            bsrMax: null,
+            
+            // Vendas
+            vendasMin: parseInt(panel.querySelector('#amk-filter-vendas-min')?.value) || null,
+            vendasMax: parseInt(panel.querySelector('#amk-filter-vendas-max')?.value) || null
+        };
+
+        // BSR personalizado só se toggle estiver desmarcado
+        if (!filtros.bsrTop100) {
+            filtros.bsrMin = parseInt(panel.querySelector('#amk-filter-bsr-min')?.value) || null;
+            filtros.bsrMax = parseInt(panel.querySelector('#amk-filter-bsr-max')?.value) || null;
+        }
+
+        console.log('🎯 Filtros coletados:', filtros);
+        return filtros;
+    }
+
+    static aplicarFiltrosProdutos(produtos, filtros) {
+        if (!produtos || produtos.length === 0) return produtos;
+        if (!filtros || Object.keys(filtros).length === 0) return produtos;
+
+        let produtosFiltrados = produtos.filter(produto => {
+            // Filtro BSR ≤ 100
+            if (filtros.bsrTop100) {
+                const bsr = parseInt(produto.ranking || produto.bsr || 0);
+                if (bsr > 100 || bsr === 0) return false;
+            }
+
+            // Filtro BSR personalizado (só se toggle estiver desmarcado)
+            if (!filtros.bsrTop100 && (filtros.bsrMin || filtros.bsrMax)) {
+                const bsr = parseInt(produto.ranking || produto.bsr || 0);
+                if (filtros.bsrMin && bsr < filtros.bsrMin) return false;
+                if (filtros.bsrMax && bsr > filtros.bsrMax) return false;
+            }
+
+            // Filtro de preço
+            if (filtros.precoMin || filtros.precoMax) {
+                const preco = produto.precoNumerico || 0;
+                if (filtros.precoMin && preco < filtros.precoMin) return false;
+                if (filtros.precoMax && preco > filtros.precoMax) return false;
+            }
+
+            // Filtro de vendas
+            if (filtros.vendasMin || filtros.vendasMax) {
+                const vendas = parseInt(produto.vendidos || 0);
+                if (filtros.vendasMin && vendas < filtros.vendasMin) return false;
+                if (filtros.vendasMax && vendas > filtros.vendasMax) return false;
+            }
+
+            return true;
+        });
+
+        console.log(`🎯 Filtros aplicados: ${produtos.length} → ${produtosFiltrados.length} produtos`);
+        return produtosFiltrados;
+    }
+
     static executarAnalise(tipo) {
         const searchInput = this.panelElement.querySelector('#amk-search-term');
         const termo = searchInput.value.trim();
@@ -330,7 +644,13 @@ class SidePanel {
             return;
         }
 
-        this.showStatus(`Iniciando análise ${tipo}...`, 'info');
+        // Coletar filtros da interface
+        const filtros = this.coletarFiltros();
+        
+        // Mostrar resumo dos filtros se algum estiver ativo
+        this.mostrarResumoFiltros(filtros);
+
+        this.showStatus(`Iniciando análise ${tipo}${this.temFiltrosAtivos(filtros) ? ' com filtros' : ''}...`, 'info');
 
         // Se não estamos na página de busca correta, navegar primeiro
         if (!window.location.href.includes(`k=${encodeURIComponent(termo)}`)) {
@@ -340,7 +660,8 @@ class SidePanel {
             // Armazenar dados da análise para executar após navegação
             sessionStorage.setItem('amk_pending_analysis', JSON.stringify({
                 tipo: tipo,
-                termo: termo
+                termo: termo,
+                filtros: filtros
             }));
             
             window.location.href = amazonUrl;
@@ -348,7 +669,7 @@ class SidePanel {
         }
 
         // Executar análise diretamente
-        this.executarAnaliseAgora(tipo);
+        this.executarAnaliseAgora(tipo, filtros);
     }
 
     static verificarStatusTabela() {
@@ -479,8 +800,56 @@ class SidePanel {
         }
     }
 
-    static executarAnaliseAgora(tipo) {
+    static temFiltrosAtivos(filtros) {
+        if (!filtros) return false;
+        
+        return filtros.bsrTop100 || 
+               filtros.precoMin || filtros.precoMax ||
+               filtros.bsrMin || filtros.bsrMax ||
+               filtros.vendasMin || filtros.vendasMax;
+    }
+
+    static mostrarResumoFiltros(filtros) {
+        if (!this.temFiltrosAtivos(filtros)) return;
+
+        const resumo = [];
+        
+        if (filtros.bsrTop100) {
+            resumo.push('BSR ≤ 100');
+        } else if (filtros.bsrMin || filtros.bsrMax) {
+            const bsrRange = [];
+            if (filtros.bsrMin) bsrRange.push(`≥${filtros.bsrMin}`);
+            if (filtros.bsrMax) bsrRange.push(`≤${filtros.bsrMax}`);
+            resumo.push(`BSR ${bsrRange.join(' e ')}`);
+        }
+
+        if (filtros.precoMin || filtros.precoMax) {
+            const precoRange = [];
+            if (filtros.precoMin) precoRange.push(`≥R$${filtros.precoMin}`);
+            if (filtros.precoMax) precoRange.push(`≤R$${filtros.precoMax}`);
+            resumo.push(`Preço ${precoRange.join(' e ')}`);
+        }
+
+        if (filtros.vendasMin || filtros.vendasMax) {
+            const vendasRange = [];
+            if (filtros.vendasMin) vendasRange.push(`≥${filtros.vendasMin}`);
+            if (filtros.vendasMax) vendasRange.push(`≤${filtros.vendasMax}`);
+            resumo.push(`Vendas ${vendasRange.join(' e ')}`);
+        }
+
+        console.log(`🎯 Filtros ativos: ${resumo.join(', ')}`);
+    }
+
+    static executarAnaliseAgora(tipo, filtros = {}) {
         this.showStatus(`Executando análise ${tipo}...`, 'info');
+        
+        // Armazenar filtros para uso durante a análise
+        if (this.temFiltrosAtivos(filtros)) {
+            sessionStorage.setItem('amk_filtros_analise', JSON.stringify(filtros));
+            console.log('💾 Filtros salvos para análise:', filtros);
+        } else {
+            sessionStorage.removeItem('amk_filtros_analise');
+        }
         
         setTimeout(() => {
             if (typeof AppController !== 'undefined') {
@@ -497,15 +866,19 @@ class SidePanel {
         const pendingAnalysis = sessionStorage.getItem('amk_pending_analysis');
         if (pendingAnalysis) {
             try {
-                const data = JSON.parse(pendingAnalysis);
+                const { tipo, termo, filtros = {} } = JSON.parse(pendingAnalysis);
                 sessionStorage.removeItem('amk_pending_analysis');
                 
-                console.log('🔄 Executando análise pendente:', data);
-                this.showStatus(`Executando análise ${data.tipo} pendente...`, 'info');
+                console.log('🔄 Executando análise pendente:', { tipo, termo });
+                if (this.temFiltrosAtivos(filtros)) {
+                    console.log('🎯 Com filtros:', filtros);
+                }
+                
+                this.showStatus(`Executando análise ${tipo} pendente${this.temFiltrosAtivos(filtros) ? ' com filtros' : ''}...`, 'info');
                 
                 // Aguardar página carregar e executar análise
                 setTimeout(() => {
-                    this.executarAnaliseAgora(data.tipo);
+                    this.executarAnaliseAgora(tipo, filtros);
                 }, 2000);
                 
             } catch (error) {
