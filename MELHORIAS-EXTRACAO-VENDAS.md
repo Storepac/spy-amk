@@ -185,6 +185,42 @@ return {
 - ✅ **Robustez**: Funciona mesmo com variações de HTML/CSS
 - ✅ **Logs**: Debug detalhado para manutenção
 - ✅ **Compatibilidade**: Mantém funcionamento com formatos antigos
+- ✅ **Transparência**: Interface clara sobre estimativas aplicadas
+
+## 🎯 Interface Transparente
+
+### Legenda na Coluna "Vendidos 📊"
+
+A coluna de vendas agora possui:
+
+**1. Tooltip Explicativo no Cabeçalho:**
+```
+📊 Vendas no último mês
+
+💡 Estimativas:
+• 'Mais de X mil' → +20% margem
+• '2+ mil' → +20% margem  
+• Números exatos conforme Amazon
+
+🎯 Baseado em dados públicos da Amazon
+```
+
+**2. Indicadores Visuais nas Células:**
+- **📈** Ícone para valores com estimativa aplicada
+- **Tooltip individual** mostrando texto original da Amazon
+- **Cursor help** em valores estimados
+
+**3. Exemplos na Interface:**
+- `4.800 📈` - Estimativa baseada em "Mais de 4 mil compras"
+- `1.000` - Valor exato de "1 mil compras"
+- `750` - Número simples direto
+
+### Benefícios da Transparência
+
+✅ **Confiança do usuário** - Sabe exatamente como os números são calculados  
+✅ **Decisões informadas** - Entende a margem de erro das estimativas  
+✅ **Feedback visual** - Identifica rapidamente valores estimados vs exatos  
+✅ **Rastreabilidade** - Pode ver o texto original da Amazon no tooltip
 
 ---
 

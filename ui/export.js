@@ -59,20 +59,20 @@ class ExportManager {
                 produto.posicaoGlobal || produto.posicao || '',
                 `"${tendencia}"`,
                 `"${(produto.titulo || '').replace(/"/g, '""')}"`,
-                produto.asin || '',
-                produto.marca || '',
-                produto.preco || '',
-                produto.avaliacao || '',
-                produto.numAvaliacoes || '',
-                produto.vendidos || '',
-                produto.receitaMes ? `R$ ${produto.receitaMes.toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '',
-                produto.ranking || '',
-                produto.categoria || '',
-                produto.patrocinado ? 'Patrocinado' : 'Orgânico',
-                produto.paginaOrigem || '',
-                produto.link || '',
-                produto.imagem || ''
-            ];
+            produto.asin || '',
+            produto.marca || '',
+            produto.preco || '',
+            produto.avaliacao || '',
+            produto.numAvaliacoes || '',
+            produto.vendidos || '',
+            produto.receitaMes ? `R$ ${produto.receitaMes.toLocaleString('pt-BR', {minimumFractionDigits: 2})}` : '',
+            produto.ranking || '',
+            produto.categoria || '',
+            produto.patrocinado ? 'Patrocinado' : 'Orgânico',
+            produto.paginaOrigem || '',
+            produto.link || '',
+            produto.imagem || ''
+        ];
         });
 
         // Combinar cabeçalhos e dados
@@ -960,7 +960,7 @@ class ExportManager {
         const fecharModalGlobal = () => {
             modal.style.animation = 'fadeOut 0.2s ease-out';
             setTimeout(() => {
-                modal.remove();
+            modal.remove();
             }, 200);
         };
         

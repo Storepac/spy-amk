@@ -109,7 +109,7 @@ class TableManager {
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Preço</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Avaliação</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);"># Aval.</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Vendidos</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light); cursor: help;" title="📊 Vendas no último mês&#10;&#10;💡 Estimativas:&#10;• 'Mais de X mil' → +20% margem&#10;• '2+ mil' → +20% margem&#10;• Números exatos conforme Amazon&#10;&#10;🎯 Baseado em dados públicos da Amazon">Vendidos 📊</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Receita</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">BSR</th>
                         <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Categoria</th>

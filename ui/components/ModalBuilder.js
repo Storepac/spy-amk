@@ -478,7 +478,7 @@ class ModalBuilder {
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);">Preço</th>
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);">Avaliação</th>
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);">Nº Avaliações</th>
-                    <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);">Vendidos</th>
+                    <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15); cursor: help;" title="📊 Vendas no último mês&#10;&#10;💡 Estimativas:&#10;• 'Mais de X mil' → +20% margem&#10;• '2+ mil' → +20% margem&#10;• Números exatos conforme Amazon&#10;&#10;🎯 Baseado em dados públicos da Amazon">Vendidos 📊</th>
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);">Receita/Mês</th>
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);">BSR</th>
                     <th style="padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 600; border-right: 1px solid rgba(255,255,255,0.15);">Categoria</th>

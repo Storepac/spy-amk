@@ -376,6 +376,27 @@ class TableRowBuilder {
         const vendidos = produto.vendidos || 0;
         const corVendidos = vendidos > 0 ? 'var(--text-primary)' : 'var(--text-secondary)';
         
+        // Verificar se este valor pode ter estimativa aplicada
+        // Baseado no texto original de vendas se disponível
+        let temEstimativa = false;
+        let iconEstimativa = '';
+        
+        if (produto.vendidosTextoOriginal) {
+            const textoOriginal = produto.vendidosTextoOriginal.toLowerCase();
+            if (textoOriginal.includes('mais de') || 
+                textoOriginal.includes('acima de') || 
+                textoOriginal.includes('+') ||
+                textoOriginal.includes('above') ||
+                textoOriginal.includes('over')) {
+                temEstimativa = true;
+                iconEstimativa = ' 📈';
+            }
+        }
+        
+        const tituloTooltip = temEstimativa ? 
+            `Vendas estimadas: ${vendidos.toLocaleString('pt-BR')}${iconEstimativa}${vendidos > 0 ? '\nTexto original: "' + (produto.vendidosTextoOriginal || 'N/A') + '"\n(+20% aplicado para "mais de X")' : ''}` :
+            `Vendas: ${vendidos.toLocaleString('pt-BR')}`;
+        
         return `
             <td style="
                 padding: 8px;
@@ -384,7 +405,10 @@ class TableRowBuilder {
                 font-size: 12px;
                 font-weight: 600;
                 color: ${corVendidos};
-            ">${vendidos.toLocaleString('pt-BR')}</td>
+                cursor: ${temEstimativa ? 'help' : 'default'};
+            " title="${tituloTooltip}">
+                ${vendidos.toLocaleString('pt-BR')}${iconEstimativa}
+            </td>
         `;
     }
 

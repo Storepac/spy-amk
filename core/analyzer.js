@@ -124,7 +124,7 @@ class ProductAnalyzer {
             if (this.temFiltrosAtivos(filtros)) {
                 NotificationManager.erro('Nenhum produto passou pelos filtros configurados. Tente ajustar os critérios.');
             } else {
-                NotificationManager.erro('Nenhum produto válido foi extraído. Verifique se a página está carregada completamente.');
+            NotificationManager.erro('Nenhum produto válido foi extraído. Verifique se a página está carregada completamente.');
             }
         } else {
             const mensagem = this.temFiltrosAtivos(filtros) 
