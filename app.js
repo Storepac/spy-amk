@@ -89,8 +89,14 @@ class AppController {
         if (btnTema) {
             btnTema.addEventListener('click', () => {
                 console.log('🎨 Alternando tema...');
-                // Por enquanto, apenas um log - podemos implementar o tema depois
-                NotificationManager.informacao('Funcionalidade de tema será implementada em breve!');
+                if (TableManager.themeManager) {
+                    TableManager.themeManager.toggleTheme();
+                    const modoAtual = TableManager.themeManager.isDarkMode ? 'escuro' : 'claro';
+                    NotificationManager.sucesso(`Tema ${modoAtual} ativado!`);
+                } else {
+                    console.error('ThemeManager não disponível');
+                    NotificationManager.erro('Erro ao alternar tema.');
+                }
             });
         }
         

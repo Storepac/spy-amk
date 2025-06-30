@@ -5,7 +5,19 @@ class ThemeManager {
     }
 
     detectDarkMode() {
-        return false; // Sempre inicia no modo claro
+        // Verificar preferência salva do usuário
+        const savedTheme = localStorage.getItem('amk-spy-dark-mode');
+        if (savedTheme !== null) {
+            return savedTheme === 'true';
+        }
+        
+        // Se não tem preferência salva, verificar preferência do sistema
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return true;
+        }
+        
+        // Default: modo claro
+        return false;
     }
 
     init() {
@@ -24,6 +36,7 @@ class ThemeManager {
                     --bg-primary: #ffffff;
                     --bg-secondary: #f8fafc;
                     --bg-tertiary: #ffffff;
+                    --bg-hover: #f1f5f9;
                     --text-primary: #374151;
                     --text-secondary: #64748b;
                     --border-color: #e2e8f0;
@@ -37,13 +50,55 @@ class ThemeManager {
                     --bg-primary: #1a1a1a;
                     --bg-secondary: #2d2d2d;
                     --bg-tertiary: #1a1a1a;
+                    --bg-hover: #3a3a3a;
                     --text-primary: #e0e0e0;
                     --text-secondary: #a0a0a0;
                     --border-color: #404040;
                     --border-light: #404040;
                     --border-table: #333333;
-                    --shadow: 0 2px 4px rgba(0,0,0,0.2);
-                    --shadow-heavy: 0 25px 50px rgba(0,0,0,0.6);
+                    --shadow: 0 2px 4px rgba(0,0,0,0.3);
+                    --shadow-heavy: 0 25px 50px rgba(0,0,0,0.8);
+                }
+
+                /* Aplicar tema a elementos específicos */
+                body.dark-mode {
+                    background: var(--bg-primary);
+                    color: var(--text-primary);
+                }
+
+                .dark-mode input, 
+                .dark-mode select, 
+                .dark-mode textarea {
+                    background: var(--bg-secondary) !important;
+                    color: var(--text-primary) !important;
+                    border-color: var(--border-color) !important;
+                }
+
+                .dark-mode button {
+                    background: var(--bg-secondary) !important;
+                    color: var(--text-primary) !important;
+                    border-color: var(--border-color) !important;
+                }
+
+                .dark-mode table {
+                    background: var(--bg-primary) !important;
+                    color: var(--text-primary) !important;
+                }
+
+                .dark-mode th {
+                    background: var(--bg-secondary) !important;
+                    color: var(--text-primary) !important;
+                    border-color: var(--border-light) !important;
+                }
+
+                .dark-mode td {
+                    background: var(--bg-primary) !important;
+                    color: var(--text-primary) !important;
+                    border-color: var(--border-light) !important;
+                }
+
+                .dark-mode tr:hover {
+                    background: var(--bg-hover) !important;
                 }
 
                 /* Aplicar variáveis */
@@ -221,8 +276,10 @@ class ThemeManager {
         if (modal) {
             if (this.isDarkMode) {
                 modal.classList.add('dark-mode');
+                document.body.classList.add('dark-mode');
             } else {
                 modal.classList.remove('dark-mode');
+                document.body.classList.remove('dark-mode');
             }
         }
         
@@ -231,6 +288,11 @@ class ThemeManager {
         
         // Atualizar botão de tema
         this.updateThemeButton();
+        
+        // Salvar preferência do usuário
+        localStorage.setItem('amk-spy-dark-mode', this.isDarkMode);
+        
+        console.log(`🎨 Tema ${this.isDarkMode ? 'escuro' : 'claro'} aplicado`);
     }
     
     updateThemeColors() {

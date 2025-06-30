@@ -6,6 +6,7 @@ class TableManager {
     static filterManager = new FilterManager();
     static exportManager = new ExportManager();
     static eventManager = new EventManager();
+    static themeManager = new ThemeManager();
 
     static criarTabelaProdutos(produtos) {
         window.produtosTabela = produtos;
@@ -127,6 +128,12 @@ class TableManager {
     static inicializarEventos(forcarLimpeza = false) {
         console.log('🔧 Inicializando eventos da tabela...', forcarLimpeza ? '(com limpeza forçada)' : '');
         
+        // Aplicar tema inicialmente
+        if (this.themeManager) {
+            this.themeManager.applyTheme();
+            console.log('🎨 Tema aplicado na inicialização');
+        }
+        
         // SEMPRE limpar filtros ao inicializar para garantir funcionamento correto
         if (this.filterManager) {
             console.log('🧹 Auto-limpeza de filtros para garantir funcionamento correto...');
@@ -152,6 +159,11 @@ class TableManager {
             // Configurar eventos do EventManager
             if (this.eventManager) {
                 this.eventManager.inicializar();
+            }
+            
+            // Aplicar tema novamente após DOM estabilizar
+            if (this.themeManager) {
+                this.themeManager.applyTheme();
             }
             
             // Executar segunda limpeza após eventos configurados para garantir estado correto

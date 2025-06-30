@@ -86,11 +86,9 @@ class EventManager {
     }
 
     configurarEventosTema() {
-        this.adicionarEvento('btn-tema', 'click', () => {
-            if (TableManager.themeManager) {
-                TableManager.themeManager.toggleTheme();
-            }
-        });
+        // O evento do tema já está configurado no app.js
+        // para garantir que funcione independente da ordem de carregamento
+        console.log('🎨 Evento do tema será configurado pelo AppController');
     }
 
     configurarEventosFechamento() {

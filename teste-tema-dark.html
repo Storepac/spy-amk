@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste Tema Dark - AMK Spy</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 Teste Tema Dark</h1>
+    
+    <button id="btn-tema" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer;">
+        🌙 Alternar Tema
+    </button>
+    
+    <div id="amazon-analyzer-modal" style="background: var(--bg-primary, #fff); color: var(--text-primary, #000); padding: 20px; margin: 20px 0; border-radius: 10px; border: 1px solid var(--border-light, #ddd);">
+        <h2>Modal de Teste</h2>
+        <p>Este modal deve mudar de cor quando o tema for alternado.</p>
+        
+        <table style="width: 100%; border-collapse: collapse; background: var(--bg-secondary, #f8fafc);">
+            <tr>
+                <th style="padding: 10px; border: 1px solid var(--border-light, #ddd); background: var(--bg-primary, #fff); color: var(--text-primary, #000);">Produto</th>
+                <th style="padding: 10px; border: 1px solid var(--border-light, #ddd); background: var(--bg-primary, #fff); color: var(--text-primary, #000);">Preço</th>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border: 1px solid var(--border-light, #ddd); color: var(--text-primary, #000);">iPhone</td>
+                <td style="padding: 10px; border: 1px solid var(--border-light, #ddd); color: var(--text-primary, #000);">R$ 5000</td>
+            </tr>
+        </table>
+    </div>
+    
+    <script src="ui/theme.js"></script>
+    <script src="ui/notifications.js"></script>
+    <script>
+        let themeManager;
+        
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                console.log('Inicializando teste...');
+                themeManager = new ThemeManager();
+                
+                const btn = document.getElementById('btn-tema');
+                btn.addEventListener('click', () => {
+                    themeManager.toggleTheme();
+                    btn.innerHTML = themeManager.isDarkMode ? '☀️ Modo Claro' : '🌙 Modo Escuro';
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html> 
