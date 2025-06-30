@@ -971,9 +971,7 @@ class ProductAnalyzer {
     static temFiltrosAtivos(filtros) {
         if (!filtros) return false;
         
-        return filtros.bsrTop100 || 
-               filtros.precoMin || filtros.precoMax ||
-               filtros.bsrMin || filtros.bsrMax ||
+        return filtros.precoMin || filtros.precoMax ||
                filtros.vendasMin || filtros.vendasMax;
     }
 
@@ -989,24 +987,10 @@ class ProductAnalyzer {
             if (index < 5) {
                 console.log(`🔍 Produto ${index + 1} - Debug:`, {
                     titulo: produto.titulo?.substring(0, 30) + '...',
-                    ranking: produto.ranking,
-                    bsr: produto.bsr,
                     precoNumerico: produto.precoNumerico,
                     preco: produto.preco,
                     vendidos: produto.vendidos
                 });
-            }
-
-            // Extrair BSR de múltiplas fontes possíveis
-            let bsr = 0;
-            if (produto.ranking && !isNaN(parseInt(produto.ranking))) {
-                bsr = parseInt(produto.ranking);
-            } else if (produto.bsr && !isNaN(parseInt(produto.bsr))) {
-                bsr = parseInt(produto.bsr);
-            } else if (produto.infoVendas?.bsrEspecifico) {
-                bsr = parseInt(produto.infoVendas.bsrEspecifico);
-            } else if (produto.infoVendas?.bsrGeral) {
-                bsr = parseInt(produto.infoVendas.bsrGeral);
             }
 
             // Extrair preço de múltiplas fontes
@@ -1030,33 +1014,12 @@ class ProductAnalyzer {
             // Debug dos valores extraídos para os primeiros produtos
             if (index < 5) {
                 console.log(`🔍 Valores extraídos Produto ${index + 1}:`, {
-                    bsr: bsr,
                     preco: preco,
                     vendas: vendas
                 });
             }
 
             // Aplicar filtros
-
-            // Filtro BSR ≤ 100
-            if (filtros.bsrTop100) {
-                if (bsr === 0 || bsr > 100) {
-                    if (index < 5) console.log(`❌ Produto ${index + 1} reprovado - BSR Top 100: ${bsr}`);
-                    return false;
-                }
-            }
-
-            // Filtro BSR personalizado (só se toggle estiver desmarcado)
-            if (!filtros.bsrTop100 && (filtros.bsrMin || filtros.bsrMax)) {
-                if (filtros.bsrMin && (bsr === 0 || bsr < filtros.bsrMin)) {
-                    if (index < 5) console.log(`❌ Produto ${index + 1} reprovado - BSR Min: ${bsr} < ${filtros.bsrMin}`);
-                    return false;
-                }
-                if (filtros.bsrMax && (bsr === 0 || bsr > filtros.bsrMax)) {
-                    if (index < 5) console.log(`❌ Produto ${index + 1} reprovado - BSR Max: ${bsr} > ${filtros.bsrMax}`);
-                    return false;
-                }
-            }
 
             // Filtro de preço
             if (filtros.precoMin || filtros.precoMax) {
@@ -1093,7 +1056,6 @@ class ProductAnalyzer {
             produtosFiltrados.slice(0, 10).map((p, i) => ({
                 posicao: i + 1,
                 titulo: p.titulo?.substring(0, 30) + '...',
-                bsr: p.ranking || p.bsr,
                 preco: p.precoNumerico,
                 vendas: p.vendidos
             }))

@@ -185,57 +185,6 @@ class SidePanel {
                             </div>
                         </div>
 
-                        <!-- Ranking Categoria (BSR) -->
-                        <div style="
-                            background: #f8f9fa;
-                            border-radius: 8px;
-                            padding: 12px;
-                            margin-bottom: 12px;
-                            border: 1px solid #e9ecef;
-                        ">
-                            <div style="
-                                font-size: 13px;
-                                font-weight: 600;
-                                color: #014641;
-                                margin-bottom: 8px;
-                            ">🏆 Ranking Categoria (BSR)</div>
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <div style="flex: 1;">
-                                    <input 
-                                        type="number" 
-                                        id="amk-filter-bsr-min"
-                                        placeholder="BSR Mín"
-                                        min="1"
-                                        style="
-                                            width: 100%;
-                                            padding: 8px;
-                                            border: 1px solid #ced4da;
-                                            border-radius: 4px;
-                                            font-size: 12px;
-                                            box-sizing: border-box;
-                                        "
-                                    >
-                                </div>
-                                <span style="color: #6c757d; font-size: 12px;">até</span>
-                                <div style="flex: 1;">
-                                    <input 
-                                        type="number" 
-                                        id="amk-filter-bsr-max"
-                                        placeholder="BSR Máx"
-                                        min="1"
-                                        style="
-                                            width: 100%;
-                                            padding: 8px;
-                                            border: 1px solid #ced4da;
-                                            border-radius: 4px;
-                                            font-size: 12px;
-                                            box-sizing: border-box;
-                                        "
-                                    >
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- N° de Vendas -->
                         <div style="
                             background: #f8f9fa;
@@ -505,10 +454,6 @@ class SidePanel {
             precoMin: parseFloat(panel.querySelector('#amk-filter-preco-min')?.value) || null,
             precoMax: parseFloat(panel.querySelector('#amk-filter-preco-max')?.value) || null,
             
-            // BSR
-            bsrMin: parseInt(panel.querySelector('#amk-filter-bsr-min')?.value) || null,
-            bsrMax: parseInt(panel.querySelector('#amk-filter-bsr-max')?.value) || null,
-            
             // Vendas
             vendasMin: parseInt(panel.querySelector('#amk-filter-vendas-min')?.value) || null,
             vendasMax: parseInt(panel.querySelector('#amk-filter-vendas-max')?.value) || null
@@ -530,24 +475,10 @@ class SidePanel {
             if (index < 5) {
                 console.log(`🔍 SidePanel - Produto ${index + 1} - Debug:`, {
                     titulo: produto.titulo?.substring(0, 30) + '...',
-                    ranking: produto.ranking,
-                    bsr: produto.bsr,
                     precoNumerico: produto.precoNumerico,
                     preco: produto.preco,
                     vendidos: produto.vendidos
                 });
-            }
-
-            // Extrair BSR de múltiplas fontes possíveis
-            let bsr = 0;
-            if (produto.ranking && !isNaN(parseInt(produto.ranking))) {
-                bsr = parseInt(produto.ranking);
-            } else if (produto.bsr && !isNaN(parseInt(produto.bsr))) {
-                bsr = parseInt(produto.bsr);
-            } else if (produto.infoVendas?.bsrEspecifico) {
-                bsr = parseInt(produto.infoVendas.bsrEspecifico);
-            } else if (produto.infoVendas?.bsrGeral) {
-                bsr = parseInt(produto.infoVendas.bsrGeral);
             }
 
             // Extrair preço de múltiplas fontes
@@ -571,25 +502,12 @@ class SidePanel {
             // Debug dos valores extraídos para os primeiros produtos
             if (index < 5) {
                 console.log(`🔍 SidePanel - Valores extraídos Produto ${index + 1}:`, {
-                    bsr: bsr,
                     preco: preco,
                     vendas: vendas
                 });
             }
 
             // Aplicar filtros
-
-            // Filtro BSR
-            if (filtros.bsrMin || filtros.bsrMax) {
-                if (filtros.bsrMin && (bsr === 0 || bsr < filtros.bsrMin)) {
-                    if (index < 5) console.log(`❌ SidePanel - Produto ${index + 1} reprovado - BSR Min: ${bsr} < ${filtros.bsrMin}`);
-                    return false;
-                }
-                if (filtros.bsrMax && (bsr === 0 || bsr > filtros.bsrMax)) {
-                    if (index < 5) console.log(`❌ SidePanel - Produto ${index + 1} reprovado - BSR Max: ${bsr} > ${filtros.bsrMax}`);
-                    return false;
-                }
-            }
 
             // Filtro de preço
             if (filtros.precoMin || filtros.precoMax) {
@@ -626,7 +544,6 @@ class SidePanel {
             produtosFiltrados.slice(0, 5).map((p, i) => ({
                 posicao: i + 1,
                 titulo: p.titulo?.substring(0, 30) + '...',
-                bsr: p.ranking || p.bsr,
                 preco: p.precoNumerico,
                 vendas: p.vendidos
             }))
@@ -805,7 +722,6 @@ class SidePanel {
         if (!filtros) return false;
         
         return filtros.precoMin || filtros.precoMax ||
-               filtros.bsrMin || filtros.bsrMax ||
                filtros.vendasMin || filtros.vendasMax;
     }
 
@@ -813,13 +729,6 @@ class SidePanel {
         if (!this.temFiltrosAtivos(filtros)) return;
 
         const resumo = [];
-        
-        if (filtros.bsrMin || filtros.bsrMax) {
-            const bsrRange = [];
-            if (filtros.bsrMin) bsrRange.push(`≥${filtros.bsrMin}`);
-            if (filtros.bsrMax) bsrRange.push(`≤${filtros.bsrMax}`);
-            resumo.push(`BSR ${bsrRange.join(' e ')}`);
-        }
 
         if (filtros.precoMin || filtros.precoMax) {
             const precoRange = [];
