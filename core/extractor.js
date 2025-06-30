@@ -44,6 +44,8 @@ class ProductExtractor {
                 preco: precoData.preco,
                 precoNumerico: precoData.precoNumerico,
                 vendas: vendasData.vendas,
+                vendasTextoOriginal: vendasData.textoOriginal,
+                vendasSeletorUsado: vendasData.seletorUsado,
                 receitaMes: precoData.precoNumerico * vendasData.vendas,
                 ranking: rankingData.ranking,
                 categoria: categoriaBreadcrumb || rankingData.categoria,
@@ -277,26 +279,140 @@ class ProductExtractor {
 
     static extrairVendas(doc) {
         let vendas = 0;
+        let textoEncontrado = '';
+        let seletorUsado = '';
         
-        // Estratégia 1: Elemento de vendas
-            const vendidosElement = doc.querySelector('.a-color-secondary');
-        if (vendidosElement) {
-            const vendidosTexto = vendidosElement.textContent;
-            if (vendidosTexto.includes('compras')) {
-                const numeroMatch = vendidosTexto.match(/(\d+)/);
-                const numero = parseInt(numeroMatch?.[1] || '0');
+        // Múltiplos seletores para capturar vendas
+        const seletoresVendas = [
+            // Seletor específico mencionado pelo usuário
+            '.social-proofing-faceout-title-text',
+            '.social-proofing-faceout .a-text-bold',
+            '#social-proofing-faceout-title-tk_bought',
+            '.social-proofing-faceout',
+            
+            // Seletores gerais
+            '.a-color-secondary',
+            '.a-size-small',
+            '.social-proofing-faceout-title',
+            
+            // Seletores alternativos
+            '[class*="social-proofing"]',
+            '[id*="social-proofing"]',
+            '.a-section .a-spacing-micro',
+            
+            // Seletores mais amplos como fallback
+            '.a-spacing-micro',
+            '.a-section'
+        ];
+        
+        console.log('🔍 Iniciando extração de vendas...');
+        
+        for (const seletor of seletoresVendas) {
+            const elementos = doc.querySelectorAll(seletor);
+            
+            for (const elemento of elementos) {
+                const texto = elemento.textContent?.trim() || '';
                 
-                if (vendidosTexto.includes('mil')) {
-                    vendas = numero * 1000;
-                } else if (vendidosTexto.includes('milhão')) {
-                    vendas = numero * 1000000;
-                } else {
-                    vendas = numero;
+                // Verificar se o texto contém indicadores de vendas/compras
+                if (this.contemIndicadorVendas(texto)) {
+                    textoEncontrado = texto;
+                    seletorUsado = seletor;
+                    vendas = this.extrairNumeroVendas(texto);
+                    
+                    if (vendas > 0) {
+                        console.log(`✅ Vendas encontradas: ${vendas} (texto: "${texto}", seletor: "${seletor}")`);
+                        return { vendas, textoOriginal: textoEncontrado, seletorUsado };
+                    }
                 }
             }
         }
         
-        return { vendas };
+        console.log(`⚠️ Nenhuma venda encontrada. Último texto analisado: "${textoEncontrado}"`);
+        return { vendas: 0, textoOriginal: textoEncontrado, seletorUsado };
+    }
+    
+    // Função auxiliar para verificar se o texto contém indicadores de vendas
+    static contemIndicadorVendas(texto) {
+        const indicadores = [
+            'compras',
+            'vendidos',
+            'vendas',
+            'comprado',
+            'bought',
+            'purchased',
+            'sold'
+        ];
+        
+        const textoLower = texto.toLowerCase();
+        return indicadores.some(indicador => textoLower.includes(indicador));
+    }
+    
+    // Função auxiliar robusta para extrair números de vendas do texto
+    static extrairNumeroVendas(texto) {
+        console.log(`🔍 Analisando texto: "${texto}"`);
+        
+        // Limpar texto - remover &nbsp; e normalizar espaços
+        const textoLimpo = texto
+            .replace(/&nbsp;/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .toLowerCase();
+        
+        console.log(`🧹 Texto limpo: "${textoLimpo}"`);
+        
+        // Padrões para capturar diferentes formatos
+        const padroes = [
+            // "Mais de 4 mil compras", "Acima de 500 compras"
+            /(?:mais de|acima de|above|over)\s*(\d+(?:[.,]\d+)?)\s*(mil|milhão|thousand|million|k|m)/i,
+            
+            // "4+ mil compras", "500+ compras"
+            /(\d+(?:[.,]\d+)?)\s*\+\s*(mil|milhão|thousand|million|k|m)/i,
+            
+            // "4 mil compras", "2,5 mil compras"
+            /(\d+(?:[.,]\d+)?)\s*(mil|milhão|thousand|million|k|m)/i,
+            
+            // "Mais de 4.000 compras" (número já expandido)
+            /(?:mais de|acima de|above|over)\s*(\d+(?:[.,]\d+)*)/i,
+            
+            // "4.000+ compras", "500+ compras"
+            /(\d+(?:[.,]\d+)*)\s*\+/i,
+            
+            // Números simples "1500 compras"
+            /(\d+(?:[.,]\d+)*)/i
+        ];
+        
+        for (let i = 0; i < padroes.length; i++) {
+            const match = textoLimpo.match(padroes[i]);
+            
+            if (match) {
+                console.log(`✅ Padrão ${i + 1} encontrado:`, match);
+                
+                let numero = parseFloat(match[1].replace(',', '.'));
+                const multiplicador = match[2] ? match[2].toLowerCase() : '';
+                
+                // Aplicar multiplicadores
+                if (multiplicador) {
+                    if (multiplicador.includes('mil') || multiplicador === 'k' || multiplicador === 'thousand') {
+                        numero = numero * 1000;
+                    } else if (multiplicador.includes('milhão') || multiplicador === 'm' || multiplicador === 'million') {
+                        numero = numero * 1000000;
+                    }
+                }
+                
+                // Para padrões com "mais de" ou "+", interpretar como valor mínimo
+                // Podemos adicionar uma margem para estimativa mais realista
+                if (textoLimpo.includes('mais de') || textoLimpo.includes('acima de') || textoLimpo.includes('+')) {
+                    // Aplicar uma margem de 20% para "mais de X"
+                    numero = Math.floor(numero * 1.2);
+                }
+                
+                console.log(`🎯 Número final extraído: ${numero}`);
+                return Math.floor(numero);
+            }
+        }
+        
+        console.log(`❌ Nenhum padrão encontrado no texto`);
+        return 0;
     }
 
     static extrairImagem(doc) {
@@ -313,6 +429,46 @@ class ProductExtractor {
         }
         
         return '';
+    }
+
+    // Função específica para extrair vendas dos elementos da lista de produtos
+    static extrairVendasDaLista(elemento) {
+        let vendas = 0;
+        let textoEncontrado = '';
+        let seletorUsado = '';
+        
+        // Seletores específicos para produtos na lista de resultados
+        const seletoresVendasLista = [
+            '.a-color-secondary',
+            '.a-size-small',
+            '.a-spacing-micro',
+            '.social-proofing-faceout-title-text',
+            '.social-proofing-faceout .a-text-bold',
+            '[class*="social-proofing"]',
+            '.a-section',
+            '.a-spacing-small'
+        ];
+        
+        for (const seletor of seletoresVendasLista) {
+            const elementos = elemento.querySelectorAll(seletor);
+            
+            for (const subElemento of elementos) {
+                const texto = subElemento.textContent?.trim() || '';
+                
+                if (this.contemIndicadorVendas(texto)) {
+                    textoEncontrado = texto;
+                    seletorUsado = seletor;
+                    vendas = this.extrairNumeroVendas(texto);
+                    
+                    if (vendas > 0) {
+                        console.log(`✅ Vendas encontradas na lista: ${vendas} (texto: "${texto}", seletor: "${seletor}")`);
+                        return { vendas, textoOriginal: textoEncontrado, seletorUsado };
+                    }
+                }
+            }
+        }
+        
+        return { vendas: 0, textoOriginal: textoEncontrado, seletorUsado };
     }
 
     static extrairDadosProduto(elemento) {
@@ -389,20 +545,11 @@ class ProductExtractor {
         const linkRelativo = dados.linkElement?.getAttribute('href') || '';
         dados.link = linkRelativo ? `https://www.amazon.com.br${linkRelativo}` : '';
         
-        // Extrair vendas
-        const vendidosTexto = dados.vendidosElement?.textContent || '';
-        if (vendidosTexto.includes('compras')) {
-            const numeroMatch = vendidosTexto.match(/(\d+)/);
-            const numero = parseInt(numeroMatch?.[1] || '0');
-            
-            if (vendidosTexto.includes('mil')) {
-                dados.vendidos = numero * 1000;
-            } else if (vendidosTexto.includes('milhão')) {
-                dados.vendidos = numero * 1000000;
-            } else {
-                dados.vendidos = numero;
-            }
-        }
+        // Extrair vendas - usando a nova lógica robusta
+        const vendasData = this.extrairVendasDaLista(elemento);
+        dados.vendidos = vendasData.vendas;
+        dados.vendidosTextoOriginal = vendasData.textoOriginal;
+        dados.vendidosSeletorUsado = vendasData.seletorUsado;
         
         // Melhorar detecção de produtos patrocinados
         const patrocinadoSelectors = [
