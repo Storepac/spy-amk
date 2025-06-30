@@ -512,9 +512,11 @@ class FilterManager {
                         ">
                             <option value="">🏆 Todas as posições</option>
                             <option value="1-10">🥇 Top 10</option>
+                            <option value="1-25">🏅 Top 25</option>
                             <option value="1-50">🥈 Top 50</option>
                             <option value="1-100">🥉 Top 100</option>
-                            <option value="11-50">📊 11-50</option>
+                            <option value="11-25">📊 11-25</option>
+                            <option value="26-50">📈 26-50</option>
                             <option value="51-100">📈 51-100</option>
                             <option value="101-500">📉 101-500</option>
                             <option value="500+">🔻 500+</option>

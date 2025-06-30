@@ -80,59 +80,111 @@ class TableRowBuilder {
     static criarCelulaTendencia(produto) {
         // Verificar se tem dados de tendência
         const tendencia = produto.tendencia;
+        const posicaoAtual = produto.posicaoGlobal || produto.posicao || 0;
         
         let icone = '➖';
         let cor = '#6b7280';
+        let corTexto = '#ffffff';
         let titulo = 'Sem dados de tendência';
-        let fundo = 'transparent';
+        let fundo = 'linear-gradient(135deg, #6b7280, #4b5563)';
+        let seta = '';
+        let diferenca = '';
+        let badgeClass = 'neutral';
         
         if (tendencia) {
+            const posAnterior = tendencia.posicao_anterior || 0;
+            const posAtual = tendencia.posicao_atual || posicaoAtual;
+            const diff = Math.abs(posAnterior - posAtual);
+            
             switch (tendencia.tendencia) {
                 case 'subiu':
-                    icone = '📈';
+                    icone = '↗️';
+                    seta = '▲';
                     cor = '#10b981';
-                    titulo = `Subiu da posição ${tendencia.posicao_anterior} para ${tendencia.posicao_atual}`;
-                    fundo = 'rgba(16, 185, 129, 0.1)';
+                    fundo = 'linear-gradient(135deg, #10b981, #059669)';
+                    titulo = `Subiu ${diff} posição${diff > 1 ? 'ões' : ''} (${posAnterior} → ${posAtual})`;
+                    diferenca = diff > 0 ? `+${diff}` : '';
+                    badgeClass = 'success';
                     break;
                 case 'desceu':
-                    icone = '📉';
+                    icone = '↘️';
+                    seta = '▼';
                     cor = '#ef4444';
-                    titulo = `Desceu da posição ${tendencia.posicao_anterior} para ${tendencia.posicao_atual}`;
-                    fundo = 'rgba(239, 68, 68, 0.1)';
+                    fundo = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                    titulo = `Desceu ${diff} posição${diff > 1 ? 'ões' : ''} (${posAnterior} → ${posAtual})`;
+                    diferenca = diff > 0 ? `-${diff}` : '';
+                    badgeClass = 'danger';
                     break;
                 case 'manteve':
-                    icone = '➖';
-                    cor = '#6b7280';
-                    titulo = `Manteve na posição ${tendencia.posicao_atual}`;
-                    fundo = 'rgba(107, 114, 128, 0.1)';
+                    icone = '➡️';
+                    seta = '━';
+                    cor = '#f59e0b';
+                    fundo = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                    titulo = `Manteve na posição ${posAtual}`;
+                    diferenca = '0';
+                    badgeClass = 'warning';
                     break;
                 case 'novo':
                     icone = '🆕';
+                    seta = '★';
                     cor = '#3b82f6';
-                    titulo = `Produto novo na posição ${tendencia.posicao_atual}`;
-                    fundo = 'rgba(59, 130, 246, 0.1)';
+                    fundo = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+                    titulo = `Produto novo na posição ${posAtual}`;
+                    diferenca = 'NEW';
+                    badgeClass = 'info';
                     break;
             }
-        } else if (produto.isNovo) {
+        } else if (produto.isNovo !== false) {
             // Se é novo mas não tem tendência calculada
             icone = '🆕';
+            seta = '★';
             cor = '#3b82f6';
-            titulo = 'Produto novo';
-            fundo = 'rgba(59, 130, 246, 0.1)';
+            fundo = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+            titulo = `Produto novo na posição ${posicaoAtual}`;
+            diferenca = 'NEW';
+            badgeClass = 'info';
         }
         
         return `
             <td style="
                 text-align: center; 
-                color: ${cor};
-                padding: 8px;
-                font-size: 16px;
+                padding: 6px;
                 border-right: 1px solid var(--border-light);
-                width: 80px;
-                background: ${fundo};
-                font-weight: 600;
+                width: 90px;
+                position: relative;
             " title="${titulo}">
-                ${icone}
+                <div style="
+                    background: ${fundo};
+                    color: ${corTexto};
+                    border-radius: 8px;
+                    padding: 8px 4px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 2px;
+                    min-height: 50px;
+                    justify-content: center;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    transition: all 0.2s ease;
+                    cursor: help;
+                " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <div style="
+                        font-size: 16px;
+                        font-weight: bold;
+                        line-height: 1;
+                    ">${seta}</div>
+                    <div style="
+                        font-size: 9px;
+                        font-weight: 600;
+                        line-height: 1;
+                        opacity: 0.9;
+                    ">${diferenca}</div>
+                    ${posicaoAtual > 0 ? `<div style="
+                        font-size: 8px;
+                        opacity: 0.8;
+                        line-height: 1;
+                    ">#${posicaoAtual}</div>` : ''}
+                </div>
             </td>
         `;
     }

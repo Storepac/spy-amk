@@ -306,47 +306,114 @@ class PositionTracker {
 
     /**
      * Calcula a tendência de um produto (subiu, desceu, manteve)
+     * COMPARA COM O DIA ANTERIOR (não última pesquisa, mas último dia)
      * @param {string} asin - ASIN do produto
      * @returns {Object} Objeto com tendência e dados
      */
     calcularTendencia(asin) {
         const historico = this.getHistorico();
-        if (!historico[asin] || historico[asin].historico.length < 2) {
+        if (!historico[asin] || historico[asin].historico.length === 0) {
             return {
                 tipo: 'novo',
+                tendencia: 'novo',
                 icone: '🆕',
                 cor: '#3b82f6',
-                titulo: 'Produto detectado pela primeira vez'
+                titulo: 'Produto detectado pela primeira vez',
+                posicao_atual: null,
+                posicao_anterior: null,
+                diferenca: 0
             };
         }
 
+        // Ordenar por data (mais recente primeiro)
         const entries = historico[asin].historico.sort((a, b) => new Date(b.data) - new Date(a.data));
-        const posicaoAtual = entries[0].posicao;
-        const posicaoAnterior = entries[1].posicao;
+        const hoje = new Date().toISOString().split('T')[0];
+        
+        // Buscar posição de hoje
+        const entryHoje = entries.find(entry => entry.data === hoje);
+        
+        // Se não tem posição de hoje, usar a mais recente
+        const posicaoAtual = entryHoje ? entryHoje.posicao : entries[0].posicao;
+        
+        // Buscar posição do dia anterior (não a última pesquisa, mas dia anterior)
+        let posicaoAnterior = null;
+        const ontem = new Date();
+        ontem.setDate(ontem.getDate() - 1);
+        const dataOntem = ontem.toISOString().split('T')[0];
+        
+        // Procurar posição de ontem especificamente
+        const entryOntem = entries.find(entry => entry.data === dataOntem);
+        
+        if (entryOntem) {
+            posicaoAnterior = entryOntem.posicao;
+        } else {
+            // Se não tem de ontem, procurar o dia anterior mais próximo (máximo 7 dias)
+            for (let i = 2; i <= 7; i++) {
+                const dataAnterior = new Date();
+                dataAnterior.setDate(dataAnterior.getDate() - i);
+                const dataStr = dataAnterior.toISOString().split('T')[0];
+                
+                const entryAnterior = entries.find(entry => entry.data === dataStr);
+                if (entryAnterior) {
+                    posicaoAnterior = entryAnterior.posicao;
+                    break;
+                }
+            }
+        }
+        
+        // Se não tem posição anterior, é produto novo
+        if (posicaoAnterior === null) {
+            return {
+                tipo: 'novo',
+                tendencia: 'novo',
+                icone: '🆕',
+                cor: '#3b82f6',
+                titulo: `Produto novo na posição ${posicaoAtual}`,
+                posicao_atual: posicaoAtual,
+                posicao_anterior: null,
+                diferenca: 0
+            };
+        }
+
+        // Calcular diferença (posição menor = melhor posição)
         const diferenca = posicaoAnterior - posicaoAtual;
 
         if (diferenca > 0) {
+            // Subiu (posição melhorou)
             return {
                 tipo: 'subiu',
+                tendencia: 'subiu',
                 icone: '↗️',
                 cor: '#10b981',
                 diferenca: diferenca,
-                titulo: `Subiu ${diferenca} posição${diferenca > 1 ? 'ões' : ''} (${posicaoAnterior} → ${posicaoAtual})`
+                titulo: `Subiu ${diferenca} posição${diferenca > 1 ? 'ões' : ''} (${posicaoAnterior} → ${posicaoAtual})`,
+                posicao_atual: posicaoAtual,
+                posicao_anterior: posicaoAnterior
             };
         } else if (diferenca < 0) {
+            // Desceu (posição piorou)
+            const diferencaAbs = Math.abs(diferenca);
             return {
                 tipo: 'desceu',
+                tendencia: 'desceu',
                 icone: '↘️',
                 cor: '#ef4444',
-                diferenca: Math.abs(diferenca),
-                titulo: `Desceu ${Math.abs(diferenca)} posição${Math.abs(diferenca) > 1 ? 'ões' : ''} (${posicaoAnterior} → ${posicaoAtual})`
+                diferenca: diferencaAbs,
+                titulo: `Desceu ${diferencaAbs} posição${diferencaAbs > 1 ? 'ões' : ''} (${posicaoAnterior} → ${posicaoAtual})`,
+                posicao_atual: posicaoAtual,
+                posicao_anterior: posicaoAnterior
             };
         } else {
+            // Manteve a mesma posição
             return {
                 tipo: 'manteve',
+                tendencia: 'manteve',
                 icone: '➡️',
                 cor: '#f59e0b',
-                titulo: `Manteve a posição ${posicaoAtual}`
+                titulo: `Manteve a posição ${posicaoAtual}`,
+                posicao_atual: posicaoAtual,
+                posicao_anterior: posicaoAnterior,
+                diferenca: 0
             };
         }
     }

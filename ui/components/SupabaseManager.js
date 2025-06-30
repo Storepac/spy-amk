@@ -979,6 +979,7 @@ class SupabaseManager {
 
     /**
      * NOVO: Combinar produtos da Amazon com produtos do banco (evitando duplicatas)
+     * MANTÉM A ORDEM CORRETA: produtos da Amazon nas posições respectivas, produtos do banco no final
      */
     combinarProdutos(produtosAmazon, produtosBanco) {
         const asinsAmazon = new Set(produtosAmazon.map(p => p.asin));
@@ -988,13 +989,26 @@ class SupabaseManager {
             !asinsAmazon.has(produto.asin)
         );
         
-        // Combinar: Amazon primeiro (com posições), depois banco
+        // IMPORTANTE: Ordenar produtos da Amazon por posição real primeiro
+        const produtosAmazonOrdenados = produtosAmazon.sort((a, b) => {
+            const posA = a.posicaoGlobal || a.posicao || 999999;
+            const posB = b.posicaoGlobal || b.posicao || 999999;
+            return posA - posB;
+        });
+        
+        // Marcar produtos do banco com posições altas para ficarem no final
+        produtosBancoUnicos.forEach((produto, index) => {
+            produto.posicaoGlobal = 99999 + index; // Posições altas para ficarem no final
+            produto.posicao = null; // Sem posição atual na Amazon
+        });
+        
+        // Combinar: Amazon ordenado por posição + banco no final
         const produtosCombinados = [
-            ...produtosAmazon,
+            ...produtosAmazonOrdenados,
             ...produtosBancoUnicos
         ];
         
-        console.log(`🔗 Produtos combinados: ${produtosAmazon.length} Amazon + ${produtosBancoUnicos.length} banco únicos = ${produtosCombinados.length} total`);
+        console.log(`🔗 Produtos combinados ordenados: ${produtosAmazonOrdenados.length} Amazon + ${produtosBancoUnicos.length} banco únicos = ${produtosCombinados.length} total`);
         
         return produtosCombinados;
     }
