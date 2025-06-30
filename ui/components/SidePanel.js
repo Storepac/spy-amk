@@ -116,48 +116,21 @@ class SidePanel {
                         >
                     </div>
 
-                    <!-- Filtros Avançados -->
-                    <div style="margin-bottom: 20px;">
+                    <!-- Filtros de Análise -->
+                    <div style="
+                        background: #f8f9fa;
+                        border-radius: 8px;
+                        padding: 15px;
+                        margin-bottom: 20px;
+                        border-left: 4px solid #014641;
+                    ">
                         <div style="
                             font-size: 14px;
                             font-weight: 600;
                             color: #014641;
-                            margin-bottom: 12px;
-                            text-align: center;
-                        ">🎯 Filtros de Análise:</div>
-                        
-                        <!-- Toggle BSR > 100 -->
-                        <div style="
-                            background: #f8f9fa;
-                            border-radius: 8px;
-                            padding: 12px;
                             margin-bottom: 15px;
-                            border: 1px solid #e9ecef;
-                        ">
-                            <label style="
-                                display: flex;
-                                align-items: center;
-                                gap: 8px;
-                                cursor: pointer;
-                                font-size: 13px;
-                                font-weight: 500;
-                                color: #495057;
-                            ">
-                                <input 
-                                    type="checkbox" 
-                                    id="amk-filter-bsr-top100"
-                                    style="
-                                        width: 16px;
-                                        height: 16px;
-                                        accent-color: #014641;
-                                    "
-                                >
-                                <span>📊 Apenas produtos BSR ≤ 100</span>
-                            </label>
-                            <div style="font-size: 11px; color: #6c757d; margin-top: 4px; margin-left: 24px;">
-                                Quando marcado, desabilita filtros BSR personalizados
-                            </div>
-                        </div>
+                            text-align: center;
+                        ">🎯 Filtros de Análise</div>
 
                         <!-- Preço do BuyBox -->
                         <div style="
@@ -213,7 +186,7 @@ class SidePanel {
                         </div>
 
                         <!-- Ranking Categoria (BSR) -->
-                        <div id="amk-bsr-custom-container" style="
+                        <div style="
                             background: #f8f9fa;
                             border-radius: 8px;
                             padding: 12px;
@@ -500,52 +473,11 @@ class SidePanel {
             btnToggleTable.addEventListener('click', () => this.toggleTabela());
         }
 
-        // Configurar eventos dos filtros
-        this.configurarEventosFiltros();
-
         // Hover effects
         this.adicionarHoverEffects();
     }
 
-    static configurarEventosFiltros() {
-        const panel = this.panelElement;
-        if (!panel) return;
 
-        // Toggle BSR ≤ 100
-        const toggleBSR = panel.querySelector('#amk-filter-bsr-top100');
-        const bsrContainer = panel.querySelector('#amk-bsr-custom-container');
-        const bsrMinInput = panel.querySelector('#amk-filter-bsr-min');
-        const bsrMaxInput = panel.querySelector('#amk-filter-bsr-max');
-
-        if (toggleBSR && bsrContainer && bsrMinInput && bsrMaxInput) {
-            const toggleBSRFields = () => {
-                const isChecked = toggleBSR.checked;
-                
-                // Desabilitar/habilitar campos BSR personalizados
-                bsrMinInput.disabled = isChecked;
-                bsrMaxInput.disabled = isChecked;
-                
-                // Visual feedback
-                bsrContainer.style.opacity = isChecked ? '0.5' : '1';
-                bsrContainer.style.pointerEvents = isChecked ? 'none' : 'auto';
-                
-                // Limpar valores se desabilitado
-                if (isChecked) {
-                    bsrMinInput.value = '';
-                    bsrMaxInput.value = '';
-                }
-                
-                console.log(`🎯 BSR Filter: ${isChecked ? 'Top 100 only' : 'Custom range'}`);
-            };
-
-            toggleBSR.addEventListener('change', toggleBSRFields);
-            
-            // Aplicar estado inicial
-            toggleBSRFields();
-        }
-
-        console.log('✅ Eventos dos filtros configurados');
-    }
 
     static adicionarHoverEffects() {
         const buttons = this.panelElement.querySelectorAll('button');
@@ -569,27 +501,18 @@ class SidePanel {
         
         // Coletar valores dos filtros
         const filtros = {
-            // BSR Toggle
-            bsrTop100: panel.querySelector('#amk-filter-bsr-top100')?.checked || false,
-            
             // Preço
             precoMin: parseFloat(panel.querySelector('#amk-filter-preco-min')?.value) || null,
             precoMax: parseFloat(panel.querySelector('#amk-filter-preco-max')?.value) || null,
             
-            // BSR Personalizado (só se toggle estiver desmarcado)
-            bsrMin: null,
-            bsrMax: null,
+            // BSR
+            bsrMin: parseInt(panel.querySelector('#amk-filter-bsr-min')?.value) || null,
+            bsrMax: parseInt(panel.querySelector('#amk-filter-bsr-max')?.value) || null,
             
             // Vendas
             vendasMin: parseInt(panel.querySelector('#amk-filter-vendas-min')?.value) || null,
             vendasMax: parseInt(panel.querySelector('#amk-filter-vendas-max')?.value) || null
         };
-
-        // BSR personalizado só se toggle estiver desmarcado
-        if (!filtros.bsrTop100) {
-            filtros.bsrMin = parseInt(panel.querySelector('#amk-filter-bsr-min')?.value) || null;
-            filtros.bsrMax = parseInt(panel.querySelector('#amk-filter-bsr-max')?.value) || null;
-        }
 
         console.log('🎯 Filtros coletados:', filtros);
         return filtros;
@@ -656,16 +579,8 @@ class SidePanel {
 
             // Aplicar filtros
 
-            // Filtro BSR ≤ 100
-            if (filtros.bsrTop100) {
-                if (bsr === 0 || bsr > 100) {
-                    if (index < 5) console.log(`❌ SidePanel - Produto ${index + 1} reprovado - BSR Top 100: ${bsr}`);
-                    return false;
-                }
-            }
-
-            // Filtro BSR personalizado (só se toggle estiver desmarcado)
-            if (!filtros.bsrTop100 && (filtros.bsrMin || filtros.bsrMax)) {
+            // Filtro BSR
+            if (filtros.bsrMin || filtros.bsrMax) {
                 if (filtros.bsrMin && (bsr === 0 || bsr < filtros.bsrMin)) {
                     if (index < 5) console.log(`❌ SidePanel - Produto ${index + 1} reprovado - BSR Min: ${bsr} < ${filtros.bsrMin}`);
                     return false;
@@ -889,8 +804,7 @@ class SidePanel {
     static temFiltrosAtivos(filtros) {
         if (!filtros) return false;
         
-        return filtros.bsrTop100 || 
-               filtros.precoMin || filtros.precoMax ||
+        return filtros.precoMin || filtros.precoMax ||
                filtros.bsrMin || filtros.bsrMax ||
                filtros.vendasMin || filtros.vendasMax;
     }
@@ -900,9 +814,7 @@ class SidePanel {
 
         const resumo = [];
         
-        if (filtros.bsrTop100) {
-            resumo.push('BSR ≤ 100');
-        } else if (filtros.bsrMin || filtros.bsrMax) {
+        if (filtros.bsrMin || filtros.bsrMax) {
             const bsrRange = [];
             if (filtros.bsrMin) bsrRange.push(`≥${filtros.bsrMin}`);
             if (filtros.bsrMax) bsrRange.push(`≤${filtros.bsrMax}`);
