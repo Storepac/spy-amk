@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Filtros BSR e Preço - AMK Spy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #014641;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .teste-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #014641;
+        }
+
+        .filtros-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filtro-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .filtro-title {
+            font-weight: 600;
+            color: #014641;
+            margin-bottom: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 12px;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+
+        .botao {
+            background: linear-gradient(135deg, #014641, #013935);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .botao:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(1, 70, 65, 0.3);
+        }
+
+        .produto-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .produto-card.aprovado {
+            border-left: 4px solid #10b981;
+            background: #f0fdf4;
+        }
+
+        .produto-card.reprovado {
+            border-left: 4px solid #ef4444;
+            background: #fef2f2;
+        }
+
+        .produto-info {
+            flex: 1;
+        }
+
+        .produto-dados {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .log {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 300px;
+            display: none;
+        }
+
+        .resultado-resumo {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐛 Debug Filtros BSR e Preço</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Diagnóstico detalhado dos problemas nos filtros
+        </p>
+
+        <div class="teste-section">
+            <div class="filtro-title">🎛️ Configurar Filtros de Teste</div>
+            <div class="filtros-container">
+                <div class="filtro-card">
+                    <div class="filtro-title">📊 BSR Toggle</div>
+                    <label>
+                        <input type="checkbox" id="bsrTop100"> Apenas BSR ≤ 100
+                    </label>
+                </div>
+                
+                <div class="filtro-card">
+                    <div class="filtro-title">🏆 BSR Personalizado</div>
+                    <input type="number" id="bsrMin" placeholder="BSR Mínimo" min="1">
+                    <input type="number" id="bsrMax" placeholder="BSR Máximo" min="1">
+                </div>
+                
+                <div class="filtro-card">
+                    <div class="filtro-title">💰 Preço</div>
+                    <input type="number" id="precoMin" placeholder="Preço Mínimo R$" min="0" step="0.01">
+                    <input type="number" id="precoMax" placeholder="Preço Máximo R$" min="0" step="0.01">
+                </div>
+                
+                <div class="filtro-card">
+                    <div class="filtro-title">📈 Vendas</div>
+                    <input type="number" id="vendasMin" placeholder="Vendas Mínimas" min="0">
+                    <input type="number" id="vendasMax" placeholder="Vendas Máximas" min="0">
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="botao" onclick="aplicarFiltrosTeste()">🎯 Aplicar Filtros</button>
+                <button class="botao" onclick="limparFiltros()">🧹 Limpar Filtros</button>
+                <button class="botao" onclick="criarProdutosDiversificados()">📦 Produtos Diversificados</button>
+            </div>
+        </div>
+
+        <div class="teste-section">
+            <div class="filtro-title">📊 Resultado dos Filtros</div>
+            <div id="resultado-resumo" class="resultado-resumo" style="display: none;"></div>
+            <div id="produtos-resultado"></div>
+        </div>
+
+        <div class="log" id="log-console"></div>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <script>
+        // Sistema de log melhorado
+        function log(message) {
+            const logElement = document.getElementById('log-console');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            const colors = {
+                info: '#2196F3',
+                success: '#4CAF50',
+                error: '#F44336'
+            };
+            
+            status.style.backgroundColor = colors[type] || colors.info;
+            status.textContent = message;
+            status.style.display = 'block';
+            
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+            
+            log(`${type.toUpperCase()}: ${message}`);
+        }
+
+        // Produtos de teste com características diversificadas
+        let produtosTeste = [];
+
+        function criarProdutosDiversificados() {
+            produtosTeste = [
+                {
+                    titulo: "Produto Elite BSR #50",
+                    asin: "B001",
+                    precoNumerico: 89.90,
+                    preco: "R$ 89,90",
+                    ranking: "50",
+                    bsr: 50,
+                    vendidos: 1500,
+                    posicaoGlobal: 1
+                },
+                {
+                    titulo: "Produto BSR #150 Médio",
+                    asin: "B002", 
+                    precoNumerico: 149.50,
+                    preco: "R$ 149,50",
+                    ranking: "150", 
+                    bsr: 150,
+                    vendidos: 800,
+                    posicaoGlobal: 2
+                },
+                {
+                    titulo: "Produto BSR #500 Barato",
+                    asin: "B003",
+                    precoNumerico: 29.90,
+                    preco: "R$ 29,90",
+                    ranking: "500",
+                    bsr: 500,
+                    vendidos: 200,
+                    posicaoGlobal: 3
+                },
+                {
+                    titulo: "Produto BSR #1500 Caro",
+                    asin: "B004",
+                    precoNumerico: 299.99,
+                    preco: "R$ 299,99",
+                    ranking: "1500",
+                    bsr: 1500,
+                    vendidos: 3000,
+                    posicaoGlobal: 4
+                },
+                {
+                    titulo: "Produto BSR #80 Top",
+                    asin: "B005",
+                    precoNumerico: 75.50,
+                    preco: "R$ 75,50",
+                    ranking: "80",
+                    bsr: 80,
+                    vendidos: 2200,
+                    posicaoGlobal: 5
+                },
+                {
+                    titulo: "Produto BSR #5000 Baixo",
+                    asin: "B006",
+                    precoNumerico: 15.90,
+                    preco: "R$ 15,90",
+                    ranking: "5000",
+                    bsr: 5000,
+                    vendidos: 50,
+                    posicaoGlobal: 6
+                },
+                {
+                    titulo: "Produto Sem BSR",
+                    asin: "B007",
+                    precoNumerico: 199.00,
+                    preco: "R$ 199,00",
+                    ranking: null,
+                    bsr: null,
+                    vendidos: 1000,
+                    posicaoGlobal: 7
+                },
+                {
+                    titulo: "Produto Preço Alto BSR #200",
+                    asin: "B008",
+                    precoNumerico: 450.00,
+                    preco: "R$ 450,00",
+                    ranking: "200",
+                    bsr: 200,
+                    vendidos: 500,
+                    posicaoGlobal: 8
+                }
+            ];
+
+            log(`✅ ${produtosTeste.length} produtos diversificados criados`);
+            showStatus(`${produtosTeste.length} produtos de teste criados!`, 'success');
+            exibirProdutosSemFiltro();
+        }
+
+        function exibirProdutosSemFiltro() {
+            const container = document.getElementById('produtos-resultado');
+            let html = '<h4>📦 Produtos Originais (sem filtros):</h4>';
+            
+            produtosTeste.forEach((produto, index) => {
+                html += `
+                    <div class="produto-card">
+                        <div class="produto-info">
+                            <strong>${index + 1}. ${produto.titulo}</strong>
+                            <div class="produto-dados">
+                                <span>💰 ${produto.preco}</span>
+                                <span>🏆 BSR: ${produto.ranking || 'N/A'}</span>
+                                <span>📈 ${produto.vendidos} vendas</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function coletarFiltros() {
+            return {
+                bsrTop100: document.getElementById('bsrTop100').checked,
+                precoMin: parseFloat(document.getElementById('precoMin').value) || null,
+                precoMax: parseFloat(document.getElementById('precoMax').value) || null,
+                bsrMin: parseInt(document.getElementById('bsrMin').value) || null,
+                bsrMax: parseInt(document.getElementById('bsrMax').value) || null,
+                vendasMin: parseInt(document.getElementById('vendasMin').value) || null,
+                vendasMax: parseInt(document.getElementById('vendasMax').value) || null
+            };
+        }
+
+        function temFiltrosAtivos(filtros) {
+            return filtros.bsrTop100 || 
+                   filtros.precoMin || filtros.precoMax ||
+                   filtros.bsrMin || filtros.bsrMax ||
+                   filtros.vendasMin || filtros.vendasMax;
+        }
+
+        function aplicarFiltrosTeste() {
+            if (produtosTeste.length === 0) {
+                showStatus('Crie produtos de teste primeiro!', 'error');
+                return;
+            }
+
+            const filtros = coletarFiltros();
+            
+            if (!temFiltrosAtivos(filtros)) {
+                showStatus('Configure pelo menos um filtro!', 'error');
+                return;
+            }
+
+            log('🎯 Iniciando teste de filtros...');
+            log('📋 Filtros configurados: ' + JSON.stringify(filtros, null, 2));
+
+            let produtosFiltrados = [];
+            let produtosReprovados = [];
+
+            produtosTeste.forEach((produto, index) => {
+                log(`\n🔍 Testando Produto ${index + 1}: ${produto.titulo}`);
+                
+                // Extrair BSR
+                let bsr = 0;
+                if (produto.ranking && !isNaN(parseInt(produto.ranking))) {
+                    bsr = parseInt(produto.ranking);
+                } else if (produto.bsr && !isNaN(parseInt(produto.bsr))) {
+                    bsr = parseInt(produto.bsr);
+                }
+
+                // Extrair preço
+                let preco = 0;
+                if (produto.precoNumerico && !isNaN(parseFloat(produto.precoNumerico))) {
+                    preco = parseFloat(produto.precoNumerico);
+                }
+
+                // Extrair vendas
+                let vendas = parseInt(produto.vendidos) || 0;
+
+                log(`   📊 Valores extraídos: BSR=${bsr}, Preço=R$${preco}, Vendas=${vendas}`);
+
+                let aprovado = true;
+                let motivosRejeicao = [];
+
+                // Teste BSR ≤ 100
+                if (filtros.bsrTop100) {
+                    if (bsr === 0 || bsr > 100) {
+                        aprovado = false;
+                        motivosRejeicao.push(`BSR ${bsr} > 100`);
+                        log(`   ❌ Rejeitado: BSR Top 100 (${bsr})`);
+                    } else {
+                        log(`   ✅ Aprovado: BSR Top 100 (${bsr})`);
+                    }
+                }
+
+                // Teste BSR personalizado
+                if (!filtros.bsrTop100 && (filtros.bsrMin || filtros.bsrMax)) {
+                    if (filtros.bsrMin && (bsr === 0 || bsr < filtros.bsrMin)) {
+                        aprovado = false;
+                        motivosRejeicao.push(`BSR ${bsr} < ${filtros.bsrMin}`);
+                        log(`   ❌ Rejeitado: BSR Min (${bsr} < ${filtros.bsrMin})`);
+                    } else if (filtros.bsrMax && (bsr === 0 || bsr > filtros.bsrMax)) {
+                        aprovado = false;
+                        motivosRejeicao.push(`BSR ${bsr} > ${filtros.bsrMax}`);
+                        log(`   ❌ Rejeitado: BSR Max (${bsr} > ${filtros.bsrMax})`);
+                    } else {
+                        log(`   ✅ Aprovado: BSR personalizado (${bsr})`);
+                    }
+                }
+
+                // Teste preço
+                if (filtros.precoMin || filtros.precoMax) {
+                    if (filtros.precoMin && (preco === 0 || preco < filtros.precoMin)) {
+                        aprovado = false;
+                        motivosRejeicao.push(`Preço R$${preco} < R$${filtros.precoMin}`);
+                        log(`   ❌ Rejeitado: Preço Min (R$${preco} < R$${filtros.precoMin})`);
+                    } else if (filtros.precoMax && (preco === 0 || preco > filtros.precoMax)) {
+                        aprovado = false;
+                        motivosRejeicao.push(`Preço R$${preco} > R$${filtros.precoMax}`);
+                        log(`   ❌ Rejeitado: Preço Max (R$${preco} > R$${filtros.precoMax})`);
+                    } else {
+                        log(`   ✅ Aprovado: Preço (R$${preco})`);
+                    }
+                }
+
+                // Teste vendas
+                if (filtros.vendasMin || filtros.vendasMax) {
+                    if (filtros.vendasMin && vendas < filtros.vendasMin) {
+                        aprovado = false;
+                        motivosRejeicao.push(`Vendas ${vendas} < ${filtros.vendasMin}`);
+                        log(`   ❌ Rejeitado: Vendas Min (${vendas} < ${filtros.vendasMin})`);
+                    } else if (filtros.vendasMax && vendas > filtros.vendasMax) {
+                        aprovado = false;
+                        motivosRejeicao.push(`Vendas ${vendas} > ${filtros.vendasMax}`);
+                        log(`   ❌ Rejeitado: Vendas Max (${vendas} > ${filtros.vendasMax})`);
+                    } else {
+                        log(`   ✅ Aprovado: Vendas (${vendas})`);
+                    }
+                }
+
+                // Adicionar resultado
+                const produtoResultado = {
+                    ...produto,
+                    aprovado,
+                    motivosRejeicao,
+                    valoresExtraidos: { bsr, preco, vendas }
+                };
+
+                if (aprovado) {
+                    produtosFiltrados.push(produtoResultado);
+                    log(`   🎉 PRODUTO APROVADO!`);
+                } else {
+                    produtosReprovados.push(produtoResultado);
+                    log(`   🚫 PRODUTO REPROVADO: ${motivosRejeicao.join(', ')}`);
+                }
+            });
+
+            // Exibir resultados
+            exibirResultados(produtosFiltrados, produtosReprovados, filtros);
+            
+            const totalOriginal = produtosTeste.length;
+            const totalFiltrados = produtosFiltrados.length;
+            
+            log(`\n🎯 RESULTADO FINAL: ${totalOriginal} → ${totalFiltrados} produtos`);
+            showStatus(`Filtros aplicados: ${totalOriginal} → ${totalFiltrados} produtos`, 'success');
+        }
+
+        function exibirResultados(aprovados, reprovados, filtros) {
+            const resumoElement = document.getElementById('resultado-resumo');
+            const containerElement = document.getElementById('produtos-resultado');
+            
+            // Resumo
+            const totalOriginal = produtosTeste.length;
+            const totalAprovados = aprovados.length;
+            const totalReprovados = reprovados.length;
+            
+            resumoElement.innerHTML = `
+                <div>📊 Resultado dos Filtros:</div>
+                <div style="margin-top: 10px;">
+                    <strong>${totalOriginal} produtos originais → ${totalAprovados} aprovados + ${totalReprovados} reprovados</strong>
+                </div>
+            `;
+            resumoElement.style.display = 'block';
+            
+            // Lista de produtos
+            let html = '';
+            
+            if (aprovados.length > 0) {
+                html += '<h4 style="color: #10b981;">✅ Produtos Aprovados:</h4>';
+                aprovados.forEach((produto, index) => {
+                    html += `
+                        <div class="produto-card aprovado">
+                            <div class="produto-info">
+                                <strong>${index + 1}. ${produto.titulo}</strong>
+                                <div class="produto-dados">
+                                    <span>💰 R$ ${produto.valoresExtraidos.preco}</span>
+                                    <span>🏆 BSR: ${produto.valoresExtraidos.bsr || 'N/A'}</span>
+                                    <span>📈 ${produto.valoresExtraidos.vendas} vendas</span>
+                                </div>
+                            </div>
+                            <div style="color: #10b981; font-weight: bold;">✅ APROVADO</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            if (reprovados.length > 0) {
+                html += '<h4 style="color: #ef4444; margin-top: 30px;">❌ Produtos Reprovados:</h4>';
+                reprovados.forEach((produto, index) => {
+                    html += `
+                        <div class="produto-card reprovado">
+                            <div class="produto-info">
+                                <strong>${index + 1}. ${produto.titulo}</strong>
+                                <div class="produto-dados">
+                                    <span>💰 R$ ${produto.valoresExtraidos.preco}</span>
+                                    <span>🏆 BSR: ${produto.valoresExtraidos.bsr || 'N/A'}</span>
+                                    <span>📈 ${produto.valoresExtraidos.vendas} vendas</span>
+                                </div>
+                                <div style="color: #ef4444; font-size: 11px; margin-top: 5px;">
+                                    <strong>Motivos:</strong> ${produto.motivosRejeicao.join(', ')}
+                                </div>
+                            </div>
+                            <div style="color: #ef4444; font-weight: bold;">❌ REPROVADO</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            containerElement.innerHTML = html;
+        }
+
+        function limparFiltros() {
+            document.getElementById('bsrTop100').checked = false;
+            document.getElementById('precoMin').value = '';
+            document.getElementById('precoMax').value = '';
+            document.getElementById('bsrMin').value = '';
+            document.getElementById('bsrMax').value = '';
+            document.getElementById('vendasMin').value = '';
+            document.getElementById('vendasMax').value = '';
+            
+            document.getElementById('resultado-resumo').style.display = 'none';
+            exibirProdutosSemFiltro();
+            
+            log('🧹 Filtros limpos');
+            showStatus('Filtros limpos!', 'info');
+        }
+
+        // Toggle BSR automático
+        document.getElementById('bsrTop100').addEventListener('change', function() {
+            const isChecked = this.checked;
+            const bsrMin = document.getElementById('bsrMin');
+            const bsrMax = document.getElementById('bsrMax');
+            
+            bsrMin.disabled = isChecked;
+            bsrMax.disabled = isChecked;
+            
+            if (isChecked) {
+                bsrMin.value = '';
+                bsrMax.value = '';
+            }
+            
+            log(`🎛️ BSR Toggle: ${isChecked ? 'Ativado' : 'Desativado'}`);
+        });
+
+        // Inicialização
+        window.onload = function() {
+            log('🐛 Sistema de debug carregado');
+            showStatus('Sistema de debug carregado! Crie produtos de teste primeiro.', 'info');
+        };
+    </script>
+</body>
+</html> 

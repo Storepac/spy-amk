@@ -981,36 +981,123 @@ class ProductAnalyzer {
         if (!produtos || produtos.length === 0) return produtos;
         if (!this.temFiltrosAtivos(filtros)) return produtos;
 
-        let produtosFiltrados = produtos.filter(produto => {
+        console.log('🎯 Aplicando filtros:', filtros);
+        console.log('📊 Produtos antes do filtro:', produtos.length);
+
+        let produtosFiltrados = produtos.filter((produto, index) => {
+            // Debug detalhado para os primeiros 5 produtos
+            if (index < 5) {
+                console.log(`🔍 Produto ${index + 1} - Debug:`, {
+                    titulo: produto.titulo?.substring(0, 30) + '...',
+                    ranking: produto.ranking,
+                    bsr: produto.bsr,
+                    precoNumerico: produto.precoNumerico,
+                    preco: produto.preco,
+                    vendidos: produto.vendidos
+                });
+            }
+
+            // Extrair BSR de múltiplas fontes possíveis
+            let bsr = 0;
+            if (produto.ranking && !isNaN(parseInt(produto.ranking))) {
+                bsr = parseInt(produto.ranking);
+            } else if (produto.bsr && !isNaN(parseInt(produto.bsr))) {
+                bsr = parseInt(produto.bsr);
+            } else if (produto.infoVendas?.bsrEspecifico) {
+                bsr = parseInt(produto.infoVendas.bsrEspecifico);
+            } else if (produto.infoVendas?.bsrGeral) {
+                bsr = parseInt(produto.infoVendas.bsrGeral);
+            }
+
+            // Extrair preço de múltiplas fontes
+            let preco = 0;
+            if (produto.precoNumerico && !isNaN(parseFloat(produto.precoNumerico))) {
+                preco = parseFloat(produto.precoNumerico);
+            } else if (produto.preco) {
+                // Tentar extrair preço do texto
+                const precoMatch = produto.preco.toString().match(/[\d,\.]+/);
+                if (precoMatch) {
+                    preco = parseFloat(precoMatch[0].replace(',', '.'));
+                }
+            }
+
+            // Extrair vendas
+            let vendas = 0;
+            if (produto.vendidos && !isNaN(parseInt(produto.vendidos))) {
+                vendas = parseInt(produto.vendidos);
+            }
+
+            // Debug dos valores extraídos para os primeiros produtos
+            if (index < 5) {
+                console.log(`🔍 Valores extraídos Produto ${index + 1}:`, {
+                    bsr: bsr,
+                    preco: preco,
+                    vendas: vendas
+                });
+            }
+
+            // Aplicar filtros
+
             // Filtro BSR ≤ 100
             if (filtros.bsrTop100) {
-                const bsr = parseInt(produto.ranking || produto.bsr || 0);
-                if (bsr > 100 || bsr === 0) return false;
+                if (bsr === 0 || bsr > 100) {
+                    if (index < 5) console.log(`❌ Produto ${index + 1} reprovado - BSR Top 100: ${bsr}`);
+                    return false;
+                }
             }
 
             // Filtro BSR personalizado (só se toggle estiver desmarcado)
             if (!filtros.bsrTop100 && (filtros.bsrMin || filtros.bsrMax)) {
-                const bsr = parseInt(produto.ranking || produto.bsr || 0);
-                if (filtros.bsrMin && bsr < filtros.bsrMin) return false;
-                if (filtros.bsrMax && bsr > filtros.bsrMax) return false;
+                if (filtros.bsrMin && (bsr === 0 || bsr < filtros.bsrMin)) {
+                    if (index < 5) console.log(`❌ Produto ${index + 1} reprovado - BSR Min: ${bsr} < ${filtros.bsrMin}`);
+                    return false;
+                }
+                if (filtros.bsrMax && (bsr === 0 || bsr > filtros.bsrMax)) {
+                    if (index < 5) console.log(`❌ Produto ${index + 1} reprovado - BSR Max: ${bsr} > ${filtros.bsrMax}`);
+                    return false;
+                }
             }
 
             // Filtro de preço
             if (filtros.precoMin || filtros.precoMax) {
-                const preco = produto.precoNumerico || 0;
-                if (filtros.precoMin && preco < filtros.precoMin) return false;
-                if (filtros.precoMax && preco > filtros.precoMax) return false;
+                if (filtros.precoMin && (preco === 0 || preco < filtros.precoMin)) {
+                    if (index < 5) console.log(`❌ Produto ${index + 1} reprovado - Preço Min: R$${preco} < R$${filtros.precoMin}`);
+                    return false;
+                }
+                if (filtros.precoMax && (preco === 0 || preco > filtros.precoMax)) {
+                    if (index < 5) console.log(`❌ Produto ${index + 1} reprovado - Preço Max: R$${preco} > R$${filtros.precoMax}`);
+                    return false;
+                }
             }
 
             // Filtro de vendas
             if (filtros.vendasMin || filtros.vendasMax) {
-                const vendas = parseInt(produto.vendidos || 0);
-                if (filtros.vendasMin && vendas < filtros.vendasMin) return false;
-                if (filtros.vendasMax && vendas > filtros.vendasMax) return false;
+                if (filtros.vendasMin && vendas < filtros.vendasMin) {
+                    if (index < 5) console.log(`❌ Produto ${index + 1} reprovado - Vendas Min: ${vendas} < ${filtros.vendasMin}`);
+                    return false;
+                }
+                if (filtros.vendasMax && vendas > filtros.vendasMax) {
+                    if (index < 5) console.log(`❌ Produto ${index + 1} reprovado - Vendas Max: ${vendas} > ${filtros.vendasMax}`);
+                    return false;
+                }
             }
 
+            if (index < 5) console.log(`✅ Produto ${index + 1} aprovado nos filtros`);
             return true;
         });
+
+        console.log(`🎯 Filtros aplicados: ${produtos.length} → ${produtosFiltrados.length} produtos`);
+
+        // Log dos produtos que passaram (primeiros 10)
+        console.log('✅ Produtos aprovados (primeiros 10):', 
+            produtosFiltrados.slice(0, 10).map((p, i) => ({
+                posicao: i + 1,
+                titulo: p.titulo?.substring(0, 30) + '...',
+                bsr: p.ranking || p.bsr,
+                preco: p.precoNumerico,
+                vendas: p.vendidos
+            }))
+        );
 
         // Reajustar posições após filtros
         produtosFiltrados.forEach((produto, index) => {
