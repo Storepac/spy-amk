@@ -5,6 +5,7 @@
 class SidePanel {
     static isVisible = false;
     static panelElement = null;
+    static currentPlatform = null;
 
     static criar() {
         if (this.panelElement) {
@@ -373,7 +374,7 @@ class SidePanel {
                 transition: all 0.3s ease;
                 border: 3px solid white;
             " title="Abrir/Fechar painel AMK spy">
-                <span style="color: white; font-size: 18px; font-weight: bold;">🔍</span>
+                <span style="color: white; font-size: 18px; font-weight: bold;">${this.getIconForPlatform()}</span>
             </div>
         `;
     }
@@ -425,8 +426,6 @@ class SidePanel {
         // Hover effects
         this.adicionarHoverEffects();
     }
-
-
 
     static adicionarHoverEffects() {
         const buttons = this.panelElement.querySelectorAll('button');
@@ -570,19 +569,37 @@ class SidePanel {
 
         this.showStatus(`Iniciando análise ${tipo}${this.temFiltrosAtivos(filtros) ? ' com filtros' : ''}...`, 'info');
 
-        // Se não estamos na página de busca correta, navegar primeiro
-        if (!window.location.href.includes(`k=${encodeURIComponent(termo)}`)) {
-            const amazonUrl = `https://www.amazon.com.br/s?k=${encodeURIComponent(termo)}`;
+        // Determinar URL baseada na plataforma atual
+        let targetUrl;
+        let searchParam;
+        
+        if (this.currentPlatform?.platform === 'mercadolivre') {
+            targetUrl = `https://lista.mercadolivre.com.br/${encodeURIComponent(termo)}`;
+            searchParam = termo; // ML usa o termo diretamente na URL
+        } else {
+            // Amazon (padrão)
+            targetUrl = `https://www.amazon.com.br/s?k=${encodeURIComponent(termo)}`;
+            searchParam = `k=${encodeURIComponent(termo)}`;
+        }
+
+        // Verificar se já estamos na página de busca correta
+        const currentUrl = window.location.href;
+        const isCorrectPage = this.currentPlatform?.platform === 'mercadolivre' 
+            ? currentUrl.includes(`lista.mercadolivre.com.br/${encodeURIComponent(termo)}`)
+            : currentUrl.includes(searchParam);
+
+        if (!isCorrectPage) {
             this.showStatus('Navegando para busca...', 'info');
             
             // Armazenar dados da análise para executar após navegação
             sessionStorage.setItem('amk_pending_analysis', JSON.stringify({
                 tipo: tipo,
                 termo: termo,
-                filtros: filtros
+                filtros: filtros,
+                platform: this.currentPlatform?.platform || 'amazon'
             }));
             
-            window.location.href = amazonUrl;
+            window.location.href = targetUrl;
             return;
         }
 
@@ -600,9 +617,18 @@ class SidePanel {
         if (!btnToggleTable) return;
 
         const tabelaAberta = this.verificarStatusTabela();
-        const temProdutos = typeof AppController !== 'undefined' && 
-                           AppController.produtosArmazenados && 
-                           AppController.produtosArmazenados.length > 0;
+        
+        // Verificar produtos baseado na plataforma
+        let temProdutos = false;
+        if (this.currentPlatform?.platform === 'mercadolivre') {
+            temProdutos = typeof MLController !== 'undefined' && 
+                         MLController.produtosArmazenados && 
+                         MLController.produtosArmazenados.length > 0;
+        } else {
+            temProdutos = typeof AppController !== 'undefined' && 
+                         AppController.produtosArmazenados && 
+                         AppController.produtosArmazenados.length > 0;
+        }
 
         if (tabelaAberta) {
             btnToggleTable.innerHTML = '📊 Fechar Tabela';
@@ -630,18 +656,32 @@ class SidePanel {
                 this.showStatus('Tabela fechada', 'info');
             }
         } else {
-            // Se não existe modal, criar sempre (com ou sem dados)
-            if (typeof AppController !== 'undefined' && AppController.produtosArmazenados && AppController.produtosArmazenados.length > 0) {
-                // Há produtos armazenados, mostrar tabela com dados
-                AppController.exibirTabelaComProdutos(AppController.produtosArmazenados);
-                this.showStatus('Tabela aberta com produtos armazenados', 'success');
-            } else {
-                // Não há produtos, mostrar tabela vazia
-                if (typeof AppController !== 'undefined') {
-                    AppController.criarModalVazio();
-                    this.showStatus('Tabela aberta (vazia)', 'info');
+            // Se não existe modal, criar usando controlador apropriado
+            if (this.currentPlatform?.platform === 'mercadolivre') {
+                // Mercado Livre
+                if (typeof MLController !== 'undefined') {
+                    if (MLController.produtosArmazenados && MLController.produtosArmazenados.length > 0) {
+                        MLController.exibirTabelaComProdutos(MLController.produtosArmazenados);
+                        this.showStatus('Tabela ML aberta com produtos armazenados', 'success');
+                    } else {
+                        MLController.criarModalVazio();
+                        this.showStatus('Tabela ML aberta (vazia)', 'info');
+                    }
                 } else {
-                    this.showStatus('Erro: Componentes não carregados', 'error');
+                    this.showStatus('Erro: MLController não carregado', 'error');
+                }
+            } else {
+                // Amazon (padrão)
+                if (typeof AppController !== 'undefined') {
+                    if (AppController.produtosArmazenados && AppController.produtosArmazenados.length > 0) {
+                        AppController.exibirTabelaComProdutos(AppController.produtosArmazenados);
+                        this.showStatus('Tabela aberta com produtos armazenados', 'success');
+                    } else {
+                        AppController.criarModalVazio();
+                        this.showStatus('Tabela aberta (vazia)', 'info');
+                    }
+                } else {
+                    this.showStatus('Erro: AppController não carregado', 'error');
                 }
             }
         }
@@ -759,12 +799,24 @@ class SidePanel {
         }
         
         setTimeout(() => {
-            if (typeof AppController !== 'undefined') {
-                // Executar análise sem abrir tabela automaticamente
-                AppController.iniciarAnaliseBackground(tipo === 'rapida' ? 'rapida' : 'todas');
-                this.showStatus(`Análise ${tipo} iniciada em background...`, 'info');
+            // Usar controlador apropriado baseado na plataforma
+            if (this.currentPlatform?.platform === 'mercadolivre') {
+                if (typeof MLController !== 'undefined') {
+                    // Executar análise ML
+                    MLController.iniciarAnaliseBackground(tipo === 'rapida' ? 'rapida' : 'todas');
+                    this.showStatus(`Análise ${tipo} ML iniciada em background...`, 'info');
+                } else {
+                    this.showStatus('Erro: MLController não carregado', 'error');
+                    console.error('❌ MLController não disponível');
+                }
             } else {
-                this.showStatus('Erro: Componentes não carregados', 'error');
+                // Amazon (padrão)
+                if (typeof AppController !== 'undefined') {
+                    AppController.iniciarAnaliseBackground(tipo === 'rapida' ? 'rapida' : 'todas');
+                    this.showStatus(`Análise ${tipo} iniciada em background...`, 'info');
+                } else {
+                    this.showStatus('Erro: AppController não carregado', 'error');
+                }
             }
         }, 500);
     }
@@ -773,15 +825,22 @@ class SidePanel {
         const pendingAnalysis = sessionStorage.getItem('amk_pending_analysis');
         if (pendingAnalysis) {
             try {
-                const { tipo, termo, filtros = {} } = JSON.parse(pendingAnalysis);
+                const { tipo, termo, filtros = {}, platform = 'amazon' } = JSON.parse(pendingAnalysis);
                 sessionStorage.removeItem('amk_pending_analysis');
                 
-                console.log('🔄 Executando análise pendente:', { tipo, termo });
+                // Verificar se estamos na plataforma correta
+                if (this.currentPlatform?.platform !== platform) {
+                    console.log('⚠️ Plataforma não coincide com análise pendente. Ignorando.');
+                    return;
+                }
+                
+                console.log('🔄 Executando análise pendente:', { tipo, termo, platform });
                 if (this.temFiltrosAtivos(filtros)) {
                     console.log('🎯 Com filtros:', filtros);
                 }
                 
-                this.showStatus(`Executando análise ${tipo} pendente${this.temFiltrosAtivos(filtros) ? ' com filtros' : ''}...`, 'info');
+                const platformLabel = platform === 'mercadolivre' ? 'ML' : 'Amazon';
+                this.showStatus(`Executando análise ${tipo} ${platformLabel} pendente${this.temFiltrosAtivos(filtros) ? ' com filtros' : ''}...`, 'info');
                 
                 // Aguardar página carregar e executar análise
                 setTimeout(() => {
@@ -798,20 +857,37 @@ class SidePanel {
     static preencherTermoAtual(searchInput) {
         try {
             const url = window.location.href;
-            if (url.includes('/s?') && url.includes('k=')) {
-                const urlParams = new URLSearchParams(window.location.search);
-                const termo = urlParams.get('k');
-                if (termo && searchInput) {
-                    searchInput.value = decodeURIComponent(termo);
-                    console.log('📝 Campo preenchido com termo atual:', termo);
+            let termo;
+            
+            if (this.currentPlatform?.platform === 'mercadolivre') {
+                // Mercado Livre: extrair termo da URL
+                const match = url.match(/lista\.mercadolivre\.com\.br\/([^?#]+)/);
+                if (match) {
+                    termo = decodeURIComponent(match[1]);
+                    // Limpar parâmetros especiais do ML
+                    termo = termo.replace(/\?.*$/, '').replace(/#.*$/, '');
                 }
+            } else {
+                // Amazon: extrair parâmetro k
+                if (url.includes('/s?') && url.includes('k=')) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    termo = urlParams.get('k');
+                }
+            }
+            
+            if (termo && searchInput) {
+                searchInput.value = decodeURIComponent(termo);
+                console.log(`📝 Campo preenchido com termo atual (${this.currentPlatform?.platform || 'amazon'}):`, termo);
             }
         } catch (error) {
             console.warn('⚠️ Erro ao preencher termo atual:', error);
         }
     }
 
-    static init() {
+    static init(platform) {
+        // Armazenar plataforma para uso posterior
+        this.currentPlatform = platform;
+        
         // Criar o painel mas mantê-lo fechado inicialmente
         this.criar();
         
@@ -826,7 +902,21 @@ class SidePanel {
             this.atualizarStatusBotao();
         }, 2000);
         
-        console.log('✅ SidePanel inicializado');
+        console.log(`✅ SidePanel inicializado para ${platform?.platform || 'plataforma desconhecida'}`);
+    }
+
+    static getIconForPlatform() {
+        if (!this.currentPlatform) {
+            return '🔍'; // Padrão Amazon
+        }
+        
+        switch (this.currentPlatform.platform) {
+            case 'mercadolivre':
+                return '🛒';
+            case 'amazon':
+            default:
+                return '🔍';
+        }
     }
 }
 

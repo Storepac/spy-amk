@@ -1,449 +1,442 @@
 /**
- * MercadoLivre Product Extractor - Extração de dados do Mercado Livre
- * Compatível com layouts Grid e Stack
+ * ML Extractor - Extração de dados específica do Mercado Livre
+ * Suporta layouts Grid e Stack do ML
  */
 class MLExtractor {
-    
     static SELECTORS = {
         // Containers principais
-        GRID_CONTAINER: 'ol.ui-search-layout.ui-search-layout--grid',
-        STACK_CONTAINER: 'ol.ui-search-layout.ui-search-layout--stack',
-        SEARCH_ITEMS: '.ui-search-layout__item',
+        SEARCH_RESULTS: '.ui-search-layout__item',
         
-        // Dados básicos do produto
-        TITLE: 'h2.ui-search-item__title',
-        TITLE_LINK: 'h2.ui-search-item__title a',
-        PRICE: '.price-tag-amount',
-        ORIGINAL_PRICE: '.price-tag.ui-search-price__part',
-        DISCOUNT: '.ui-search-price__discount',
-        LINK: '.ui-search-link',
-        IMAGE: '.ui-search-result-image__element img',
+        // Dados do produto - Nova estrutura Poly
+        TITLE: '.poly-component__title',
+        PRICE_FRACTION: '.andes-money-amount__fraction',
+        PRICE_FULL: '.andes-money-amount',
+        INSTALLMENTS: '.poly-price__installments',
         
-        // Reviews e avaliações
-        REVIEWS_CONTAINER: '.ui-search-reviews',
-        REVIEWS_RATING: '.ui-search-reviews__rating-number',
-        REVIEWS_COUNT: '.ui-search-reviews__amount',
+        // Imagem e link
+        IMAGE: '.poly-component__picture',
+        LINK: '.poly-component__title',
         
-        // Vendas e informações do vendedor
-        SALES: '.ui-search-item__group__element:contains("vendidos")',
-        SELLER: '.ui-search-official-store-label',
-        OFFICIAL_STORE: '.ui-search-official-store-flag',
+        // Informações adicionais
+        REVIEWS_RATING: '.poly-reviews__rating',
+        REVIEWS_COUNT: '.poly-reviews__total',
+        SELLER: '.poly-component__seller',
+        SHIPPING: '.poly-component__shipping',
         
-        // Frete e condições
-        SHIPPING: '.ui-search-item__shipping',
-        FREE_SHIPPING: '.ui-search-item__shipping:contains("Frete grátis")',
-        CONDITION: '.ui-search-item__group__element:contains("usado")',
+        // Tags especiais
+        SPONSORED: '[data-testid="ad-label"]',
+        MOST_SOLD: '.poly-component__highlight',
+        OFFICIAL_STORE: 'svg[aria-label="Loja oficial"]',
         
-        // Identificadores
-        ML_ID: '[data-item-id]',
-        RESULT_INDEX: '[data-index]'
+        // Labels e badges
+        HIGHLIGHT_LABEL: '.poly-component__highlight',
+        FLOAT_HIGHLIGHT: '.poly-component__float-highlight'
     };
-
+    
     /**
      * Extrair todos os produtos da página
      */
-    static extrairProdutosPagina() {
-        const produtos = [];
+    static extrairProdutos() {
+        console.log('🛒 Iniciando extração ML...');
         
-        // Tentar layout Grid primeiro
-        let container = document.querySelector(this.SELECTORS.GRID_CONTAINER);
-        let layoutType = 'grid';
+        const elementos = document.querySelectorAll(this.SELECTORS.SEARCH_RESULTS);
+        console.log(`🔍 Encontrados ${elementos.length} elementos na página`);
         
-        // Se não encontrar Grid, tentar Stack
-        if (!container) {
-            container = document.querySelector(this.SELECTORS.STACK_CONTAINER);
-            layoutType = 'stack';
-        }
+        const produtos = Array.from(elementos).map((elemento, index) => 
+            this.extrairDadosProduto(elemento, index + 1)
+        ).filter(produto => produto !== null);
         
-        if (!container) {
-            console.error('❌ Nenhum container de produtos encontrado');
-            return produtos;
-        }
-        
-        console.log(`📋 Extraindo produtos do layout: ${layoutType}`);
-        
-        const items = container.querySelectorAll(this.SELECTORS.SEARCH_ITEMS);
-        
-        items.forEach((item, index) => {
-            try {
-                const produto = this.extrairDadosProduto(item, index + 1);
-                if (produto && produto.titulo) {
-                    produtos.push(produto);
-                }
-            } catch (error) {
-                console.error(`Erro ao extrair produto ${index}:`, error);
-            }
-        });
-        
-        console.log(`✅ ${produtos.length} produtos extraídos do ML`);
+        console.log(`📦 ML: ${produtos.length} produtos extraídos`);
         return produtos;
     }
-
+    
     /**
      * Extrair dados de um produto específico
      */
     static extrairDadosProduto(elemento, posicao) {
-        const dados = {
-            // Identificadores
-            mlId: this.extrairMLID(elemento),
-            posicaoBusca: posicao,
+        try {
+            // ID único do ML (extrair da URL)
+            const linkEl = elemento.querySelector(this.SELECTORS.LINK);
+            const url = linkEl?.href || '';
+            const mlId = this.extrairMLID(url);
             
-            // Dados básicos
-            titulo: this.extrairTitulo(elemento),
-            link: this.extrairLink(elemento),
-            imagem: this.extrairImagem(elemento),
+            if (!mlId) {
+                console.warn('❌ ML ID não encontrado:', url);
+                return null;
+            }
+            
+            // Título
+            const titulo = linkEl?.textContent?.trim() || '';
+            
+            if (!titulo) {
+                console.warn('❌ Título não encontrado para:', mlId);
+                return null;
+            }
             
             // Preços
-            preco: this.extrairPreco(elemento),
-            precoOriginal: this.extrairPrecoOriginal(elemento),
-            desconto: this.extrairDesconto(elemento),
+            const precoElement = elemento.querySelector(this.SELECTORS.PRICE_FRACTION);
+            const preco = this.extrairPreco(precoElement?.textContent);
             
-            // Reviews
-            avaliacaoNota: this.extrairAvaliacaoNota(elemento),
-            avaliacaoQuantidade: this.extrairAvaliacaoQuantidade(elemento),
+            // Avaliações
+            const avaliacaoEl = elemento.querySelector(this.SELECTORS.REVIEWS_RATING);
+            const avaliacaoCountEl = elemento.querySelector(this.SELECTORS.REVIEWS_COUNT);
             
-            // Vendas
-            vendas: this.extrairVendas(elemento),
-            vendasTexto: this.extrairVendasTexto(elemento),
+            const avaliacao = this.extrairAvaliacao(avaliacaoEl?.textContent);
+            const numAvaliacoes = this.extrairNumeroAvaliacoes(avaliacaoCountEl?.textContent);
+            
+            // Imagem
+            const imagemEl = elemento.querySelector(this.SELECTORS.IMAGE);
+            const imagem = imagemEl?.src || imagemEl?.dataset?.src || '';
             
             // Vendedor
-            vendedor: this.extrairVendedor(elemento),
-            lojaOficial: this.isLojaOficial(elemento),
+            const vendedorEl = elemento.querySelector(this.SELECTORS.SELLER);
+            const vendedor = vendedorEl?.textContent?.replace(/^Por\s+/i, '').trim() || '';
             
-            // Frete e condições
-            frete: this.extrairFrete(elemento),
-            freteGratis: this.hasFreteGratis(elemento),
-            condicao: this.extrairCondicao(elemento),
+            // Tags especiais e badges
+            const maisVendidoEl = elemento.querySelector(this.SELECTORS.MOST_SOLD);
+            const maisVendido = maisVendidoEl?.textContent?.includes('MAIS VENDIDO') || false;
+            const recomendado = maisVendidoEl?.textContent?.includes('RECOMENDADO') || false;
             
-            // Metadados
-            plataforma: 'mercadolivre',
-            dataExtracao: new Date().toISOString()
-        };
-
-        // Calcular preço numérico
-        dados.precoNumerico = this.converterPrecoNumerico(dados.preco);
-        
-        // Calcular receita estimada
-        dados.receitaEstimada = dados.precoNumerico * (dados.vendas || 0);
-        
-        // Score de oportunidade ML
-        dados.scoreML = this.calcularScoreML(dados);
-        
-        return dados;
-    }
-
-    /**
-     * Extrair ML ID (identificador único do produto)
-     */
-    static extrairMLID(elemento) {
-        const mlIdElement = elemento.querySelector(this.SELECTORS.ML_ID);
-        return mlIdElement ? mlIdElement.getAttribute('data-item-id') : null;
-    }
-
-    /**
-     * Extrair título do produto
-     */
-    static extrairTitulo(elemento) {
-        const titleElement = elemento.querySelector(this.SELECTORS.TITLE);
-        return titleElement ? titleElement.textContent.trim() : '';
-    }
-
-    /**
-     * Extrair link do produto
-     */
-    static extrairLink(elemento) {
-        const linkElement = elemento.querySelector(this.SELECTORS.LINK) || 
-                           elemento.querySelector(this.SELECTORS.TITLE_LINK);
-        
-        if (linkElement) {
-            let href = linkElement.getAttribute('href');
-            // Se for link relativo, converter para absoluto
-            if (href && href.startsWith('/')) {
-                href = `https://www.mercadolivre.com.br${href}`;
-            }
-            return href;
-        }
-        return '';
-    }
-
-    /**
-     * Extrair imagem do produto
-     */
-    static extrairImagem(elemento) {
-        const imgElement = elemento.querySelector(this.SELECTORS.IMAGE);
-        return imgElement ? imgElement.getAttribute('src') || imgElement.getAttribute('data-src') : '';
-    }
-
-    /**
-     * Extrair preço principal
-     */
-    static extrairPreco(elemento) {
-        const priceElement = elemento.querySelector(this.SELECTORS.PRICE);
-        return priceElement ? priceElement.textContent.trim() : '';
-    }
-
-    /**
-     * Extrair preço original (antes do desconto)
-     */
-    static extrairPrecoOriginal(elemento) {
-        const originalPriceElement = elemento.querySelector(this.SELECTORS.ORIGINAL_PRICE);
-        return originalPriceElement ? originalPriceElement.textContent.trim() : '';
-    }
-
-    /**
-     * Extrair percentual de desconto
-     */
-    static extrairDesconto(elemento) {
-        const discountElement = elemento.querySelector(this.SELECTORS.DISCOUNT);
-        if (discountElement) {
-            const discountText = discountElement.textContent.trim();
-            const match = discountText.match(/(\d+)%/);
-            return match ? parseInt(match[1]) : 0;
-        }
-        return 0;
-    }
-
-    /**
-     * Extrair nota da avaliação
-     */
-    static extrairAvaliacaoNota(elemento) {
-        const ratingElement = elemento.querySelector(this.SELECTORS.REVIEWS_RATING);
-        if (ratingElement) {
-            const rating = parseFloat(ratingElement.textContent.trim());
-            return isNaN(rating) ? 0 : rating;
-        }
-        return 0;
-    }
-
-    /**
-     * Extrair quantidade de avaliações
-     */
-    static extrairAvaliacaoQuantidade(elemento) {
-        const countElement = elemento.querySelector(this.SELECTORS.REVIEWS_COUNT);
-        if (countElement) {
-            const countText = countElement.textContent.trim();
-            // Extrair número de avaliações: "(123)" -> 123
-            const match = countText.match(/\((\d+)\)/);
-            return match ? parseInt(match[1]) : 0;
-        }
-        return 0;
-    }
-
-    /**
-     * Extrair vendas do produto
-     */
-    static extrairVendas(elemento) {
-        const vendasTexto = this.extrairVendasTexto(elemento);
-        return this.converterVendasNumerico(vendasTexto);
-    }
-
-    /**
-     * Extrair texto de vendas
-     */
-    static extrairVendasTexto(elemento) {
-        // Procurar por elementos que contenham "vendidos"
-        const salesElements = elemento.querySelectorAll('*');
-        for (const el of salesElements) {
-            const text = el.textContent.toLowerCase();
-            if (text.includes('vendidos') || text.includes('vendas')) {
-                return el.textContent.trim();
-            }
-        }
-        return '';
-    }
-
-    /**
-     * Converter texto de vendas em número
-     */
-    static converterVendasNumerico(vendasTexto) {
-        if (!vendasTexto) return 0;
-        
-        const texto = vendasTexto.toLowerCase();
-        
-        // Padrões do ML: "Mais de 1000 vendidos", "500+ vendidos", etc.
-        let numero = 0;
-        
-        // Extrair números do texto
-        const numeros = texto.match(/\d+/g);
-        if (!numeros) return 0;
-        
-        numero = parseInt(numeros[0]);
-        
-        // Aplicar multiplicadores
-        if (texto.includes('mil')) {
-            numero *= 1000;
-        } else if (texto.includes('milhão') || texto.includes('milhao')) {
-            numero *= 1000000;
-        }
-        
-        // Se for "mais de X", aplicar margem
-        if (texto.includes('mais de') || texto.includes('+')) {
-            numero *= 1.2; // 20% a mais como estimativa
-        }
-        
-        return Math.floor(numero);
-    }
-
-    /**
-     * Extrair informações do vendedor
-     */
-    static extrairVendedor(elemento) {
-        const sellerElement = elemento.querySelector(this.SELECTORS.SELLER);
-        return sellerElement ? sellerElement.textContent.trim() : '';
-    }
-
-    /**
-     * Verificar se é loja oficial
-     */
-    static isLojaOficial(elemento) {
-        return !!elemento.querySelector(this.SELECTORS.OFFICIAL_STORE);
-    }
-
-    /**
-     * Extrair informações de frete
-     */
-    static extrairFrete(elemento) {
-        const shippingElement = elemento.querySelector(this.SELECTORS.SHIPPING);
-        return shippingElement ? shippingElement.textContent.trim() : '';
-    }
-
-    /**
-     * Verificar se tem frete grátis
-     */
-    static hasFreteGratis(elemento) {
-        return !!elemento.querySelector(this.SELECTORS.FREE_SHIPPING);
-    }
-
-    /**
-     * Extrair condição do produto
-     */
-    static extrairCondicao(elemento) {
-        const conditionElement = elemento.querySelector(this.SELECTORS.CONDITION);
-        if (conditionElement) {
-            const text = conditionElement.textContent.toLowerCase();
-            if (text.includes('usado')) return 'usado';
-            if (text.includes('recondicionado')) return 'recondicionado';
-        }
-        return 'novo';
-    }
-
-    /**
-     * Converter preço em texto para número
-     */
-    static converterPrecoNumerico(precoTexto) {
-        if (!precoTexto) return 0;
-        
-        // Remove símbolos e converte para número
-        const numeroStr = precoTexto
-            .replace(/[^\d,.]/g, '')  // Remove tudo exceto dígitos, vírgula e ponto
-            .replace(/\./g, '')       // Remove pontos (milhares)
-            .replace(',', '.');       // Converte vírgula em ponto decimal
-        
-        const numero = parseFloat(numeroStr);
-        return isNaN(numero) ? 0 : numero;
-    }
-
-    /**
-     * Calcular score de oportunidade específico para ML
-     */
-    static calcularScoreML(dados) {
-        let score = 0;
-        
-        // Posição na busca (peso 3)
-        if (dados.posicaoBusca <= 10) score += 15;
-        else if (dados.posicaoBusca <= 30) score += 10;
-        else if (dados.posicaoBusca <= 50) score += 5;
-        
-        // Vendas (peso 3)
-        if (dados.vendas > 1000) score += 15;
-        else if (dados.vendas > 100) score += 10;
-        else if (dados.vendas > 10) score += 5;
-        
-        // Avaliação (peso 2)
-        if (dados.avaliacaoNota >= 4.5) score += 10;
-        else if (dados.avaliacaoNota >= 4.0) score += 7;
-        else if (dados.avaliacaoNota >= 3.5) score += 4;
-        
-        // Frete grátis (peso 1)
-        if (dados.freteGratis) score += 5;
-        
-        // Loja oficial (peso 1)
-        if (dados.lojaOficial) score += 5;
-        
-        // Desconto (peso 1)
-        if (dados.desconto > 20) score += 5;
-        else if (dados.desconto > 10) score += 3;
-        
-        return Math.min(score, 100); // Máximo 100
-    }
-
-    /**
-     * Extrair dados da página de produto individual
-     */
-    static async extrairDetalhesProduto(url) {
-        try {
-            console.log("🔍 Extraindo detalhes do produto ML:", url);
+            const lojaOficial = elemento.querySelector(this.SELECTORS.OFFICIAL_STORE) !== null;
             
-            const response = await fetch(url);
-            const html = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
+            // Extrair vendas do texto ("+10mil vendidos", "+500 vendidos", etc)
+            const vendas = this.extrairVendasDoTexto(elemento);
+            const vendasTexto = this.extrairVendasTextoOriginal(elemento);
+            
+            // Extrair categoria e posição (ex: "1º em Protetores de Carter")
+            const { categoria, posicaoCategoria } = this.extrairCategoriaEPosicao(elemento);
+            
+            // Frete
+            const freteEl = elemento.querySelector(this.SELECTORS.SHIPPING);
+            const freteGratis = freteEl?.textContent?.toLowerCase().includes('grátis') || 
+                              freteEl?.textContent?.toLowerCase().includes('gratis') || false;
+            
+            // Patrocinado (verificar se há label "Patrocinado")
+            const patrocinado = this.verificarPatrocinado(elemento);
+            
+            console.log(`✅ Produto extraído: ${titulo} - R$ ${preco}`);
             
             return {
-                mlId: this.extrairMLIDDetalhes(doc),
-                titulo: this.extrairTituloDetalhes(doc),
-                preco: this.extrairPrecoDetalhes(doc),
-                vendas: this.extrairVendasDetalhes(doc),
-                avaliacao: this.extrairAvaliacaoDetalhes(doc),
-                vendedor: this.extrairVendedorDetalhes(doc),
-                categoria: this.extrairCategoria(doc),
-                caracteristicas: this.extrairCaracteristicas(doc)
+                mlId,
+                titulo,
+                preco,
+                precoOriginal: null, // Será implementado se necessário
+                desconto: null, // Será implementado se necessário
+                avaliacao,
+                numAvaliacoes,
+                imagem,
+                link: url,
+                vendedor,
+                patrocinado,
+                maisVendido,
+                recomendado,
+                lojaOficial,
+                freteGratis,
+                condicao: 'Novo', // Padrão para ML
+                vendas,
+                vendasTexto,
+                receita: vendas && preco ? vendas * preco : null,
+                categoria,
+                posicaoCategoria,
+                posicao,
+                plataforma: 'mercadolivre',
+                timestamp: Date.now()
             };
             
         } catch (error) {
-            console.error('Erro ao buscar detalhes do produto ML:', error);
+            console.error('❌ Erro ao extrair produto ML:', error);
+            console.error('Elemento:', elemento);
             return null;
         }
     }
-
+    
     /**
-     * Extrair ML ID da página de detalhes
+     * Extrair ML ID da URL
      */
-    static extrairMLIDDetalhes(doc) {
-        // Tentar diferentes formas de extrair o ML ID
-        const metaElement = doc.querySelector('meta[name="twitter:app:url:googleplay"]');
-        if (metaElement) {
-            const content = metaElement.getAttribute('content');
-            const match = content.match(/MLB(\d+)/);
-            return match ? `MLB${match[1]}` : null;
+    static extrairMLID(url) {
+        if (!url) return null;
+        
+        // 1. URL direta do produto: /MLB-123456789-produto-nome
+        let match = url.match(/\/MLB-(\d+)-/);
+        if (match) {
+            return `MLB-${match[1]}`;
         }
+        
+        // 2. URL com parâmetro wid (encontrado em URLs de redirecionamento)
+        match = url.match(/[?&]wid=(MLB\d+)/);
+        if (match) {
+            return match[1];
+        }
+        
+        // 3. URL com searchVariation
+        match = url.match(/[?&]searchVariation=(MLB[U]?\d+)/);
+        if (match) {
+            return match[1];
+        }
+        
+        // 4. URL click1.mercadolivre.com.br - extrair do fragmento
+        if (url.includes('click1.mercadolivre.com.br')) {
+            match = url.match(/#.*wid=(MLB\d+)/);
+            if (match) {
+                return match[1];
+            }
+        }
+        
+        // 5. Fallback: procurar qualquer MLB seguido de números
+        match = url.match(/MLB[U]?(\d+)/);
+        if (match) {
+            return url.includes('MLBU') ? `MLBU${match[1]}` : `MLB${match[1]}`;
+        }
+        
         return null;
     }
-
+    
     /**
-     * Debug - Mostrar estrutura da página
+     * Extrair preço numérico
      */
-    static debugPagina() {
-        console.log('🔍 Debug ML Extractor');
+    static extrairPreco(texto) {
+        if (!texto) return null;
         
-        const gridContainer = document.querySelector(this.SELECTORS.GRID_CONTAINER);
-        const stackContainer = document.querySelector(this.SELECTORS.STACK_CONTAINER);
+        // Remove tudo exceto números, vírgulas e pontos
+        const numeroLimpo = texto.replace(/[^\d,\.]/g, '');
         
-        console.log({
-            hasGrid: !!gridContainer,
-            hasStack: !!stackContainer,
-            itemCount: document.querySelectorAll(this.SELECTORS.SEARCH_ITEMS).length,
-            url: window.location.href
-        });
+        // Se tem vírgula e ponto, assume formato brasileiro (1.234,56)
+        if (numeroLimpo.includes(',') && numeroLimpo.includes('.')) {
+            return parseFloat(numeroLimpo.replace(/\./g, '').replace(',', '.'));
+        }
         
-        // Mostrar alguns produtos como exemplo
-        const items = document.querySelectorAll(this.SELECTORS.SEARCH_ITEMS);
-        if (items.length > 0) {
-            console.log('📋 Primeiros 3 produtos:');
-            Array.from(items).slice(0, 3).forEach((item, index) => {
-                const produto = this.extrairDadosProduto(item, index + 1);
-                console.log(`${index + 1}:`, produto);
-            });
+        // Se só tem vírgula, assume formato brasileiro (1234,56)
+        if (numeroLimpo.includes(',')) {
+            return parseFloat(numeroLimpo.replace(',', '.'));
+        }
+        
+        // Se só tem ponto, pode ser separador de milhares ou decimal
+        if (numeroLimpo.includes('.')) {
+            const partes = numeroLimpo.split('.');
+            if (partes[partes.length - 1].length === 2) {
+                // Último ponto tem 2 dígitos, é decimal
+                return parseFloat(numeroLimpo.replace(/\.(?=\d{3})/g, ''));
+            }
+        }
+        
+        return parseFloat(numeroLimpo);
+    }
+    
+    /**
+     * Extrair avaliação numérica
+     */
+    static extrairAvaliacao(texto) {
+        if (!texto) return null;
+        const numero = parseFloat(texto.replace(',', '.'));
+        return isNaN(numero) ? null : Math.min(5, Math.max(0, numero));
+    }
+    
+    /**
+     * Extrair número de avaliações
+     */
+    static extrairNumeroAvaliacoes(texto) {
+        if (!texto) return null;
+        
+        // Remove parênteses e extrai números
+        const numeroLimpo = texto.replace(/[^\d]/g, '');
+        const numero = parseInt(numeroLimpo);
+        return isNaN(numero) ? null : numero;
+    }
+    
+    /**
+     * Extrair vendas do texto do elemento
+     */
+    static extrairVendasDoTexto(elemento) {
+        try {
+            // Procurar por padrões de vendas no elemento
+            const textoCompleto = elemento.textContent || '';
+            
+            // Padrões comuns: "+10mil vendidos", "+500 vendidos", "Novo | +10mil vendidos"
+            const patterns = [
+                /\+(\d+)mil\s+vendidos/i,  // "+10mil vendidos"
+                /\+(\d+)\s+vendidos/i,     // "+500 vendidos"
+                /(\d+)mil\s+vendidos/i,    // "10mil vendidos"
+                /(\d+)\s+vendidos/i        // "500 vendidos"
+            ];
+            
+            for (const pattern of patterns) {
+                const match = textoCompleto.match(pattern);
+                if (match) {
+                    const numero = parseInt(match[1]);
+                    
+                    // Se contém "mil", multiplicar por 1000
+                    if (pattern.source.includes('mil')) {
+                        return numero * 1000;
+                    } else {
+                        return numero;
+                    }
+                }
+            }
+            
+            return null;
+        } catch (error) {
+            console.warn('Erro ao extrair vendas:', error);
+            return null;
         }
     }
-} 
+    
+    /**
+     * Extrair texto original das vendas
+     */
+    static extrairVendasTextoOriginal(elemento) {
+        try {
+            const textoCompleto = elemento.textContent || '';
+            
+            // Procurar pelo padrão de vendas e retornar o texto original
+            const match = textoCompleto.match(/(\+?\d+\s*mil|\+?\d+)\s+vendidos/i);
+            return match ? match[0] : null;
+        } catch (error) {
+            console.warn('Erro ao extrair texto de vendas:', error);
+            return null;
+        }
+    }
+    
+    /**
+     * Extrair categoria e posição em categoria
+     */
+    static extrairCategoriaEPosicao(elemento) {
+        try {
+            const textoCompleto = elemento.textContent || '';
+            
+            // Procurar padrões como "1º em Protetores de Carter"
+            const match = textoCompleto.match(/(\d+º)\s+em\s+([^"]+)/i);
+            
+            if (match) {
+                return {
+                    posicaoCategoria: match[1], // "1º"
+                    categoria: match[2].trim()  // "Protetores de Carter"
+                };
+            }
+            
+            return {
+                categoria: null,
+                posicaoCategoria: null
+            };
+        } catch (error) {
+            console.warn('Erro ao extrair categoria:', error);
+            return {
+                categoria: null,
+                posicaoCategoria: null
+            };
+        }
+    }
+    
+    /**
+     * Verificar se produto é patrocinado
+     */
+    static verificarPatrocinado(elemento) {
+        try {
+            const textoCompleto = elemento.textContent || '';
+            
+            // Verificar por "Patrocinado" no texto
+            if (textoCompleto.toLowerCase().includes('patrocinado')) {
+                return true;
+            }
+            
+            // Verificar elementos específicos de anúncio
+            const seletoresAnuncio = [
+                '.poly-component__ads-promotions',
+                '[data-testid="ad-label"]',
+                '.ui-search-ad-label'
+            ];
+            
+            for (const seletor of seletoresAnuncio) {
+                if (elemento.querySelector(seletor)) {
+                    return true;
+                }
+            }
+            
+            return false;
+        } catch (error) {
+            console.warn('Erro ao verificar patrocinado:', error);
+            return false;
+        }
+    }
+    
+    /**
+     * Aguardar carregamento da página
+     */
+    static async aguardarCarregamento(timeout = 5000) {
+        return new Promise((resolve) => {
+            const verificar = () => {
+                const produtos = document.querySelectorAll(
+                    this.SELECTORS.SEARCH_RESULTS
+                );
+                
+                if (produtos.length > 0) {
+                    resolve(true);
+                } else {
+                    setTimeout(verificar, 100);
+                }
+            };
+            
+            verificar();
+            
+            // Timeout
+            setTimeout(() => resolve(false), timeout);
+        });
+    }
+    
+    /**
+     * Obter dados da busca atual
+     */
+    static obterDadosBusca() {
+        try {
+            const url = window.location.href;
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Extrair termo de pesquisa
+            let termoPesquisa = '';
+            
+            // Tentar extrair da URL
+            if (url.includes('lista.mercadolivre.com.br')) {
+                const match = url.match(/\/([^\/]+)(_Desde_|_NoIndex_|$)/);
+                if (match) {
+                    termoPesquisa = decodeURIComponent(match[1]).replace(/-/g, ' ');
+                }
+            }
+            
+            // Fallback: tentar parâmetros da URL
+            if (!termoPesquisa) {
+                termoPesquisa = urlParams.get('search') || 
+                              urlParams.get('q') || 
+                              urlParams.get('as_word') || '';
+            }
+            
+            // Tentar extrair da página
+            if (!termoPesquisa) {
+                const searchInput = document.querySelector('input[placeholder*="buscar"], input[name*="search"]');
+                if (searchInput) {
+                    termoPesquisa = searchInput.value || searchInput.placeholder || '';
+                }
+            }
+            
+            // Extrair página atual
+            const paginaMatch = url.match(/_Desde_(\d+)/);
+            const pagina = paginaMatch ? Math.ceil(parseInt(paginaMatch[1]) / 50) + 1 : 1;
+            
+            return {
+                termoPesquisa: termoPesquisa.trim(),
+                pagina: pagina.toString(),
+                url: url,
+                timestamp: Date.now()
+            };
+        } catch (error) {
+            console.error('Erro ao obter dados da busca:', error);
+            return {
+                termoPesquisa: '',
+                pagina: '1',
+                url: window.location.href,
+                timestamp: Date.now()
+            };
+        }
+    }
+}
+
+// Expor globalmente
+window.MLExtractor = MLExtractor; 

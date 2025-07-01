@@ -3,6 +3,17 @@
  */
 class TableRowBuilder {
     static criarLinhaProduto(produto, index) {
+        // Detectar plataforma
+        const isML = produto.plataforma === 'mercadolivre' || produto.mlId;
+        
+        if (isML) {
+            return this.criarLinhaProdutoML(produto, index);
+        } else {
+            return this.criarLinhaProdutoAmazon(produto, index);
+        }
+    }
+    
+    static criarLinhaProdutoAmazon(produto, index) {
         const asinDuplicado = TableManager.verificarASINDuplicado(produto.asin);
         const corFundo = asinDuplicado ? 'rgba(239, 68, 68, 0.1)' : (index % 2 === 0 ? 'var(--bg-primary)' : 'var(--bg-secondary)');
         const bordaDuplicado = asinDuplicado ? '2px solid #ef4444' : '1px solid var(--border-light)';
@@ -29,6 +40,37 @@ class TableRowBuilder {
                 ${this.criarCelulaStatus(produto)}
                 ${this.criarCelulaTendencia(produto)}
                 ${this.criarCelulaTipo(produto)}
+            </tr>
+        `;
+    }
+    
+    static criarLinhaProdutoML(produto, index) {
+        const mlIdDuplicado = produto.mlId && TableManager.verificarMLIDDuplicado && TableManager.verificarMLIDDuplicado(produto.mlId);
+        const corFundo = mlIdDuplicado ? 'rgba(239, 68, 68, 0.1)' : (index % 2 === 0 ? 'var(--bg-primary)' : 'var(--bg-secondary)');
+        const bordaDuplicado = mlIdDuplicado ? '2px solid #ef4444' : '1px solid var(--border-light)';
+        
+        return `
+            <tr style="
+                background: ${corFundo};
+                border-bottom: ${bordaDuplicado};
+                transition: all 0.2s;
+                font-family: 'Poppins', sans-serif;
+            " data-mlid="${produto.mlId}" data-index="${index}" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background='var(--bg-secondary)'">
+                ${this.criarCelulaPosicao(produto, index)}
+                ${this.criarCelulaImagem(produto)}
+                ${this.criarCelulaTitulo(produto)}
+                ${this.criarCelulaMLID(produto, mlIdDuplicado)}
+                ${this.criarCelulaVendedorML(produto)}
+                ${this.criarCelulaPrecoML(produto)}
+                ${this.criarCelulaAvaliacao(produto)}
+                ${this.criarCelulaNumAvaliacoes(produto)}
+                ${this.criarCelulaVendidosML(produto)}
+                ${this.criarCelulaReceitaML(produto)}
+                ${this.criarCelulaBSRML(produto)}
+                ${this.criarCelulaCategoriaML(produto)}
+                ${this.criarCelulaStatus(produto)}
+                ${this.criarCelulaTendencia(produto)}
+                ${this.criarCelulaTipoML(produto)}
             </tr>
         `;
     }
@@ -498,6 +540,389 @@ class TableRowBuilder {
                 color: ${corPagina};
             " title="Página de origem">${pagina}</td>
         `;
+    }
+
+    // ====== MÉTODOS ESPECÍFICOS PARA MERCADO LIVRE ======
+    
+    /**
+     * Criar célula do MLB ID (equivalente ao ASIN)
+     */
+    static criarCelulaMLID(produto, mlIdDuplicado) {
+        const mlId = produto.mlId || 'N/A';
+        const corTexto = mlIdDuplicado ? '#ef4444' : '#374151';
+        const fonteWeight = mlIdDuplicado ? '700' : '500';
+        
+        return `
+            <td style="
+                padding: 8px;
+                text-align: center;
+                font-size: 11px;
+                font-weight: ${fonteWeight};
+                color: ${corTexto};
+                border-right: 1px solid var(--border-light);
+                font-family: 'Courier New', monospace;
+                background: ${mlIdDuplicado ? 'rgba(239, 68, 68, 0.1)' : 'transparent'};
+                position: relative;
+            " title="${mlIdDuplicado ? '⚠️ MLB ID duplicado encontrado!' : 'Clique para copiar MLB ID'}">
+                <div style="
+                    cursor: pointer;
+                    padding: 4px;
+                    border-radius: 4px;
+                    transition: all 0.2s;
+                    ${mlIdDuplicado ? 'border: 1px solid #ef4444;' : ''}
+                " onclick="TableManager.copiarMLID('${mlId}')" 
+                   onmouseover="this.style.background='rgba(59, 130, 246, 0.1)'" 
+                   onmouseout="this.style.background='transparent'">
+                    ${mlId}
+                    ${mlIdDuplicado ? '<br><span style="color: #ef4444; font-size: 9px;">DUPLICADO</span>' : ''}
+                </div>
+            </td>
+        `;
+    }
+    
+    /**
+     * Criar célula do vendedor ML
+     */
+    static criarCelulaVendedorML(produto) {
+        const vendedor = produto.vendedor || 'N/A';
+        const lojaOficial = produto.lojaOficial ? '🏪' : '';
+        
+        return `
+            <td style="
+                padding: 8px;
+                text-align: center;
+                font-size: 11px;
+                color: var(--text-primary);
+                border-right: 1px solid var(--border-light);
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            " title="${vendedor}${produto.lojaOficial ? ' (Loja Oficial)' : ''}">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 3px;">
+                    ${lojaOficial}
+                    <span>${vendedor.substring(0, 15)}${vendedor.length > 15 ? '...' : ''}</span>
+                </div>
+            </td>
+        `;
+    }
+    
+    /**
+     * Criar célula de preço ML (com vírgula)
+     */
+    static criarCelulaPrecoML(produto) {
+        const preco = produto.preco;
+        const precoOriginal = produto.precoOriginal;
+        const desconto = produto.desconto;
+        
+        if (!preco) {
+            return `
+                <td style="
+                    padding: 8px;
+                    text-align: center;
+                    font-size: 11px;
+                    color: var(--text-secondary);
+                    border-right: 1px solid var(--border-light);
+                ">N/A</td>
+            `;
+        }
+        
+        const precoFormatado = this.formatarPrecoML(preco);
+        const temDesconto = desconto && desconto > 0;
+        
+        return `
+            <td style="
+                padding: 8px;
+                text-align: center;
+                font-size: 11px;
+                color: var(--text-primary);
+                border-right: 1px solid var(--border-light);
+            ">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 1px;">
+                    <div style="
+                        font-weight: 600;
+                        color: #059669;
+                        font-size: 12px;
+                    ">R$ ${precoFormatado}</div>
+                    ${temDesconto ? `
+                        <div style="font-size: 9px; color: #ef4444;">
+                            -${desconto}%
+                        </div>
+                    ` : ''}
+                    ${precoOriginal && precoOriginal !== preco ? `
+                        <div style="
+                            font-size: 9px;
+                            color: #6b7280;
+                            text-decoration: line-through;
+                        ">R$ ${this.formatarPrecoML(precoOriginal)}</div>
+                    ` : ''}
+                </div>
+            </td>
+        `;
+    }
+    
+    /**
+     * Criar célula de vendidos ML
+     */
+    static criarCelulaVendidosML(produto) {
+        const vendas = produto.vendas;
+        const vendasTexto = produto.vendasTexto || '';
+        
+        if (!vendas && !vendasTexto) {
+            return `
+                <td style="
+                    padding: 8px;
+                    text-align: center;
+                    font-size: 11px;
+                    color: var(--text-secondary);
+                    border-right: 1px solid var(--border-light);
+                ">-</td>
+            `;
+        }
+        
+        const vendasFormatadas = vendas ? this.formatarVendasML(vendas) : vendasTexto;
+        const cor = this.obterCorVendasML(vendas);
+        
+        return `
+            <td style="
+                padding: 8px;
+                text-align: center;
+                font-size: 11px;
+                color: ${cor};
+                border-right: 1px solid var(--border-light);
+                font-weight: 600;
+            " title="Vendas no último período">
+                ${vendasFormatadas}
+            </td>
+        `;
+    }
+    
+    /**
+     * Criar célula de receita ML
+     */
+    static criarCelulaReceitaML(produto) {
+        const vendas = produto.vendas;
+        const preco = produto.preco;
+        
+        if (!vendas || !preco) {
+            return `
+                <td style="
+                    padding: 8px;
+                    text-align: center;
+                    font-size: 11px;
+                    color: var(--text-secondary);
+                    border-right: 1px solid var(--border-light);
+                ">-</td>
+            `;
+        }
+        
+        const receita = vendas * preco;
+        const receitaFormatada = this.formatarReceitaML(receita);
+        
+        return `
+            <td style="
+                padding: 8px;
+                text-align: center;
+                font-size: 11px;
+                color: #8b5cf6;
+                border-right: 1px solid var(--border-light);
+                font-weight: 600;
+            " title="Receita estimada (vendas × preço)">
+                R$ ${receitaFormatada}
+            </td>
+        `;
+    }
+    
+    /**
+     * Criar célula BSR ML (MAIS VENDIDO, RECOMENDADO)
+     */
+    static criarCelulaBSRML(produto) {
+        const maisVendido = produto.maisVendido;
+        const recomendado = produto.recomendado;
+        const badges = produto.badges || [];
+        
+        let conteudo = '';
+        let cor = '#6b7280';
+        let fundo = 'transparent';
+        
+        if (maisVendido) {
+            conteudo = 'MAIS VENDIDO';
+            cor = '#ffffff';
+            fundo = 'linear-gradient(135deg, #ff7730, #ff5722)';
+        } else if (recomendado) {
+            conteudo = 'RECOMENDADO';
+            cor = '#ffffff';
+            fundo = 'linear-gradient(135deg, #10b981, #059669)';
+        } else if (badges.length > 0) {
+            conteudo = badges[0];
+            cor = '#ffffff';
+            fundo = 'linear-gradient(135deg, #3b82f6, #2563eb)';
+        } else {
+            conteudo = '-';
+        }
+        
+        return `
+            <td style="
+                padding: 8px;
+                text-align: center;
+                font-size: 10px;
+                border-right: 1px solid var(--border-light);
+            ">
+                ${conteudo !== '-' ? `
+                    <div style="
+                        background: ${fundo};
+                        color: ${cor};
+                        padding: 4px 6px;
+                        border-radius: 6px;
+                        font-weight: 600;
+                        font-size: 9px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                    ">${conteudo}</div>
+                ` : `
+                    <span style="color: var(--text-secondary);">${conteudo}</span>
+                `}
+            </td>
+        `;
+    }
+    
+    /**
+     * Criar célula categoria ML (posição em categoria)
+     */
+    static criarCelulaCategoriaML(produto) {
+        const categoria = produto.categoria;
+        const posicaoCategoria = produto.posicaoCategoria;
+        
+        if (!categoria && !posicaoCategoria) {
+            return `
+                <td style="
+                    padding: 8px;
+                    text-align: center;
+                    font-size: 11px;
+                    color: var(--text-secondary);
+                    border-right: 1px solid var(--border-light);
+                ">-</td>
+            `;
+        }
+        
+        return `
+            <td style="
+                padding: 8px;
+                text-align: center;
+                font-size: 10px;
+                color: var(--text-primary);
+                border-right: 1px solid var(--border-light);
+                max-width: 120px;
+                word-wrap: break-word;
+            " title="${categoria || 'Categoria não especificada'}">
+                ${posicaoCategoria ? `
+                    <div style="
+                        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                        color: white;
+                        padding: 2px 4px;
+                        border-radius: 4px;
+                        margin-bottom: 2px;
+                        font-weight: 600;
+                        font-size: 9px;
+                    ">${posicaoCategoria}</div>
+                ` : ''}
+                <div style="font-size: 9px; line-height: 1.2;">
+                    ${categoria ? categoria.substring(0, 20) + (categoria.length > 20 ? '...' : '') : '-'}
+                </div>
+            </td>
+        `;
+    }
+    
+    /**
+     * Criar célula tipo ML (Patrocinado, etc)
+     */
+    static criarCelulaTipoML(produto) {
+        const patrocinado = produto.patrocinado;
+        const tipo = produto.tipo || (patrocinado ? 'Patrocinado' : 'Orgânico');
+        
+        const cor = patrocinado ? '#ffffff' : '#374151';
+        const fundo = patrocinado ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'transparent';
+        
+        return `
+            <td style="
+                padding: 8px;
+                text-align: center;
+                font-size: 10px;
+                border-right: 1px solid var(--border-light);
+            ">
+                <div style="
+                    background: ${fundo};
+                    color: ${cor};
+                    padding: 4px 6px;
+                    border-radius: 6px;
+                    font-weight: ${patrocinado ? '600' : '400'};
+                    font-size: 9px;
+                    ${patrocinado ? 'box-shadow: 0 1px 3px rgba(0,0,0,0.1);' : ''}
+                ">${tipo}</div>
+            </td>
+        `;
+    }
+    
+    // ====== MÉTODOS AUXILIARES PARA ML ======
+    
+    /**
+     * Formatar preço ML com vírgula
+     */
+    static formatarPrecoML(preco) {
+        if (!preco) return '0,00';
+        
+        const numero = parseFloat(preco);
+        return numero.toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+    
+    /**
+     * Formatar vendas ML
+     */
+    static formatarVendasML(vendas) {
+        if (!vendas) return '-';
+        
+        if (vendas >= 1000000) {
+            return `${(vendas / 1000000).toFixed(1)}M`;
+        } else if (vendas >= 1000) {
+            return `${(vendas / 1000).toFixed(1)}k`;
+        } else {
+            return vendas.toString();
+        }
+    }
+    
+    /**
+     * Formatar receita ML
+     */
+    static formatarReceitaML(receita) {
+        if (!receita) return '0,00';
+        
+        if (receita >= 1000000) {
+            return `${(receita / 1000000).toFixed(1)}M`;
+        } else if (receita >= 1000) {
+            return `${(receita / 1000).toFixed(0)}k`;
+        } else {
+            return receita.toLocaleString('pt-BR', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
+    }
+    
+    /**
+     * Obter cor baseada no número de vendas
+     */
+    static obterCorVendasML(vendas) {
+        if (!vendas) return '#6b7280';
+        
+        if (vendas >= 10000) return '#059669'; // Verde - muito alto
+        if (vendas >= 5000) return '#10b981';  // Verde claro - alto
+        if (vendas >= 1000) return '#f59e0b';  // Amarelo - médio
+        if (vendas >= 100) return '#f97316';   // Laranja - baixo
+        return '#ef4444';                      // Vermelho - muito baixo
     }
 }
 

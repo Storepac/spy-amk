@@ -17,13 +17,19 @@
     ],
     "host_permissions": [
       "https://www.amazon.com.br/*",
-      "https://www.amazon.com/*"
+      "https://www.amazon.com/*",
+      "https://lista.mercadolivre.com.br/*",
+      "https://produto.mercadolivre.com.br/*",
+      "https://www.mercadolivre.com.br/*"
     ],
     "content_scripts": [
       {
         "matches": [
           "https://www.amazon.com.br/*",
-          "https://www.amazon.com/*"
+          "https://www.amazon.com/*",
+          "https://lista.mercadolivre.com.br/*",
+          "https://produto.mercadolivre.com.br/*",
+          "https://www.mercadolivre.com.br/*"
         ],
         "js": [
           "config/constants.js",
@@ -41,12 +47,16 @@
           "ui/components/StatsUpdater.js",
           "ui/components/PositionTracker.js",
           "ui/components/SupabaseManager.js",
+          "ui/components/MLManager.js",
           "ui/components/SyncPanel.js",
           "ui/components/SidePanel.js",
             "ui/table.js",
             "ui/events.js",
             "core/extractor.js",
+            "core/ml-extractor.js",
+            "core/platform-detector.js",
             "core/analyzer.js",
+            "ml-controller.js",
             "app.js",
           "content.js"
         ],
@@ -66,7 +76,10 @@
         ],
         "matches": [
           "https://www.amazon.com.br/*",
-          "https://www.amazon.com/*"
+          "https://www.amazon.com/*",
+          "https://lista.mercadolivre.com.br/*",
+          "https://produto.mercadolivre.com.br/*",
+          "https://www.mercadolivre.com.br/*"
         ]
       }
     ],

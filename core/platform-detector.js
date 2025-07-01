@@ -199,26 +199,39 @@ class PlatformDetector {
      * Extrair dados de busca do Mercado Livre
      */
     static getMLSearchData() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const pathname = window.location.pathname;
+        const url = new URL(window.location.href);
+        const pathname = url.pathname;
         
-        // Extrair termo da URL: /termo-de-busca
-        const searchFromPath = pathname.split('/').pop() || '';
+        // Extrair termo de busca da URL
+        let termoPesquisa = '';
+        
+        if (pathname.includes('/')) {
+            const partes = pathname.split('/');
+            termoPesquisa = partes[partes.length - 1].replace(/-/g, ' ');
+        }
+        
+        // Tentar extrair de hash fragment também
+        if (url.hash.includes('D[A:')) {
+            const match = url.hash.match(/D\[A:([^\]]+)\]/);
+            if (match) {
+                termoPesquisa = decodeURIComponent(match[1]);
+            }
+        }
         
         return {
-            searchTerm: decodeURIComponent(searchFromPath.replace(/-/g, ' ')),
-            category: urlParams.get('category') || '',
-            page: urlParams.get('page') || urlParams.get('_from') || '1',
-            sort: urlParams.get('sort') || urlParams.get('sb') || ''
+            searchTerm: termoPesquisa || '',
+            category: url.searchParams.get('category') || '',
+            page: url.searchParams.get('_from') || '1'
         };
     }
-
+    
     /**
-     * Verificar se mudou de plataforma
+     * Callback para mudança de plataforma
      */
     static onPlatformChange(callback) {
         let currentPlatform = this.detectPlatform().platform;
         
+        // Observer para mudanças de URL
         const observer = new MutationObserver(() => {
             const newPlatform = this.detectPlatform().platform;
             if (newPlatform !== currentPlatform) {
@@ -226,31 +239,35 @@ class PlatformDetector {
                 callback(newPlatform);
             }
         });
-
+        
         observer.observe(document.body, {
             childList: true,
             subtree: true
         });
-
-        return observer;
+        
+        // Também observar mudanças de URL via popstate
+        window.addEventListener('popstate', () => {
+            const newPlatform = this.detectPlatform().platform;
+            if (newPlatform !== currentPlatform) {
+                currentPlatform = newPlatform;
+                callback(newPlatform);
+            }
+        });
     }
-
+    
     /**
      * Inicializar detector
      */
     static init() {
         const detection = this.detectPlatform();
+        console.log('🔍 Plataforma detectada:', detection);
         
-        console.log('🔍 Platform Detector:', {
-            platform: detection.platform,
-            type: detection.type,
-            compatible: this.isCompatiblePage(),
-            searchData: this.getCurrentSearchData()
-        });
-
-        // Adicionar classe CSS para styling específico
-        document.body.classList.add(`amk-platform-${detection.platform}`);
+        // Registrar no window para acesso global
+        window.currentPlatform = detection;
         
         return detection;
     }
-} 
+}
+
+// Expor globalmente
+window.PlatformDetector = PlatformDetector;

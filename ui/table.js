@@ -11,6 +11,9 @@ class TableManager {
     static criarTabelaProdutos(produtos) {
         window.produtosTabela = produtos;
         
+        // Detectar plataforma
+        const isML = produtos.length > 0 && (produtos[0].plataforma === 'mercadolivre' || produtos[0].mlId);
+        
         // Inicializar o FilterManager com os produtos
         if (this.filterManager) {
             this.filterManager.setProdutos(produtos);
@@ -51,7 +54,7 @@ class TableManager {
                         font-weight: 600;
                                     font-size: 14px;
                         opacity: 0.9;
-                    ">${produtos.length} produtos</span>
+                    ">${produtos.length} produtos ${isML ? 'ML' : 'Amazon'}</span>
                             </div>
                 
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
@@ -88,41 +91,73 @@ class TableManager {
 
             <!-- Tabela -->
             <table id="tabela-produtos" style="
-                            width: 100%;
+                            width: 95%;
                             border-collapse: collapse;
                 font-size: 12px;
                 background: var(--bg-secondary);
                 border-radius: 10px;
                 overflow: hidden;
                 border: 1px solid var(--border-light);
+                margin: 0 auto;
             ">
                 <thead>
-                    <tr style="
-                            background: var(--bg-primary);
-                        border-bottom: 2px solid var(--border-light);
-                    ">
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Posição na pesquisa da Amazon">🏆 Posição</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Imagem</th>
-                        <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Título</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">ASIN</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Marca</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Preço</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Avaliação</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);"># Aval.</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light); cursor: help;" title="📊 Vendas no último mês&#10;&#10;💡 Estimativas:&#10;• 'Mais de X mil' → +20% margem&#10;• '2+ mil' → +20% margem&#10;• Números exatos conforme Amazon&#10;&#10;🎯 Baseado em dados públicos da Amazon">Vendidos 📊</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Receita</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">BSR</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Categoria</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);" title="Status do produto (novo/existente)">Status</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Tendência de posição (subiu/desceu/manteve)">📈 Tendência</th>
-                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Tipo</th>
-                                    </tr>
+                    ${this.criarCabecalhoTabela(isML)}
                                 </thead>
                 <tbody>
                     ${produtos.map((produto, index) => TableRowBuilder.criarLinhaProduto(produto, index)).join('')}
                             </tbody>
                         </table>
         `;
+    }
+    
+    static criarCabecalhoTabela(isML) {
+        if (isML) {
+            return `
+                <tr style="
+                    background: var(--bg-primary);
+                    border-bottom: 2px solid var(--border-light);
+                ">
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Posição na pesquisa do ML">🏆 Posição</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Imagem</th>
+                    <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Título</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">MLB</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Vendedor</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Preço</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Avaliação</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);"># Aval.</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light); cursor: help;" title="📊 Vendas extraídas do ML&#10;&#10;💡 Formatos:&#10;• '+10mil vendidos' → 10.000&#10;• '+500 vendidos' → 500&#10;• Baseado em dados públicos do ML">Vendidos 📊</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Receita</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Badge</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Categoria</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);" title="Status do produto (novo/existente)">Status</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Tendência de posição (subiu/desceu/manteve)">📈 Tendência</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Tipo</th>
+                </tr>
+            `;
+        } else {
+            return `
+                <tr style="
+                    background: var(--bg-primary);
+                    border-bottom: 2px solid var(--border-light);
+                ">
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Posição na pesquisa da Amazon">🏆 Posição</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Imagem</th>
+                    <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Título</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">ASIN</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Marca</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Preço</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Avaliação</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);"># Aval.</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light); cursor: help;" title="📊 Vendas no último mês&#10;&#10;💡 Estimativas:&#10;• 'Mais de X mil' → +20% margem&#10;• '2+ mil' → +20% margem&#10;• Números exatos conforme Amazon&#10;&#10;🎯 Baseado em dados públicos da Amazon">Vendidos 📊</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Receita</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">BSR</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Categoria</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);" title="Status do produto (novo/existente)">Status</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Tendência de posição (subiu/desceu/manteve)">📈 Tendência</th>
+                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Tipo</th>
+                </tr>
+            `;
+        }
     }
 
     static inicializarEventos(forcarLimpeza = false) {
@@ -639,6 +674,64 @@ class TableManager {
         }
 
         return true;
+    }
+
+    /**
+     * Copiar MLB ID para a área de transferência
+     */
+    static copiarMLID(mlId) {
+        try {
+            // Criar elemento temporário para copiar
+            const tempElement = document.createElement('textarea');
+            tempElement.value = mlId;
+            document.body.appendChild(tempElement);
+            tempElement.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempElement);
+            
+            // Feedback visual
+            this.mostrarNotificacao(`MLB ID copiado: ${mlId}`, 'success');
+            
+            console.log(`📋 MLB ID copiado: ${mlId}`);
+        } catch (error) {
+            console.error('Erro ao copiar MLB ID:', error);
+            this.mostrarNotificacao('Erro ao copiar MLB ID', 'error');
+        }
+    }
+    
+    /**
+     * Verificar se MLB ID é duplicado
+     */
+    static verificarMLIDDuplicado(mlId) {
+        if (!window.produtosTabela || !mlId) return false;
+        
+        const ocorrencias = window.produtosTabela.filter(produto => 
+            produto.mlId === mlId
+        );
+        
+        return ocorrencias.length > 1;
+    }
+    
+    /**
+     * Ocultar elemento específico
+     */
+    static ocultarElemento(selector) {
+        try {
+            const elemento = document.querySelector(selector);
+            if (elemento) {
+                elemento.style.display = 'none';
+                console.log(`✅ Elemento ocultado: ${selector}`);
+            }
+        } catch (error) {
+            console.warn(`Elemento não encontrado para ocultar: ${selector}`, error);
+        }
+    }
+    
+    /**
+     * Ocultar lista de produtos ML se existir
+     */
+    static ocultarListaML() {
+        this.ocultarElemento('#ml-products-list');
     }
 }
 

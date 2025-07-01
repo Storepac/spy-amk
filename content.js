@@ -102,33 +102,46 @@ function verificarComponentes() {
 
 // Função para inicializar a aplicação
 function inicializarAplicacao() {
-    console.log('🚀 Inicializando AMK Spy...');
+    console.log('🚀 Inicializando AMK Spy Multi-Plataforma...');
     
-    // Verificar se estamos em qualquer página da Amazon
-    if (window.location.href.includes('amazon.com')) {
-        console.log('🌐 Página da Amazon detectada');
-        
-        // Aguardar um pouco para garantir que a página carregou completamente
-        setTimeout(() => {
-            if (verificarComponentes()) {
-                // Inicializar SidePanel em qualquer página da Amazon
-                if (typeof SidePanel !== 'undefined') {
-                    SidePanel.init();
-                }
-                
-                // Só inicializar AppController se for página de pesquisa
-                if (window.location.href.includes('/s?') || window.location.href.includes('/s/')) {
-                    console.log('📊 Página de pesquisa detectada - inicializando AppController');
-                    AppController.init();
-                }
-            } else {
-                console.error('❌ Falha ao carregar componentes necessários');
-                    mostrarErroCarregamento();
-            }
-        }, 1000);
-    } else {
-        console.log('ℹ️ Não é uma página da Amazon');
+    // Detectar plataforma atual
+    const platform = PlatformDetector ? PlatformDetector.init() : null;
+    
+    if (!platform) {
+        console.log('ℹ️ Plataforma não suportada');
+        return;
     }
+    
+    console.log(`🌐 Plataforma detectada: ${platform.platform} (${platform.type})`);
+    
+    // Aguardar carregamento completo
+    setTimeout(() => {
+        if (verificarComponentes()) {
+            // Inicializar SidePanel em qualquer página suportada
+            if (typeof SidePanel !== 'undefined') {
+                SidePanel.init(platform);
+            }
+            
+            // Inicializar controlador específico se for página de busca
+            if (platform.type === 'search') {
+                console.log('📊 Página de pesquisa detectada - inicializando controladores');
+                
+                if (platform.platform === 'amazon') {
+                    AppController.init();
+                } else if (platform.platform === 'mercadolivre') {
+                    // Inicializar controlador ML (será criado)
+                    if (typeof MLController !== 'undefined') {
+                        MLController.init();
+                    } else {
+                        console.warn('⚠️ MLController não disponível');
+                    }
+                }
+            }
+        } else {
+            console.error('❌ Falha ao carregar componentes necessários');
+            mostrarErroCarregamento();
+        }
+    }, 1000);
 }
 
 // Inicializar quando DOM estiver pronto
