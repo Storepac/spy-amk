@@ -136,27 +136,28 @@ class TableManager {
             `;
         } else {
             return `
-                <tr style="
-                    background: var(--bg-primary);
-                    border-bottom: 2px solid var(--border-light);
-                ">
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Posição na pesquisa da Amazon">🏆 Posição</th>
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Imagem</th>
-                    <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Título</th>
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">ASIN</th>
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Marca</th>
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Preço</th>
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Avaliação</th>
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);"># Aval.</th>
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light); cursor: help;" title="📊 Vendas no último mês&#10;&#10;💡 Estimativas:&#10;• 'Mais de X mil' → +20% margem&#10;• '2+ mil' → +20% margem&#10;• Números exatos conforme Amazon&#10;&#10;🎯 Baseado em dados públicos da Amazon">Vendidos 📊</th>
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Receita</th>
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">BSR</th>
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Categoria</th>
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);" title="Status do produto (novo/existente)">Status</th>
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Tendência de posição (subiu/desceu/manteve)">📈 Tendência</th>
-                    <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Tipo</th>
-                </tr>
-            `;
+                    <tr style="
+                            background: var(--bg-primary);
+                        border-bottom: 2px solid var(--border-light);
+                    ">
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Posição na pesquisa da Amazon">🏆 Posição</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Imagem</th>
+                        <th style="padding: 12px 8px; text-align: left; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Título</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">ASIN</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Marca</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Vendedor</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Preço</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Avaliação</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);"># Aval.</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light); cursor: help;" title="📊 Vendas no último mês&#10;&#10;💡 Estimativas:&#10;• 'Mais de X mil' → +20% margem&#10;• '2+ mil' → +20% margem&#10;• Números exatos conforme Amazon&#10;&#10;🎯 Baseado em dados públicos da Amazon">Vendidos 📊</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Receita</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">BSR</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Categoria</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);" title="Status do produto (novo/existente)">Status</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary);" title="Tendência de posição (subiu/desceu/manteve)">📈 Tendência</th>
+                        <th style="padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-primary); border-right: 1px solid var(--border-light);">Tipo</th>
+                                    </tr>
+        `;
         }
     }
 
@@ -681,21 +682,54 @@ class TableManager {
      */
     static copiarMLID(mlId) {
         try {
-            // Criar elemento temporário para copiar
-            const tempElement = document.createElement('textarea');
-            tempElement.value = mlId;
-            document.body.appendChild(tempElement);
-            tempElement.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempElement);
+            console.log(`📋 Tentando copiar MLB ID: ${mlId}`);
             
-            // Feedback visual
-            this.mostrarNotificacao(`MLB ID copiado: ${mlId}`, 'success');
-            
-            console.log(`📋 MLB ID copiado: ${mlId}`);
+            // Método moderno usando navigator.clipboard
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(mlId).then(() => {
+                    console.log(`✅ MLB ID copiado com sucesso: ${mlId}`);
+                    this.mostrarNotificacao(`📋 MLB ID copiado: ${mlId}`, 'success');
+                }).catch(err => {
+                    console.error('Erro ao copiar com clipboard API:', err);
+                    this.copiarMLIDFallback(mlId);
+                });
+            } else {
+                // Fallback para navegadores mais antigos
+                this.copiarMLIDFallback(mlId);
+            }
         } catch (error) {
             console.error('Erro ao copiar MLB ID:', error);
             this.mostrarNotificacao('Erro ao copiar MLB ID', 'error');
+        }
+    }
+    
+    /**
+     * Fallback para copiar MLB ID
+     */
+    static copiarMLIDFallback(mlId) {
+        try {
+            // Criar elemento temporário para copiar
+            const tempElement = document.createElement('textarea');
+            tempElement.value = mlId;
+            tempElement.style.position = 'fixed';
+            tempElement.style.opacity = '0';
+            document.body.appendChild(tempElement);
+            
+            tempElement.focus();
+            tempElement.select();
+            
+            const successful = document.execCommand('copy');
+            document.body.removeChild(tempElement);
+            
+            if (successful) {
+                console.log(`✅ MLB ID copiado (fallback): ${mlId}`);
+                this.mostrarNotificacao(`📋 MLB ID copiado: ${mlId}`, 'success');
+            } else {
+                throw new Error('Comando copy falhou');
+            }
+        } catch (error) {
+            console.error('Erro no fallback de cópia:', error);
+            this.mostrarNotificacao(`⚠️ Não foi possível copiar. MLB ID: ${mlId}`, 'warning');
         }
     }
     

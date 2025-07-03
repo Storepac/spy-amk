@@ -117,24 +117,34 @@ function inicializarAplicacao() {
     // Aguardar carregamento completo
     setTimeout(() => {
         if (verificarComponentes()) {
-            // Inicializar SidePanel em qualquer página suportada
+            // Inicializar controladores específicos por plataforma
+            if (platform.platform === 'amazon') {
+                // Inicializar sistema Amazon
             if (typeof SidePanel !== 'undefined') {
                 SidePanel.init(platform);
             }
             
-            // Inicializar controlador específico se for página de busca
-            if (platform.type === 'search') {
-                console.log('📊 Página de pesquisa detectada - inicializando controladores');
-                
-                if (platform.platform === 'amazon') {
+                if (platform.type === 'search' && typeof AppController !== 'undefined') {
+                    console.log('📊 Inicializando sistema Amazon...');
                     AppController.init();
+                }
+                
                 } else if (platform.platform === 'mercadolivre') {
-                    // Inicializar controlador ML (será criado)
-                    if (typeof MLController !== 'undefined') {
+                // Inicializar sistema MercadoLivre independente
+                console.log('🛒 Inicializando sistema MercadoLivre específico...');
+                
+                if (typeof MLSidePanel !== 'undefined') {
+                    MLSidePanel.init(platform);
+                } else if (typeof SidePanel !== 'undefined') {
+                    // Fallback para SidePanel genérico
+                    SidePanel.init(platform);
+                }
+                
+                if (platform.type === 'search' && typeof MLController !== 'undefined') {
+                    console.log('📊 Inicializando MLController específico...');
                         MLController.init();
                     } else {
-                        console.warn('⚠️ MLController não disponível');
-                    }
+                    console.warn('⚠️ MLController específico não disponível');
                 }
             }
         } else {

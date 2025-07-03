@@ -7,14 +7,15 @@ class SupabaseManager {
         this.apiBaseUrl = Constants.API.BASE_URL;
         
         this.userId = this.generateUserFingerprint();
-        this.isEnabled = this.getSettings().autoSave;
+        // Desabilitar auto-save por padrão para evitar erros de conexão
+        this.isEnabled = false; // Alterado de this.getSettings().autoSave para false
         this.isOnline = navigator.onLine;
         this.saveQueue = []; // Fila para salvamento offline
         
         // Configurar eventos de conectividade
         this.setupConnectivityListeners();
         
-        console.log('🔗 SupabaseManager inicializado:', {
+        console.log('🔗 SupabaseManager inicializado (auto-save desabilitado):', {
             userId: this.userId,
             apiUrl: this.apiBaseUrl,
             autoSave: this.isEnabled,
@@ -403,17 +404,37 @@ class SupabaseManager {
      */
     async testarConexao() {
         try {
-            const response = await fetch(`${this.apiBaseUrl}/api/test-connection`);
+            console.log('🔍 Testando conexão com API:', this.apiBaseUrl);
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+            
+            const response = await fetch(`${this.apiBaseUrl}/api/test-connection`, {
+                signal: controller.signal,
+                method: 'GET'
+            });
+            
+            clearTimeout(timeoutId);
+            
             if (response.ok) {
                 const result = await response.json();
                 console.log('✅ Conexão com Supabase OK:', result);
                 return { success: true, data: result };
             } else {
+                console.warn(`⚠️ API respondeu com status ${response.status}`);
                 throw new Error(`HTTP ${response.status}`);
             }
         } catch (error) {
-            console.error('❌ Erro de conexão com Supabase:', error);
-            return { success: false, error: error.message };
+            if (error.name === 'AbortError') {
+                console.warn('⏱️ Timeout ao conectar com API - provavelmente indisponível');
+                return { success: false, error: 'Timeout - API indisponível' };
+            } else if (error.message.includes('Failed to fetch')) {
+                console.warn('🌐 Não foi possível conectar com a API - verifique se está rodando');
+                return { success: false, error: 'Conexão falhou - verifique se API está disponível' };
+            } else {
+                console.error('❌ Erro de conexão com Supabase:', error);
+                return { success: false, error: error.message };
+            }
         }
     }
 
@@ -857,7 +878,12 @@ class SupabaseManager {
             return this.buscarProdutosDoBancoLocal(termoPesquisa);
             
         } catch (error) {
-            console.error('❌ Erro ao buscar produtos do banco:', error);
+            // Verificar se é erro de rede/conectividade
+            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                console.warn('🌐 API indisponível - usando dados locais. Para habilitar conexão com banco, configure a API corretamente.');
+            } else {
+                console.error('❌ Erro ao buscar produtos do banco:', error);
+            }
             console.log('⚠️ Usando fallback local...');
             return this.buscarProdutosDoBancoLocal(termoPesquisa);
         }

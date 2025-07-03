@@ -36,10 +36,15 @@ class ProductExtractor {
             
             // Buscar imagem
             const imagem = this.extrairImagem(doc);
+            
+            // Buscar vendedor
+            const vendedorData = this.extrairVendedor(doc);
 
             return {
                 asin,
                 marca,
+                vendedor: vendedorData.vendedor,
+                linkVendedor: vendedorData.linkVendedor,
                 titulo,
                 preco: precoData.preco,
                 precoNumerico: precoData.precoNumerico,
@@ -80,30 +85,7 @@ class ProductExtractor {
             console.log('Marca extraída do bylineInfo:', marca);
         }
         
-        // Estratégia 2: "Vendido por" - novo seletor baseado no HTML fornecido
-        if (!marca) {
-            const vendidoPorElement = doc.querySelector('.offer-display-feature-text-message');
-            if (vendidoPorElement) {
-                marca = vendidoPorElement.textContent.trim();
-                console.log('Marca extraída do vendido por:', marca);
-            }
-        }
-        
-        // Estratégia 3: Buscar por "Vendido por" em elementos específicos
-        if (!marca) {
-            const merchantElements = doc.querySelectorAll('.offer-display-feature-text');
-            for (const element of merchantElements) {
-                const labelElement = element.previousElementSibling;
-                if (labelElement && labelElement.textContent.includes('Vendido por')) {
-                    const marcaElement = element.querySelector('.offer-display-feature-text-message');
-                    if (marcaElement) {
-                        marca = marcaElement.textContent.trim();
-                        console.log('Marca extraída de merchant elements:', marca);
-                        break;
-                    }
-                }
-            }
-        }
+
         
         // Estratégia 4: Tabela de especificações
         if (!marca) {
@@ -170,7 +152,25 @@ class ProductExtractor {
                 }
             }
 
+        // Aplicar limpeza final na marca
+        if (marca) {
+            marca = this.limparTextoMarca(marca);
+        }
+        
         return marca;
+    }
+    
+    // Função helper para limpar texto da marca
+    static limparTextoMarca(texto) {
+        if (!texto) return '';
+        
+        return texto
+            .replace(/Visite a loja\s*/gi, '')
+            .replace(/Visitar a loja\s*/gi, '')
+            .replace(/Visit.*store\s*/gi, '')
+            .replace(/Marca:\s*/gi, '')
+            .split('|')[0] // Remove qualquer texto após o pipe
+            .trim();
     }
 
     static extrairRankingECategoria(doc) {
@@ -282,25 +282,32 @@ class ProductExtractor {
         let textoEncontrado = '';
         let seletorUsado = '';
         
-        // Múltiplos seletores para capturar vendas
+        // Múltiplos seletores para capturar vendas baseados na estrutura HTML fornecida
         const seletoresVendas = [
-            // Seletor específico mencionado pelo usuário
-            '.social-proofing-faceout-title-text',
-            '.social-proofing-faceout .a-text-bold',
+            // Seletores específicos baseados no HTML de exemplo fornecido
+            '#social-proofing-faceout-title-tk_bought .a-text-bold',
             '#social-proofing-faceout-title-tk_bought',
-            '.social-proofing-faceout',
+            '.social-proofing-faceout-title-text .a-text-bold',
+            '.social-proofing-faceout-title-text',
             
-            // Seletores gerais
+            // Seletores do container principal
+            '#socialProofingAsinFaceout_feature_div .a-text-bold',
+            '.social-proofing-faceout .a-text-bold',
+            '.social-proofing-faceout-title .a-text-bold',
+            
+            // Seletores alternativos para diferentes estruturas
+            '.social-proofing-faceout-title',
+            '.social-proofing-faceout',
+            '#social-proofing-badge_feature_div',
+            
+            // Seletores mais genéricos para fallback
+            '[class*="social-proofing"] .a-text-bold',
+            '[id*="social-proofing"] .a-text-bold',
+            '.a-size-small.social-proofing-faceout-title-text',
+            
+            // Seletores amplos como último recurso
             '.a-color-secondary',
             '.a-size-small',
-            '.social-proofing-faceout-title',
-            
-            // Seletores alternativos
-            '[class*="social-proofing"]',
-            '[id*="social-proofing"]',
-            '.a-section .a-spacing-micro',
-            
-            // Seletores mais amplos como fallback
             '.a-spacing-micro',
             '.a-section'
         ];
@@ -402,8 +409,8 @@ class ProductExtractor {
                 // Para padrões com "mais de" ou "+", interpretar como valor mínimo
                 // Podemos adicionar uma margem para estimativa mais realista
                 if (textoLimpo.includes('mais de') || textoLimpo.includes('acima de') || textoLimpo.includes('+')) {
-                    // Aplicar uma margem de 20% para "mais de X"
-                    numero = Math.floor(numero * 1.2);
+                    // Aplicar uma margem de 10% para "mais de X"
+                    numero = Math.floor(numero * 1.1);
                 }
                 
                 console.log(`🎯 Número final extraído: ${numero}`);
@@ -437,17 +444,26 @@ class ProductExtractor {
         let textoEncontrado = '';
         let seletorUsado = '';
         
-        // Seletores específicos para produtos na lista de resultados
+        // Seletores específicos para o div de social proofing baseado no HTML fornecido
         const seletoresVendasLista = [
+            '#socialProofingAsinFaceout_feature_div .a-text-bold',
+            '#social-proofing-faceout-title-tk_bought .a-text-bold',
+            '.social-proofing-faceout-title-text .a-text-bold',
+            '.social-proofing-faceout .a-text-bold',
+            '.social-proofing-faceout-title .a-text-bold',
+            '#socialProofingAsinFaceout_feature_div',
+            '#social-proofing-faceout-title-tk_bought',
+            '.social-proofing-faceout-title-text',
+            '.social-proofing-faceout',
             '.a-color-secondary',
             '.a-size-small',
             '.a-spacing-micro',
-            '.social-proofing-faceout-title-text',
-            '.social-proofing-faceout .a-text-bold',
             '[class*="social-proofing"]',
             '.a-section',
             '.a-spacing-small'
         ];
+        
+        console.log('🔍 Procurando por div de social proofing na lista...');
         
         for (const seletor of seletoresVendasLista) {
             const elementos = elemento.querySelectorAll(seletor);
@@ -455,6 +471,7 @@ class ProductExtractor {
             for (const subElemento of elementos) {
                 const texto = subElemento.textContent?.trim() || '';
                 
+                // Verificar se contém indicadores de vendas/compras
                 if (this.contemIndicadorVendas(texto)) {
                     textoEncontrado = texto;
                     seletorUsado = seletor;
@@ -468,6 +485,7 @@ class ProductExtractor {
             }
         }
         
+        console.log('❌ Nenhum div de social proofing com vendas encontrado na lista');
         return { vendas: 0, textoOriginal: textoEncontrado, seletorUsado };
     }
 
@@ -494,6 +512,8 @@ class ProductExtractor {
             posicaoMatch: elemento.getAttribute('data-cel-widget')?.match(/search_result_(\d+)/),
             posicao: '',
             marca: '',
+            vendedor: '',
+            linkVendedor: '',
             categoria: '',
             categoriaSecundaria: '',
             ranking: '',
@@ -527,8 +547,13 @@ class ProductExtractor {
         const bylineInfo = elemento.querySelector('.a-size-base.a-color-secondary');
         if (bylineInfo && bylineInfo.textContent.includes('Marca:')) {
             const marcaText = bylineInfo.textContent.trim();
-            dados.marca = marcaText.startsWith('Marca:') ? marcaText.replace('Marca:', '').trim() : '';
+            let marcaBruta = marcaText.startsWith('Marca:') ? marcaText.replace('Marca:', '').trim() : '';
+            dados.marca = this.limparTextoMarca(marcaBruta);
         }
+        
+        // Extrair vendedor - para produtos na lista, geralmente não há info de vendedor
+        // Na lista de produtos da Amazon, essa info não está disponível
+        // Deixamos vazio e será preenchido apenas na página individual do produto
         
         // Calcular preço numérico
         dados.precoNumerico = parseFloat(dados.preco.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
@@ -600,6 +625,128 @@ class ProductExtractor {
         }
         
         return categoria;
+    }
+
+    static extrairVendedor(doc) {
+        let vendedor = '';
+        let linkVendedor = '';
+        
+        console.log('🔍 [EXTRATOR-VENDEDOR] Iniciando extração de vendedor...');
+        
+        // Estratégia 1: Buscar pelo ID sellerProfileTriggerId (vendedores terceiros)
+        const vendedorLink = doc.querySelector('#sellerProfileTriggerId');
+        if (vendedorLink) {
+            vendedor = vendedorLink.textContent.trim();
+            linkVendedor = vendedorLink.href || '';
+            console.log('✅ [EXTRATOR-VENDEDOR] Vendedor extraído via sellerProfileTriggerId:', vendedor, 'Link:', linkVendedor);
+        }
+        
+        // Estratégia 2: Buscar por classe sellerProfileTriggerId
+        if (!vendedor) {
+            const vendedorElementClass = doc.querySelector('.sellerProfileTriggerId');
+            if (vendedorElementClass) {
+                vendedor = vendedorElementClass.textContent.trim();
+                linkVendedor = vendedorElementClass.href || '';
+                console.log('Vendedor extraído via classe sellerProfileTriggerId:', vendedor);
+            }
+        }
+        
+        // Estratégia 3: Buscar por span com classe offer-display-feature-text-message (Amazon)
+        if (!vendedor) {
+            const vendedorSpan = doc.querySelector('span.offer-display-feature-text-message');
+            if (vendedorSpan && vendedorSpan.textContent.trim()) {
+                vendedor = vendedorSpan.textContent.trim();
+                console.log('Vendedor extraído via span offer-display-feature-text-message:', vendedor);
+            }
+        }
+        
+        // Estratégia 4: Buscar por link com classe offer-display-feature-text-message
+        if (!vendedor) {
+            const vendedorLinkGenerico = doc.querySelector('a.offer-display-feature-text-message');
+            if (vendedorLinkGenerico) {
+                vendedor = vendedorLinkGenerico.textContent.trim();
+                linkVendedor = vendedorLinkGenerico.href || '';
+                console.log('Vendedor extraído via link offer-display-feature-text-message:', vendedor);
+            }
+        }
+        
+        // Estratégia 5: Buscar qualquer elemento com classe offer-display-feature-text-message
+        if (!vendedor) {
+            const vendedorGenerico = doc.querySelector('.offer-display-feature-text-message');
+            if (vendedorGenerico && vendedorGenerico.textContent.trim()) {
+                vendedor = vendedorGenerico.textContent.trim();
+                if (vendedorGenerico.href) {
+                    linkVendedor = vendedorGenerico.href;
+                }
+                console.log('Vendedor extraído via classe genérica offer-display-feature-text-message:', vendedor);
+            }
+        }
+        
+        // Estratégia 6: Buscar em divs próximas se span estiver vazio
+        if (!vendedor) {
+            const spanVazio = doc.querySelector('span.offer-display-feature-text-message');
+            if (spanVazio) {
+                // Procurar no elemento pai ou irmãos
+                const elementoPai = spanVazio.parentElement;
+                if (elementoPai) {
+                    const textoCompleto = elementoPai.textContent.trim();
+                    // Remover texto comum e manter só o vendedor
+                    const vendedorLimpo = textoCompleto
+                        .replace(/Vendido por\s*/gi, '')
+                        .replace(/Sold by\s*/gi, '')
+                        .trim();
+                    
+                    if (vendedorLimpo && vendedorLimpo !== textoCompleto) {
+                        vendedor = vendedorLimpo;
+                        console.log('Vendedor extraído do elemento pai do span vazio:', vendedor);
+                    }
+                }
+            }
+        }
+        
+        // Estratégia 7: Fallback - buscar por qualquer elemento que contenha "Vendido por"
+        if (!vendedor) {
+            const vendidoPorElements = doc.querySelectorAll('*');
+            for (const element of vendidoPorElements) {
+                if (element.textContent && element.textContent.includes('Vendido por')) {
+                    // Buscar o próximo elemento que pode conter o nome do vendedor
+                    const nextElement = element.nextElementSibling;
+                    if (nextElement) {
+                        const vendedorText = nextElement.textContent.trim();
+                        if (vendedorText && !vendedorText.includes('Vendido por')) {
+                            vendedor = vendedorText;
+                            console.log('Vendedor extraído (fallback):', vendedor);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Limpar o nome do vendedor
+        if (vendedor) {
+            vendedor = vendedor.replace(/^\s*,\s*/, '').trim(); // Remove vírgulas no início
+        }
+        
+        // Log final
+        if (vendedor) {
+            console.log('✅ [EXTRATOR-VENDEDOR] Vendedor final extraído:', vendedor, linkVendedor ? 'com link' : 'sem link');
+        } else {
+            console.log('❌ [EXTRATOR-VENDEDOR] Nenhum vendedor encontrado na página');
+            
+            // Debug: mostrar elementos encontrados
+            const spanEncontrado = doc.querySelector('span.offer-display-feature-text-message');
+            const linkEncontrado = doc.querySelector('#sellerProfileTriggerId');
+            const classeEncontrada = doc.querySelector('.sellerProfileTriggerId');
+            
+            console.log('🔍 [DEBUG] Elementos encontrados:', {
+                spanOfferText: spanEncontrado ? spanEncontrado.outerHTML : 'não encontrado',
+                sellerProfileId: linkEncontrado ? linkEncontrado.outerHTML : 'não encontrado',
+                sellerProfileClass: classeEncontrada ? classeEncontrada.outerHTML : 'não encontrado'
+            });
+        }
+        
+        return { vendedor, linkVendedor };
     }
 }
 

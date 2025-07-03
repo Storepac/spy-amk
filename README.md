@@ -1,15 +1,31 @@
-# 🔍 AMK Spy - Análise Inteligente de Produtos Amazon
+# 🛒 AMK Spy - Multi-Platform Product Analyzer
 
-Uma extensão Chrome avançada para análise de produtos da Amazon com arquitetura modular e funcionalidades empresariais.
+Uma extensão Chrome avançada para análise de produtos **Amazon** e **MercadoLivre** com sistemas totalmente independentes e especializados.
+
+## 🆕 **Nova Arquitetura v2.2.0 - Sistemas Independentes**
+
+### 🏗️ **Separação Total de Plataformas**
+- **Amazon**: Sistema original mantido e melhorado
+- **MercadoLivre**: Sistema completamente novo e específico  
+- **Independência**: Cada plataforma tem seus próprios arquivos, extratores, analisadores e tabelas
+- **Especialização**: Funcionalidades específicas para cada marketplace
 
 ## 🚀 **Funcionalidades Principais**
 
-### **📊 Análise de Produtos**
+### **📦 Sistema Amazon (Original)**
 - Extração automática de dados de produtos
 - Métricas avançadas (receita, vendas, avaliações)
 - Análise de BSR (Best Sellers Rank)
 - Detecção de produtos patrocinados
 - Cálculo de competitividade
+
+### **🛒 Sistema MercadoLivre (Novo)**
+- **Extração ML Específica**: MLB IDs, preços em formato brasileiro, vendas ML
+- **Métricas ML**: Receita calculada, ranking de categoria, badges oficiais
+- **Detecção ML**: Lojas oficiais, frete grátis, produtos patrocinados
+- **Filtros ML**: Apenas lojas oficiais, frete grátis, excluir patrocinados
+- **Tabela ML**: Formatação brasileira, colunas específicas ML
+- **Painel ML**: Interface específica com funcionalidades ML
 
 ### **🔍 Sistema de Filtros Avançados**
 - **Filtro por Preço**: Faixas personalizáveis (R$ 0-50, R$ 50-100, etc.)
@@ -49,19 +65,32 @@ spy-amk/
 ├── 📄 content.js             # Script de conteúdo
 ├── 📄 popup.html             # Interface do popup
 ├── 📄 README.md              # Documentação
-├── 📁 core/                  # Lógica de negócio
-│   ├── 📄 analyzer.js        # Análise de produtos
-│   └── 📄 extractor.js       # Extração de dados
-├── 📁 ui/                    # Interface do usuário
-│   ├── 📄 table.js           # Gerenciamento de tabelas
+├── 📁 core/                  # Lógica de negócio compartilhada
+│   ├── 📄 analyzer.js        # Análise de produtos Amazon
+│   ├── 📄 extractor.js       # Extração de dados Amazon
+│   ├── 📄 platform-detector.js # Detecção de plataforma
+│   └── 📄 unified-controller.js # Controlador unificado
+├── 📁 platforms/             # 🆕 Sistemas específicos por plataforma
+│   └── 📁 mercadolivre/      # Sistema independente MercadoLivre
+│       ├── 📄 ml_extractor.js   # Extrator específico ML
+│       ├── 📄 ml_analyzer.js    # Analisador específico ML
+│       ├── 📄 ml_table.js       # Tabela específica ML
+│       ├── 📄 ml_controller.js  # Controlador específico ML
+│       └── 📄 ml_sidepanel.js   # Painel lateral específico ML
+├── 📁 ui/                    # Interface compartilhada
+│   ├── 📄 table.js           # Gerenciamento de tabelas Amazon
 │   ├── 📄 filters.js         # Sistema de filtros
 │   ├── 📄 export.js          # Sistema de exportação
 │   ├── 📄 theme.js           # Gerenciamento de temas
 │   ├── 📄 notifications.js   # Sistema de notificações
 │   ├── 📄 events.js          # Gerenciamento de eventos
-│   └── 📄 product_page.js    # Análise de páginas de produto
-└── 📁 utils/                 # Utilitários
+│   └── 📁 components/        # Componentes reutilizáveis
+│       ├── 📄 SidePanel.js      # Painel lateral Amazon
+│       ├── 📄 TableRowBuilder.js # Construtor de linhas
+│       └── 📄 MLManager.js      # Gerenciador ML
+└── 📁 utils/                 # Utilitários compartilhados
     ├── 📄 clipboard.js       # Operações de clipboard
+    ├── 📄 helpers.js         # Funções auxiliares
     └── 📄 url.js             # Manipulação de URLs
 ```
 
@@ -228,4 +257,131 @@ Para suporte, envie um email para suporte@amkspy.com ou abra uma issue no GitHub
 
 ---
 
-**Desenvolvido com ❤️ pela equipe AMK Spy** 
+**Desenvolvido com ❤️ pela equipe AMK Spy**
+
+# AMK Spy - Analisador Multi-Plataforma
+
+Sistema avançado de análise de produtos para **Amazon** e **MercadoLivre** com extração robusta, análise de dados e interface moderna.
+
+## 🚀 Funcionalidades Principais
+
+### Amazon
+- ✅ Extração completa de produtos da Amazon
+- ✅ Análise de vendas, preços e rankings
+- ✅ Detecção de marcas e categorias
+- ✅ Sistema de filtros avançados
+- ✅ Exportação de dados
+
+### MercadoLivre (NOVO!)
+- ✅ **Extração robusta baseada no sistema Python funcional**
+- ✅ **Compatibilidade total com o sistema Amazon existente**
+- ✅ **Detecção automática de MLB IDs**
+- ✅ **Extração de vendas com padrões ML específicos**
+- ✅ **Cálculo automático de receita (faturamento)**
+- ✅ **Detecção de produtos patrocinados**
+- ✅ **Interface unificada com Amazon**
+
+## 🛠️ Arquitetura Técnica
+
+### Sistema ML Extractor (Novo)
+Baseado no sistema Python que funciona perfeitamente, o novo ML Extractor:
+
+- **Seletores robustos**: Usa `li.ui-search-layout__item` como no Python
+- **Extração inteligente**: MLB ID, preços, vendas, vendedores
+- **Padrões de vendas**: Reconhece "+500 vendidos", "+5mil vendas", etc.
+- **Estrutura compatível**: Mesma estrutura de dados do sistema Amazon
+- **Logs detalhados**: Sistema de debug completo
+
+### Componentes Principais
+```
+core/
+├── ml-extractor.js     # 🆕 Extractor MercadoLivre (baseado no Python)
+├── extractor.js        # Extractor Amazon (existente)
+├── analyzer.js         # Analisador multi-plataforma
+└── platform-detector.js # Detector de plataforma
+
+ui/
+├── table.js           # Tabela unificada (Amazon + ML)
+├── components/        # Componentes reutilizáveis
+└── ...
+
+ml-controller.js       # 🆕 Controlador específico ML
+```
+
+## 🧪 Como Testar o Sistema ML
+
+1. **Carregue a extensão** no Chrome
+2. **Abra uma página de busca do ML**: 
+   ```
+   https://lista.mercadolivre.com.br/protetor-fazer-250
+   ```
+3. **Abra o console** (F12)
+4. **Execute o teste**:
+   ```javascript
+   // Cole o conteúdo do arquivo teste-ml-simples.js
+   ```
+5. **Verifique os resultados** na tabela
+
+## 📊 Dados Extraídos (ML)
+
+- **MLB ID**: Identificador único do produto
+- **Título**: Nome completo do produto
+- **Preço**: Valor em R$ (formato numérico)
+- **Vendedor**: Nome do vendedor/loja
+- **Vendas**: Quantidade vendida ("+500 vendidos" → 500)
+- **Receita**: Cálculo automático (vendas × preço)
+- **Avaliação**: Nota de 0 a 5 estrelas
+- **Patrocinado**: Detecção automática
+- **Posição**: Posição na busca
+
+## 🔧 Melhorias Implementadas
+
+### Sistema de Extração ML
+- **Baseado no Python funcional**: Usa a mesma lógica que já funciona
+- **Regex robusto para MLB ID**: `/MLB[-_]?(\d{8,})/`
+- **Padrões de vendas específicos**: Reconhece todos os formatos ML
+- **Limpeza de URL**: Remove parâmetros como no Python
+- **Prevenção de duplicatas**: Sistema de `Set()` para evitar repetições
+
+### Compatibilidade
+- **Estrutura unificada**: Mesmos campos do sistema Amazon
+- **Tabela compartilhada**: Uma tabela para ambas as plataformas
+- **Filtros compatíveis**: Mesmos filtros funcionam para ambos
+- **Exportação unificada**: Exporta dados de ambas as plataformas
+
+### Sistema de Logs
+- **Prefixo identificador**: `[ML-EXTRACTOR]` para fácil debug
+- **Logs detalhados**: Cada etapa da extração é logada
+- **Contadores**: Produtos encontrados, extraídos, únicos
+- **Estrutura de dados**: Validação completa dos campos
+
+## 🚀 Próximas Funcionalidades
+
+- [ ] Análise de tendências ML
+- [ ] Comparação Amazon vs ML
+- [ ] Histórico de posições ML
+- [ ] Alertas de mudanças de preço
+- [ ] Dashboard unificado
+
+## 📝 Notas Técnicas
+
+### Por que funciona agora?
+1. **Baseado no Python**: Copiamos a lógica exata que já funciona
+2. **Seletores testados**: Usamos os mesmos seletores do sistema Python
+3. **Estrutura compatível**: Mantivemos compatibilidade com sistema Amazon
+4. **Logs robustos**: Sistema de debug completo para identificar problemas
+5. **Tratamento de erros**: Fallbacks para todos os cenários
+
+### Diferenças do sistema anterior
+- ❌ **Antes**: Lógica complexa, muitos logs, estrutura incompatível
+- ✅ **Agora**: Lógica simples, logs úteis, estrutura compatível
+- ❌ **Antes**: Seletores não testados, regex complexo
+- ✅ **Agora**: Seletores do Python funcional, regex robusto
+- ❌ **Antes**: Dados não apareciam na tabela
+- ✅ **Agora**: Integração completa com tabela existente
+
+---
+
+**Versão**: 2.1.0  
+**Última atualização**: Sistema ML Extractor baseado no Python funcional  
+**Status**: ✅ Funcional para Amazon e MercadoLivre 

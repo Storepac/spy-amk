@@ -1,0 +1,19 @@
+# Configurações do AWS RDS PostgreSQL
+DB_HOST=seu-rds-endpoint.region.rds.amazonaws.com
+DB_PORT=5432
+DB_NAME=spy_amk
+DB_USER=postgres
+DB_PASSWORD=sua-senha-segura
+
+# Configurações da API
+PORT=3000
+NODE_ENV=development
+
+# Segurança
+JWT_SECRET=seu-jwt-secret-muito-seguro
+API_KEY=sua-api-key-opcional
+
+# AWS (opcional se usar outras funções)
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=sua-access-key
+AWS_SECRET_ACCESS_KEY=sua-secret-key 

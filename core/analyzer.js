@@ -155,6 +155,8 @@ class ProductAnalyzer {
                         // Atualizar todos os dados disponíveis
                         if (detalhes.asin) produto.asin = detalhes.asin;
                         if (detalhes.marca) produto.marca = detalhes.marca;
+                        if (detalhes.vendedor) produto.vendedor = detalhes.vendedor;
+                        if (detalhes.linkVendedor) produto.linkVendedor = detalhes.linkVendedor;
                         if (detalhes.categoria) produto.categoria = detalhes.categoria;
                         if (detalhes.categoriaSecundaria) produto.categoriaSecundaria = detalhes.categoriaSecundaria;
                         if (detalhes.ranking) produto.ranking = detalhes.ranking;

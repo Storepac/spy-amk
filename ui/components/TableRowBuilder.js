@@ -30,6 +30,7 @@ class TableRowBuilder {
                 ${this.criarCelulaTitulo(produto)}
                 ${this.criarCelulaASIN(produto, asinDuplicado)}
                 ${this.criarCelulaMarca(produto)}
+                ${this.criarCelulaVendedor(produto)}
                 ${this.criarCelulaPreco(produto)}
                 ${this.criarCelulaAvaliacao(produto)}
                 ${this.criarCelulaNumAvaliacoes(produto)}
@@ -346,6 +347,50 @@ class TableRowBuilder {
                 font-weight: 500;
                 color: ${corMarca};
             ">${marca}</td>
+        `;
+    }
+
+    static criarCelulaVendedor(produto) {
+        const vendedor = produto.vendedor || 'N/A';
+        const linkVendedor = produto.linkVendedor || '';
+        const corVendedor = produto.vendedor ? 'var(--text-primary)' : 'var(--text-secondary)';
+        
+        // Simplificar o nome do vendedor se for muito longo
+        let vendedorExibido = vendedor;
+        if (vendedor && vendedor.length > 15) {
+            vendedorExibido = vendedor.substring(0, 12) + '...';
+        }
+        
+        // Verificar se é Amazon para destacar
+        const isAmazon = vendedor && (vendedor.toLowerCase().includes('amazon') || vendedor.toLowerCase().includes('amzn'));
+        const corFinal = isAmazon ? '#FF9900' : corVendedor; // Cor laranja da Amazon
+        const fontWeight = isAmazon ? '600' : '500';
+        
+        // Se tem link do vendedor, tornar clicável
+        let conteudoCelula = vendedorExibido;
+        let cursor = 'default';
+        let titulo = vendedor;
+        
+        if (linkVendedor && !isAmazon) {
+            conteudoCelula = `<a href="${linkVendedor}" target="_blank" style="color: ${corFinal}; text-decoration: none; font-weight: ${fontWeight};">${vendedorExibido} 🔗</a>`;
+            cursor = 'pointer';
+            titulo = `${vendedor} - Clique para ver perfil do vendedor`;
+        }
+        
+        return `
+            <td style="
+                padding: 8px;
+                text-align: center;
+                border-right: 1px solid var(--border-light);
+                font-size: 12px;
+                font-weight: ${fontWeight};
+                color: ${corFinal};
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                cursor: ${cursor};
+            " title="${titulo}">${conteudoCelula}</td>
         `;
     }
 

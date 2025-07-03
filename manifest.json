@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "AMK Spy - Amazon Product Analyzer",
-    "version": "2.1.0",
-    "description": "Analisador avançado de produtos da Amazon com filtros, exportação e métricas detalhadas - Versão Refatorada",
+    "name": "AMK Spy - Multi-Platform Product Analyzer",
+    "version": "2.2.0",
+    "description": "Analisador avançado de produtos para Amazon e MercadoLivre com sistemas independentes, filtros específicos e métricas detalhadas",
     "icons": {
       "16": "images/icon16.png",
       "32": "images/icon32.png",
@@ -35,8 +35,8 @@
           "config/constants.js",
           "utils/helpers.js",
           "utils/clipboard.js",
-            "utils/url.js",
-            "ui/notifications.js",
+          "utils/url.js",
+          "ui/notifications.js",
           "ui/theme.js",
           "ui/export.js",
           "ui/components/ModalBuilder.js",
@@ -50,14 +50,17 @@
           "ui/components/MLManager.js",
           "ui/components/SyncPanel.js",
           "ui/components/SidePanel.js",
-            "ui/table.js",
-            "ui/events.js",
-            "core/extractor.js",
-            "core/ml-extractor.js",
-            "core/platform-detector.js",
-            "core/analyzer.js",
-            "ml-controller.js",
-            "app.js",
+          "ui/table.js",
+          "ui/events.js",
+          "core/extractor.js",
+          "core/platform-detector.js",
+          "core/analyzer.js",
+          "platforms/mercadolivre/ml_extractor.js",
+          "platforms/mercadolivre/ml_analyzer.js",
+          "platforms/mercadolivre/ml_table.js",
+          "platforms/mercadolivre/ml_controller.js",
+          "platforms/mercadolivre/ml_sidepanel.js",
+          "app.js",
           "content.js"
         ],
         "run_at": "document_end"
@@ -72,6 +75,8 @@
           "ui/components/*",
           "core/*",
           "utils/*",
+          "platforms/*",
+          "platforms/mercadolivre/*",
           "*.js"
         ],
         "matches": [
@@ -85,7 +90,7 @@
     ],
     "action": {
       "default_popup": "popup.html",
-      "default_title": "AMK Spy - Analisador de Produtos Amazon (v2.1.0)"
+      "default_title": "AMK Spy - Analisador Multi-Plataforma (v2.2.0)"
     },
     "background": {
       "service_worker": "app.js"

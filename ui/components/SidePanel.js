@@ -813,7 +813,7 @@ class SidePanel {
                 // Amazon (padrão)
                 if (typeof AppController !== 'undefined') {
                     AppController.iniciarAnaliseBackground(tipo === 'rapida' ? 'rapida' : 'todas');
-                    this.showStatus(`Análise ${tipo} iniciada em background...`, 'info');
+                    this.showStatus(`Análise ${tipo} Amazon iniciada em background...`, 'info');
                 } else {
                     this.showStatus('Erro: AppController não carregado', 'error');
                 }
