@@ -1,13 +1,15 @@
 -- Spy AMK Database Schema para AWS RDS PostgreSQL
 -- Criado para substituir Supabase
 
--- 1. Tabela de produtos
+-- 1. Tabela de produtos (atualizada com melhor suporte a vendas)
 CREATE TABLE IF NOT EXISTS produtos (
     id SERIAL PRIMARY KEY,
     asin VARCHAR(20) NOT NULL,
     titulo TEXT NOT NULL,
     preco DECIMAL(10,2),
     preco_numerico DECIMAL(10,2),
+    preco_original DECIMAL(10,2), -- Preço antes de desconto
+    desconto DECIMAL(5,2), -- Percentual de desconto
     avaliacao DECIMAL(3,1),
     num_avaliacoes INTEGER,
     marca VARCHAR(255),
@@ -17,12 +19,26 @@ CREATE TABLE IF NOT EXISTS produtos (
     categoria_secundaria VARCHAR(255),
     ranking INTEGER,
     ranking_secundario INTEGER,
+    
+    -- Campos de vendas melhorados
     vendidos INTEGER,
+    vendas_texto_original TEXT, -- Texto original encontrado para vendas
+    vendas_seletor_usado VARCHAR(500), -- Seletor CSS que funcionou
+    vendas_metodo_extracao VARCHAR(100), -- Método usado para extrair (seletor/texto/manual)
+    vendas_confiabilidade INTEGER DEFAULT 0, -- 0-100 baseado no método usado
+    vendas_ultima_atualizacao TIMESTAMP, -- Quando as vendas foram atualizadas
+    
     receita_mes DECIMAL(12,2),
     imagem TEXT,
     link TEXT,
     user_id VARCHAR(100) NOT NULL,
     termo_pesquisa VARCHAR(255),
+    
+    -- Campos de status e disponibilidade
+    disponivel BOOLEAN DEFAULT true,
+    prime BOOLEAN DEFAULT false,
+    frete_gratis BOOLEAN DEFAULT false,
+    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     

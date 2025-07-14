@@ -15,8 +15,8 @@ const poolConfig = {
     idleTimeoutMillis: 30000, // timeout para conexões inativas
     connectionTimeoutMillis: 10000, // timeout para criar conexão
     
-    // SSL para produção (AWS RDS requer SSL)
-    ssl: process.env.NODE_ENV === 'production' ? {
+    // SSL apenas para AWS RDS em produção (Dokploy não precisa)
+    ssl: process.env.NODE_ENV === 'production' && process.env.DB_HOST.includes('rds.amazonaws.com') ? {
         rejectUnauthorized: false
     } : false,
     
@@ -24,8 +24,8 @@ const poolConfig = {
     query_timeout: 60000,
     statement_timeout: 60000,
     
-    // Configurações adicionais para AWS RDS
-    application_name: 'spy-amk-extension'
+    // Configurações adicionais
+    application_name: 'spy-amk-extension-dokploy'
 };
 
 // Criar pool de conexões

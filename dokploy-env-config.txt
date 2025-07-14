@@ -1,0 +1,20 @@
+# Configurações do PostgreSQL Dokploy
+DB_HOST=spyamkpostgres-8pnhyz
+DB_PORT=5432
+DB_NAME=spy-amk-db
+DB_USER=postgres
+DB_PASSWORD=spy-amk-banco-@1
+
+# URL completa de conexão (para referência)
+DATABASE_URL=postgresql://postgres:spy-amk-banco-@1@spyamkpostgres-8pnhyz:5432/spy-amk-db
+
+# Configurações da API
+PORT=3000
+NODE_ENV=development
+
+# Segurança
+JWT_SECRET=spy-amk-jwt-secret-2025-dokploy
+API_KEY=spy-amk-api-key-dokploy
+
+# Configurações adicionais
+AWS_REGION=us-east-1 
